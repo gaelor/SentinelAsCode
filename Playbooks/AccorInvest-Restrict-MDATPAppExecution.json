@@ -1,0 +1,125 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Alert_-_Get_hosts": {
+                "inputs": {
+                    "body": "@triggerBody()?['Entities']",
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/entities/host"
+                },
+                "runAfter": {
+                    "Alert_-_Get_incident": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Alert_-_Get_incident": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/Cases/@{encodeURIComponent(triggerBody()?['SystemAlertId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}"
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "For_each": {
+                "actions": {
+                    "Actions_-_Restrict_app_execution": {
+                        "inputs": {
+                            "body": {
+                                "Comment": "Isolated from playbook for Azure Sentinel Incident: @{body('Alert_-_Get_incident')?['properties']?['CaseNumber']} - @{body('Alert_-_Get_incident')?['properties']?['Title']}"
+                            },
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['wdatp']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/api/machines/@{encodeURIComponent(items('For_each')?['MdatpDeviceId'])}/restrictCodeExecution"
+                        },
+                        "runAfter": {},
+                        "type": "ApiConnection"
+                    },
+                    "Add_comment_to_incident_(V2)": {
+                        "inputs": {
+                            "body": {
+                                "Value": "@{items('For_each')?['HostName']} was triggered for restrict app execution, the status is @{body('Actions_-_Restrict_app_execution')?['status']}"
+                            },
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                }
+                            },
+                            "method": "put",
+                            "path": "/Comment/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}/@{encodeURIComponent('Incident')}/@{encodeURIComponent(body('Alert_-_Get_incident')?['properties']?['CaseNumber'])}"
+                        },
+                        "runAfter": {
+                            "Actions_-_Restrict_app_execution": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    }
+                },
+                "foreach": "@body('Alert_-_Get_hosts')?['Hosts']",
+                "runAfter": {
+                    "Alert_-_Get_hosts": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Foreach"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "When_a_response_to_an_Azure_Sentinel_alert_is_triggered": {
+                "inputs": {
+                    "body": {
+                        "callback_url": "@{listCallbackUrl()}"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                        }
+                    },
+                    "path": "/subscribe"
+                },
+                "type": "ApiConnectionWebhook"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azuresentinel": {
+                    "connectionId": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/AZUR-RG-SENTINEL/providers/Microsoft.Web/connections/azuresentinel-Restrict-MDATPAppExecution",
+                    "connectionName": "azuresentinel-Restrict-MDATPAppExecution",
+                    "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/providers/Microsoft.Web/locations/westeurope/managedApis/azuresentinel-Restrict-MDATPAppExecution"
+                },
+                "wdatp": {
+                    "connectionId": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/AZUR-RG-SENTINEL/providers/Microsoft.Web/connections/wdatp-Restrict-MDATPAppExecution",
+                    "connectionName": "wdatp-Restrict-MDATPAppExecution",
+                    "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/providers/Microsoft.Web/locations/westeurope/managedApis/wdatp"
+                }
+            }
+        }
+    }
+}
