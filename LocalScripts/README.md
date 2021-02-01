@@ -1,6 +1,18 @@
 # Scripts
 
-## Analytics Rules deployment script (CreateAnalyticsRules.ps1) - NEW
+## Install Sentinel script (InstallSentinel.ps1)
+
+Reads configuration file under Onboard folder and installs SecurityInsights (Sentinel) solution where required.
+
+### Syntax
+
+`InstallSentinel.ps1 -OnboardingFile <String>`
+
+### Sample
+
+`.\InstallSentinel.ps1 -OnboardingFile ..\Onboard\onboarding.json`
+
+## Analytics Rules deployment script (CreateAnalyticsRules.ps1)
 
 Reads the config file in the AnalyticsRules folder and deploys its contents to a specific environment. The script will detect if the alert is brand new and needs to be created or if the alert is already active and just needs to be updated. The script also supports attaching a playbook to the rule.
 
@@ -20,13 +32,21 @@ Reads the config file in the HuntingRules folder and deploys its contents to a s
 
 `CreateHuntingRulesAPI.ps1 -Workspace <String> -RulesFile <String>`
 
+### Sample
+
+`.\CreateHuntingRulesAPI.ps1 -OnboardingFile "..\Onboard\onboarding.json" -RulesFile "..\HuntingRules\hunting-rules.json"`
+
 ## Playbooks deployment script (CreatePLaybooks.ps1)
 
 Takes all the json files within a folder (specified as PlaybooksFolder parameter) and deploys them as playbooks (Logic Apps).
 
 ### Syntax
 
-`CreatePlaybooks.ps1 -ResourceGroup <String> -PlaybooksFolder <String>`
+`CreatePlaybooks.ps1 -ResourceGroup <String> -PlaybooksFolder <String> -PlaybooksParams <String>`
+
+### Sample
+
+`.\CreatePlaybooks.ps1 -OnboardingFile "..\Onboard\onboarding.json" -PlaybooksFolder "..\Playbooks\" -PlaybooksParams "..\Playbooks\Playbooks.params"`
 
 ## Workbooks deployment script (CreateWorkbooks.ps1)
 
@@ -34,16 +54,8 @@ Takes all the json files within a folder (specified as WorkbooksFolder) and depl
 
 ### Syntax
 
-`CreateWorkbooks.ps1 -ResourceGroup <String> -WorkbooksFolder <String> -WorkbookSourceId <String>`
-
-## Install Sentinel script (InstallSentinel.ps1)
-
-Reads configuration file under Onboard folder and installs SecurityInsights (Sentinel) solution where required.
-
-### Syntax
-
-`InstallSentinel.ps1 -OnboardingFile <String>`
+`CreateWorkbooks.ps1 -OnboardingFile <String> -WorkbooksFolder <String>`
 
 ### Sample
 
-`.\InstallSentinel.ps1 -OnboardingFile ..\Onboard\onboarding.json`
+`.\CreateWorkbooks.ps1 -OnboardingFile "..\Onboard\onboarding.json" -WorkbooksFolder "..\Workbooks\"`

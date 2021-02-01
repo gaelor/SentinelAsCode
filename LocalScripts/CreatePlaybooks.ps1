@@ -1,20 +1,37 @@
 param(
-    [Parameter(Mandatory=$true)]$resourceGroup,
-    [Parameter(Mandatory=$true)]$PlaybooksFolder
+    [Parameter(Mandatory=$true)]$OnboardingFile,
+    [Parameter(Mandatory=$true)]$PlaybooksFolder,
+    [Parameter(Mandatory=$true)]$PlaybooksParams
 )
 
+#Adding AzSentinel module
+Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
+Import-Module AzSentinel
+Clear-AzContext
+
+#Getting all workspaces from file
+$workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
+
+Connect-AzAccount -Tenant $workspaces.tenant -Subscription $workspaces.subscription
+
 Write-Host "Folder is: $($PlaybooksFolder)"
+Write-Host "Playbooks Parameter Files is: $($PlaybooksParams)"
 
-$armTemplateFiles = Get-ChildItem -Path $PlaybooksFolder -Filter *.json
+foreach ($item in $workspaces.deployments){
+    Write-Host "Processing resourcegroup $($item.resourcegroup) ..."
 
-Write-Host "Files are: " $armTemplateFiles
+    #Getting all playbooks from folder
+    $armTemplateFiles = Get-ChildItem -Path $PlaybooksFolder -Filter *.json
 
-foreach ($armTemplate in $armTemplateFiles) {
-    try {
-        New-AzResourceGroupDeployment -ResourceGroupName $resourceGroup -TemplateFile $armTemplate 
-    }
-    catch {
-        $ErrorMessage = $_.Exception.Message
-        Write-Error "Playbook deployment failed with message: $ErrorMessage" 
+    Write-Host "Files are: " $armTemplateFiles
+
+    foreach ($armTemplate in $armTemplateFiles) {
+        try {
+            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -TemplateParameterFile $PlaybooksParams
+        }
+        catch {
+            $ErrorMessage = $_.Exception.Message
+            Write-Error "Playbook deployment failed with message: $ErrorMessage" 
+        }
     }
 }
