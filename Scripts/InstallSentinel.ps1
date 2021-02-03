@@ -1,5 +1,7 @@
 param (
-    [Parameter(Mandatory=$true)]$OnboardingFile
+    [Parameter(Mandatory=$true)]$OnboardingFile,
+    [Parameter(Mandatory=$true)]$Azure_User,
+    [Parameter(Mandatory=$true)]$Azure_Pwd
 )
 
 Install-Module AzSentinel -Scope CurrentUser -Force
@@ -10,9 +12,7 @@ Import-Module Az.OperationalInsights
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
 
-$User = 'thomas.couilleaux@theclemvp.com'
-$PWord = ConvertTo-SecureString -String 'ENL8wbISkdwZw$3N4ural' -AsPlainText -Force
-$Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $User,$PWord
+$Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $Azure_User,$Azure_Pwd
 
 Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscription $workspaces.subscription
 

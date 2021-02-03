@@ -27,4 +27,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: Install Sentinel on Client Tenant
         shell: pwsh
-        run: Scripts/InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json
+        env:
+          ENV_AZURE_USER: ${{secrets.AZURE_USER}}
+          ENV_AZURE_PWD: ${{secrets.AZURE_PWD}}
+        run: Scripts/InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json -Azure_User ${{ env.AZURE_USER }} -Azure_Pwd ${{ env.ENV_AZURE_PWD }}
