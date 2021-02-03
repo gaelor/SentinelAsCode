@@ -3,9 +3,12 @@ param (
 )
 
 #Adding AzSentinel module
-Uninstall-AzureRm
+Uninstall-Module -Name AzureRm -AllVersions -Force
+
 Install-Module AzSentinel -Scope CurrentUser -Force
 Import-Module AzSentinel
+
+Get-InstalledModule
 
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
