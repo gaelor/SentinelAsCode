@@ -7,9 +7,6 @@ Import-Module AzSentinel
 Install-Module Az -Scope CurrentUser -Force
 Import-Module Az
 
-Get-Module -ListAvailable "AzureRM*"
-Get-Command -Module AzSentinel
-
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
 
