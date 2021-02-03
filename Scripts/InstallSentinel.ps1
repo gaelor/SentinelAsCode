@@ -2,9 +2,6 @@ param (
     [Parameter(Mandatory=$true)]$OnboardingFile
 )
 
-#Adding AzSentinel module
-Uninstall-Module -Name AzureRm -AllVersions -Force
-
 Install-Module AzSentinel -Scope CurrentUser -Force
 Import-Module AzSentinel
 
