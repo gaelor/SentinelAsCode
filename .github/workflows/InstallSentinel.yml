@@ -2,7 +2,8 @@
 
 name: InstallSentinel
 
-# Controls when the action will run. 
+# Controls when the action will run.
+# Allows you to run this workflow manually from the Actions tab and VS Code
 on: [workflow_dispatch, repository_dispatch]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
