@@ -1,8 +1,6 @@
 param(
     [Parameter(Mandatory=$true)]$OnboardingFile,
     [Parameter(Mandatory=$true)]$RulesFile,
-    [Parameter(Mandatory=$true)]$Tactics,
-    [Parameter(Mandatory=$true)]$Description,
     [Parameter(Mandatory=$true)]$Azure_User,
     [Parameter(Mandatory=$true)]$Azure_Pwd
 )
@@ -34,12 +32,12 @@ foreach ($item in $workspaces.deployments){
         if ($existingRule) {
             Write-Host "Hunting rule"$rule.displayName"already exists. Updating..."
 
-            New-AzSentinelHuntingRule -WorkspaceName $item.workspace -DisplayName $rule.displayName -Description $Description -Tactics $Tactics -Query $rule.query -confirm:$false
+            New-AzSentinelHuntingRule -WorkspaceName $item.workspace -DisplayName $rule.displayName -Description $rule.description -Tactics $rule.tactics -Query $rule.query -confirm:$false
         }
         else {
             Write-Host "Hunting rule $($rule.displayName) doesn't exist. Creating..."
 
-            New-AzSentinelHuntingRule -WorkspaceName $item.workspace -DisplayName $rule.displayName -Description $Description -Tactics $Tactics -Query $rule.query -confirm:$false
+            New-AzSentinelHuntingRule -WorkspaceName $item.workspace -DisplayName $rule.displayName -Description $rule.description -Tactics $rule.tactics -Query $rule.query -confirm:$false
         }
     }
 }
