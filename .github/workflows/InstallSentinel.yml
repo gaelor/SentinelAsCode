@@ -28,4 +28,4 @@ jobs:
       # Runs a single command using the runners shell
       - name: Install Sentinel on Client Tenant
         shell: pwsh
-        run: InstallSentinel.ps1 -OnboardingFile ..\Onboard\onboarding.json
+        run: Scripts/InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json
