@@ -1,13 +1,28 @@
 # Scripts
 
-## Analytics Rules deployment script (CreateAnalyticsRules.ps1) - NEW
+## Install Sentinel script (InstallSentinel.ps1)
+
+Reads configuration file under Onboard folder and installs SecurityInsights (Sentinel) solution where required.
+
+### Syntax
+
+`InstallSentinel.ps1 -OnboardingFile <String> -Azure_User <String> -Azure_Pwd '<String>'`
+
+### Sample
+
+`.\InstallSentinel.ps1 -OnboardingFile ..\Onboard\onboarding.json -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
+
+## Analytics Rules deployment script (CreateAnalyticsRules.ps1)
 
 Reads the config file in the AnalyticsRules folder and deploys its contents to a specific environment. The script will detect if the alert is brand new and needs to be created or if the alert is already active and just needs to be updated. The script also supports attaching a playbook to the rule.
 
 ### Syntax 
 
-`CreateAnalyticsRules.ps1 -Workspace <String> -RulesFile <String>`
+`CreateAnalyticsRules.ps1 -Workspace <String> -RulesFile <String> -Azure_User <String> -Azure_Pwd '<String>'`
 
+### Sample
+
+`.\CreateAnalyticsRules.ps1 -OnboardingFile "..\Onboard\onboarding.json" -RulesFile "..\AnalyticsRules\analytics-rules.json" -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
 
 ## Hunting Rules deployment script (CreateHuntingRulesAPI.ps1)
 
@@ -17,13 +32,9 @@ Reads the config file in the HuntingRules folder and deploys its contents to a s
 
 `CreateHuntingRulesAPI.ps1 -Workspace <String> -RulesFile <String>`
 
-## Connectors deployment script (CreateAnalyticsRulesAPI.ps1) - OLD
+### Sample
 
-Reads the config file in the Connectors folder and deploys its contents to a specific environment. 
-
-### Syntax 
-
-`EnableConnectorsAPI.ps1 -TenantId <String> -ClientId <String> -ClientSecret <String> -SubscriptionId <String> -ResourceGroup <String> -Workspace <String> -ConnectorsFile <String>`
+`.\CreateHuntingRulesAPI.ps1 -OnboardingFile "..\Onboard\onboarding.json" -RulesFile "..\HuntingRules\hunting-rules.json"`
 
 ## Playbooks deployment script (CreatePLaybooks.ps1)
 
@@ -31,7 +42,11 @@ Takes all the json files within a folder (specified as PlaybooksFolder parameter
 
 ### Syntax
 
-`CreatePlaybooks.ps1 -ResourceGroup <String> -PlaybooksFolder <String>`
+`CreatePlaybooks.ps1 -ResourceGroup <String> -PlaybooksFolder <String> -PlaybooksParams <String>`
+
+### Sample
+
+`.\CreatePlaybooks.ps1 -OnboardingFile "..\Onboard\onboarding.json" -PlaybooksFolder "..\Playbooks\" -PlaybooksParams "..\Playbooks\Playbooks.params"`
 
 ## Workbooks deployment script (CreateWorkbooks.ps1)
 
@@ -39,20 +54,8 @@ Takes all the json files within a folder (specified as WorkbooksFolder) and depl
 
 ### Syntax
 
-`CreateWorkbooks.ps1 -ResourceGroup <String> -WorkbooksFolder <String> -WorkbookSourceId <String>`
+`CreateWorkbooks.ps1 -OnboardingFile <String> -WorkbooksFolder <String>`
 
-## Install Sentinel script (InstallSentinel.ps1)
+### Sample
 
-Reads configuration file under Onboard folder and installs SecurityInsights (Sentinel) solution where required.
-
-### Syntax
-
-`InstallSentinel.ps1 -OnboardingFile <String>`
-
-## Alert Rules deployment script (CreateAnalyticsRulesAPI.ps1) - OLD
-
-Reads the config file in the AnalyticsRules folder and deploys its contents to a specific environment. The script will detect if the alert is brand new and needs to be created or if the alert is already active and just needs to be updated. Currently this script doesn't support attaching a playbook to an alert rule.
-
-### Syntax 
-
-`CreateAnalyticsRulesAPI.ps1 -TenantId <String> -ClientId <String> -ClientSecret <String> -SubscriptionId <String> -ResourceGroup <String> -Workspace <String> -RulesFile <String>`
+`.\CreateWorkbooks.ps1 -OnboardingFile "..\Onboard\onboarding.json" -WorkbooksFolder "..\Workbooks\"`

@@ -1,23 +1,31 @@
 param(
-    [Parameter(Mandatory=$true)]$Workspace,
-    [Parameter(Mandatory=$true)]$RulesFile
+    [Parameter(Mandatory=$true)]$OnboardingFile,
+    [Parameter(Mandatory=$true)]$RulesFile,
+    [Parameter(Mandatory=$true)]$Azure_User,
+    [Parameter(Mandatory=$true)]$Azure_Pwd
 )
 
 #Adding AzSentinel module
-Install-Module AzSentinel -Scope CurrentUser -Force
+Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
 Import-Module AzSentinel
+Clear-AzContext
 
-#Name of the Azure DevOps artifact
-$artifactName = "RulesFile"
+#Getting all workspaces from file
+$workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
 
-#Build the full path for the analytics rule file
-$artifactPath = Join-Path $env:Pipeline_Workspace $artifactName 
-$rulesFilePath = Join-Path $artifactPath $RulesFile
+$AzurePwd = ConvertTo-SecureString -String $Azure_Pwd -AsPlainText -Force
 
-try {
-    Import-AzSentinelAlertRule -WorkspaceName $Workspace -SettingsFile $rulesFilePath
-}
-catch {
-    $ErrorMessage = $_.Exception.Message
-    Write-Error "Rule import failed with message: $ErrorMessage" 
+$Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $Azure_User,$AzurePwd
+
+Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscription $workspaces.subscription
+
+foreach ($item in $workspaces.deployments){
+    Write-Host "Processing workspace $($item.workspace) ..."
+    try {
+        Import-AzSentinelAlertRule -WorkspaceName $item.workspace -SettingsFile $RulesFile
+    }
+    catch {
+        $ErrorMessage = $_.Exception.Message
+        Write-Error "Rule import failed with message: $ErrorMessage" 
+    }
 }

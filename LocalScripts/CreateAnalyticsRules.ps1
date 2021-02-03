@@ -22,5 +22,4 @@ foreach ($item in $workspaces.deployments){
         $ErrorMessage = $_.Exception.Message
         Write-Error "Rule import failed with message: $ErrorMessage" 
     }
-
 }
