@@ -30,4 +30,4 @@ jobs:
         env:
           AZURE_USER: ${{secrets.AZURE_USER}}
           AZURE_PWD: ${{secrets.AZURE_PWD}}
-        run: Scripts/InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json -Azure_User ${{ env.AZURE_USER }} -Azure_Pwd ${{ env.AZURE_PWD }}
+        run: Scripts/InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json -Azure_User ${{ env.AZURE_USER }} -Azure_Pwd '${{ env.AZURE_PWD }}'
