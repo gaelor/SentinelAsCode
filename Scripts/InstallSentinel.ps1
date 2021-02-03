@@ -6,7 +6,6 @@ param (
 Uninstall-AzureRm
 Install-Module AzSentinel -Scope CurrentUser -Force
 Import-Module AzSentinel
-Clear-AzContext
 
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
