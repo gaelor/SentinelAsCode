@@ -32,7 +32,7 @@ foreach ($item in $workspaces.deployments){
 
         if ($existingRule) {
             Write-Host "Hunting rule"$rule.displayName"already exists. Updating..."
-            Write-Host "$($item.workspace)" "$($rule.displayName)"
+            Write-Host "$($item.workspace)" "$($rule.displayName)" "$($rule.query)"
 
             New-AzSentinelHuntingRule -WorkspaceName "$($item.workspace)" -DisplayName "$($rule.displayName)" -Description "Metsys Hunting Rule" -Tactics "Collection" -Query "$($rule.query)" -confirm:$false
         }
