@@ -5,7 +5,7 @@ name: TestPowershell
 # Controls when the action will run. 
 on:
   # Allows you to run this workflow manually from the Actions tab and VS Code
-  [workflow_dispatch, repository_dispatch]
+  [workflow_dispatch, repository_dispatch],
 
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
