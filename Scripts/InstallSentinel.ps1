@@ -3,16 +3,14 @@ param (
 )
 
 #Adding AzSentinel module
-Install-Module AzSentinel -Scope CurrentUser -Force
+Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
 Import-Module AzSentinel
+Clear-AzContext
 
-$artifactName = "OnboardingFile"
+#Getting all workspaces from file
+$workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
 
-#Build the full path for the onboarding file
-$artifactPath = Join-Path $env:Pipeline_Workspace $artifactName 
-$onboardingFilePath = Join-Path $artifactPath $OnboardingFile
-
-$workspaces = Get-Content -Raw -Path $onboardingFilePath | ConvertFrom-Json
+Connect-AzAccount -Tenant $workspaces.tenant -Subscription $workspaces.subscription
 
 foreach ($item in $workspaces.deployments){
     Write-Host "Processing workspace $($item.workspace) ..."
@@ -25,4 +23,3 @@ foreach ($item in $workspaces.deployments){
         Set-AzSentinel -WorkspaceName $item.workspace -Confirm:$false
     }
 }
-

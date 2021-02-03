@@ -1,56 +1,126 @@
 {
-  "Scheduled": [
+  "MicrosoftSecurityIncidentCreation": [
     {
-      "displayName": "AlertRule01",
-      "description": "",
-      "severity": "Medium",
-      "enabled": true,
-      "query": "SecurityEvent | where EventID == \"4688\" | where CommandLine contains \"-noni -ep bypass $\"",
-      "queryFrequency": "5H",
-      "queryPeriod": "6H",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 5,
-      "suppressionDuration": "6H",
-      "suppressionEnabled": false,
-      "tactics": [
-        "Persistence",
-        "LateralMovement",
-        "Collection"
+      "productFilter": "Office 365 Advanced Threat Protection",
+      "displayName": "Create incidents based on Office 365 Advanced Threat Protection alerts",
+      "description": "Create incidents based on all alerts generated in Office 365 Advanced Threat Protection",
+      "lastUpdatedDateUTC": "2020-09-01T00:00:00Z",
+      "createdDateUTC": "2020-04-20T00:00:00Z",
+      "status": "Available",
+	  "enabled": "true",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "OfficeATP",
+          "dataTypes": [
+            "SecurityAlert (OATP)"
+          ]
+        }
       ],
-      "playbookName": "",
-      "aggregationKind": "SingleAlert",
-      "createIncident": true,
-      "groupingConfiguration": {
-        "enabled": false,
-        "reopenClosedIncident": false,
-        "lookbackDuration": "PT5H",
-        "entitiesMatchingMethod": "All",
-        "groupByEntities": [
-          "Account",
-          "Ip",
-          "Host",
-          "Url"
-        ]
-      }
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "ee1d718b-9ed9-4a71-90cd-a483a4f008df",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/ee1d718b-9ed9-4a71-90cd-a483a4f008df",
+      "kind": "MicrosoftSecurityIncidentCreation"
     },
     {
-      "displayName": "AlertRule02",
-      "description": "",
-      "severity": "Medium",
-      "enabled": true,
-      "query": "SecurityEvent | where EventID == \"4688\" | where CommandLine contains \"-noni -ep bypass $\"",
-      "queryFrequency": "5H",
-      "queryPeriod": "5H",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 5,
-      "suppressionDuration": "6H",
-      "suppressionEnabled": false,
-      "tactics": [
-        "Persistence",
-        "LateralMovement",
-        "Collection"
+      "productFilter": "Azure Active Directory Identity Protection",
+      "displayName": "Create incidents based on Azure Active Directory Identity Protection alerts",
+      "description": "Create incidents based on all alerts generated in Azure Active Directory Identity Protection",
+      "lastUpdatedDateUTC": "2019-07-16T00:00:00Z",
+      "createdDateUTC": "2019-07-16T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "AzureActiveDirectoryIdentityProtection",
+          "dataTypes": [
+            "SecurityAlert (IPC)"
+          ]
+        }
       ],
-      "playbookName": ""
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "532c1811-79ee-4d9f-8d4d-6304c840daa1",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/532c1811-79ee-4d9f-8d4d-6304c840daa1",
+      "kind": "MicrosoftSecurityIncidentCreation"
+    },
+    {
+      "productFilter": "Microsoft Defender Advanced Threat Protection",
+      "displayName": "Create incidents based on Microsoft Defender Advanced Threat Protection alerts",
+      "description": "Create incidents based on all alerts generated in Microsoft Defender Advanced Threat Protection",
+      "lastUpdatedDateUTC": "2019-10-24T00:00:00Z",
+      "createdDateUTC": "2019-10-24T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "MicrosoftDefenderAdvancedThreatProtection",
+          "dataTypes": [
+            "SecurityAlert (MDATP)"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "327cd4ed-ca42-454b-887c-54e1c91363c6",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/327cd4ed-ca42-454b-887c-54e1c91363c6",
+      "kind": "MicrosoftSecurityIncidentCreation"
+    },
+    {
+      "productFilter": "Azure Security Center",
+      "displayName": "Create incidents based on Azure Security Center alerts",
+      "description": "Create incidents based on all alerts generated in Azure Security Center",
+      "lastUpdatedDateUTC": "2019-07-16T00:00:00Z",
+      "createdDateUTC": "2019-07-16T00:00:00Z",
+      "status": "Available",
+	  "enabled": "true",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "AzureSecurityCenter",
+          "dataTypes": [
+            "SecurityAlert (ASC)"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "90586451-7ba8-4c1e-9904-7d1b7c3cc4d6",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/90586451-7ba8-4c1e-9904-7d1b7c3cc4d6",
+      "kind": "MicrosoftSecurityIncidentCreation"
+    },
+    {
+      "productFilter": "Microsoft Cloud App Security",
+      "displayName": "Create incidents based on Microsoft Cloud App Security alerts",
+      "description": "Create incidents based on all alerts generated in Microsoft Cloud App Security",
+      "lastUpdatedDateUTC": "2019-07-16T00:00:00Z",
+      "createdDateUTC": "2019-07-16T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "MicrosoftCloudAppSecurity",
+          "dataTypes": [
+            "SecurityAlert (MCAS)"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "b3cfc7c0-092c-481c-a55b-34a3979758cb",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/b3cfc7c0-092c-481c-a55b-34a3979758cb",
+      "kind": "MicrosoftSecurityIncidentCreation"
+    },
+    {
+      "productFilter": "Azure Advanced Threat Protection",
+      "displayName": "Create incidents based on Azure Advanced Threat Protection alerts",
+      "description": "Create incidents based on all alerts generated in Azure Advanced Threat Protection",
+      "lastUpdatedDateUTC": "2019-07-16T00:00:00Z",
+      "createdDateUTC": "2019-07-16T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "AzureAdvancedThreatProtection",
+          "dataTypes": [
+            "SecurityAlert (AATP)"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "40ba9493-4183-4eee-974f-87fe39c8f267",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/40ba9493-4183-4eee-974f-87fe39c8f267",
+      "kind": "MicrosoftSecurityIncidentCreation"
     }
   ],
   "Fusion": [
@@ -60,25 +130,818 @@
       "alertRuleTemplateName": "f71aba3d-28fb-450b-b192-4e76a83015c8"
     }
   ],
+  "Scheduled": [
+    {
+	  "enabled": "true",
+      "severity": "High",
+      "query": "let auditLookback = 1h;\nAuditLogs\n| where TimeGenerated > ago(auditLookback)\n| where OperationName =~ \"Set federation settings on domain\"\n//| where Result =~ \"success\"   // commenting out, as it may be interesting to capture failed attempts\n| extend targetDisplayName = tostring(TargetResources[0].displayName)\n| extend UserAgent = iff(AdditionalDetails[0].key == \"User-Agent\",tostring(AdditionalDetails[0].value),\"\")\n| extend InitiatingUserOrApp = iff(isnotempty(InitiatedBy.user.userPrincipalName),tostring(InitiatedBy.user.userPrincipalName), tostring(InitiatedBy.app.displayName))\n| extend InitiatingIpAddress = iff(isnotempty(InitiatedBy.user.ipAddress), tostring(InitiatedBy.user.ipAddress), tostring(InitiatedBy.app.ipAddress))\n| project-reorder TimeGenerated, OperationName, InitiatingUserOrApp, AADOperationType, targetDisplayName, Result, InitiatingIpAddress, UserAgent, CorrelationId, TenantId, AADTenantId\n| extend timestamp = TimeGenerated, AccountCustomEntity = InitiatingUserOrApp, IPCustomEntity = InitiatingIpAddress",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 0,
+      "entityMappings": [
+        {
+          "entityType": "Account",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "AccountCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "IP",
+          "fieldMappings": [
+            {
+              "identifier": "Address",
+              "columnName": "IPCustomEntity"
+            }
+          ]
+        }
+      ],
+      "displayName": "Modified domain federation trust settings",
+      "description": "This will alert when an user or application modifies the federation settings on the domain. For example, this alert will trigger when a new Active Directory Federated Service (ADFS) TrustedRealm object, such as a signing certificate, is added to the domain.\nModification to domain federation settings should be rare. Confirm the added or modified target domain/URL is legitimate administrator behavior.\nTo understand why an authorized user may update settings for a federated domain in Office 365, Azure, or Intune, see: https://docs.microsoft.com/office365/troubleshoot/active-directory/update-federated-domain-office-365.\nFor details on security realms that accept security tokens, see the ADFS Proxy Protocol (MS-ADFSPP) specification: https://docs.microsoft.com/openspecs/windows_protocols/ms-adfspp/e7b9ea73-1980-4318-96a6-da559486664b.\nFor further information on AuditLogs please see https://docs.microsoft.com/azure/active-directory/reports-monitoring/reference-audit-activities.",
+      "tactics": [
+        "CredentialAccess"
+      ],
+      "lastUpdatedDateUTC": "2020-12-12T00:00:00Z",
+      "createdDateUTC": "2020-12-11T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "AzureActiveDirectory",
+          "dataTypes": [
+            "AuditLogs"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "31337365-4b1d-adf5-00da-0000000ff1ce",
+      "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/resourceGroups/accorinvest/providers/Microsoft.OperationalInsights/workspaces/accorinvest/providers/Microsoft.SecurityInsights/AlertRuleTemplates/31337365-4b1d-adf5-00da-0000000ff1ce",
+      "kind": "Scheduled"
+    },
+    {
+	  "enabled": "true",
+      "severity": "High",
+      "query": "let detectionTime = 1d;\nlet joinLookback = 14d;\nAuditLogs\n| where TimeGenerated > ago(detectionTime)\n| where LoggedByService =~ \"Core Directory\"\n| where Category =~ \"ApplicationManagement\"\n| where OperationName =~ \"Consent to application\"\n| where TargetResources has \"mailboxsettings\"\n| extend AppDisplayName = TargetResources.[0].displayName\n| extend AppClientId = tolower(TargetResources.[0].id)\n| where AppClientId !in ((externaldata(knownAppClientId:string, knownAppDisplayName:string)[@\"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Sample%20Data/Feeds/Microsoft.OAuth.KnownApplications.csv\"] with (format=\"csv\")))\n| extend ConsentFull = TargetResources[0].modifiedProperties[4].newValue\n| parse ConsentFull with * \"ConsentType: \" GrantConsentType \", Scope: \" GrantScope1 \"]\" *\n| where ConsentFull contains \"contacts.read\" and ConsentFull contains \"user.read\" and ConsentFull contains \"mail.read\" and ConsentFull contains \"notes.read.all\" and ConsentFull contains \"mailboxsettings.readwrite\" and ConsentFull contains \"Files.ReadWrite.All\"\n| where GrantConsentType != \"AllPrincipals\" // NOTE: we are ignoring if OAuth application was granted to all users via an admin - but admin due diligence should be audited occasionally\n| extend GrantIpAddress = iff(isnotempty(InitiatedBy.user.ipAddress), InitiatedBy.user.ipAddress, InitiatedBy.app.ipAddress)\n| extend GrantInitiatedBy = iff(isnotempty(InitiatedBy.user.userPrincipalName),InitiatedBy.user.userPrincipalName, InitiatedBy.app.displayName)\n| extend GrantUserAgent = iff(AdditionalDetails[0].key =~ \"User-Agent\", AdditionalDetails[0].value, \"\")\n| project TimeGenerated, GrantConsentType, GrantScope1, GrantInitiatedBy, AppDisplayName, GrantIpAddress, GrantUserAgent, AppClientId, OperationName, ConsentFull, CorrelationId\n| join kind = leftouter (AuditLogs\n| where TimeGenerated > ago(joinLookback)\n| where LoggedByService =~ \"Core Directory\"\n| where Category =~ \"ApplicationManagement\"\n| where OperationName =~ \"Add service principal\"\n| extend AppClientId = tolower(TargetResources[0].id)\n| extend AppReplyURLs = iff(TargetResources[0].modifiedProperties[1].newValue has \"AddressType\", TargetResources[0].modifiedProperties[1].newValue, \"\")\n| distinct AppClientId, tostring(AppReplyURLs)\n)\non AppClientId\n| join kind = innerunique (AuditLogs\n| where TimeGenerated > ago(joinLookback)\n| where LoggedByService =~ \"Core Directory\"\n| where Category =~ \"ApplicationManagement\"\n| where OperationName =~ \"Add OAuth2PermissionGrant\" or OperationName =~ \"Add delegated permission grant\"\n| extend GrantAuthentication = tostring(TargetResources[0].displayName)\n| extend GrantOperation = OperationName\n| project GrantAuthentication, GrantOperation, CorrelationId\n) on CorrelationId\n| project TimeGenerated, GrantConsentType, GrantScope1, GrantInitiatedBy, AppDisplayName, AppReplyURLs, GrantIpAddress, GrantUserAgent, AppClientId, GrantAuthentication, OperationName, GrantOperation, CorrelationId, ConsentFull",
+      "queryFrequency": "P1D",
+      "queryPeriod": "P14D",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 0,
+      "displayName": "Suspicious application consent similar to O365 Attack Toolkit",
+      "description": "This will alert when a user consents to provide a previously-unknown Azure application with the same OAuth permissions used by the MDSec O365 Attack Toolkit (https://github.com/mdsecactivebreach/o365-attack-toolkit).\nThe default permissions/scope for the MDSec O365 Attack toolkit are contacts.read, user.read, mail.read, notes.read.all, mailboxsettings.readwrite, and files.readwrite.all.\nConsent to applications with these permissions should be rare, especially as the knownApplications list is expanded, especially as the knownApplications list is expanded. Public contributions to expand this filter are welcome!\nFor further information on AuditLogs please see https://docs.microsoft.com/azure/active-directory/reports-monitoring/reference-audit-activities.",
+      "tactics": [
+        "CredentialAccess",
+        "DefenseEvasion"
+      ],
+      "lastUpdatedDateUTC": "2020-06-29T00:00:00Z",
+      "createdDateUTC": "2020-06-26T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "AzureActiveDirectory",
+          "dataTypes": [
+            "AuditLogs"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "f948a32f-226c-4116-bddd-d95e91d97eb9",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/f948a32f-226c-4116-bddd-d95e91d97eb9",
+      "kind": "Scheduled"
+    },
+    {
+      "severity": "High",
+      "query": "let timeframe = 1d;\nlet DomainNames = dynamic([\"yahoo-verification.org\",\"support-servics.com\",\"verification-live.com\",\"com-mailbox.com\",\"com-myaccuants.com\",\"notification-accountservice.com\",\n\"accounts-web-mail.com\",\"customer-certificate.com\",\"session-users-activities.com\",\"user-profile-credentials.com\",\"verify-linke.com\",\"support-servics.net\",\"verify-linkedin.net\", \n\"yahoo-verification.net\",\"yahoo-verify.net\",\"outlook-verify.net\",\"com-users.net\",\"verifiy-account.net\",\"te1egram.net\",\"account-verifiy.net\",\"myaccount-services.net\",\n\"com-identifier-servicelog.name\",\"microsoft-update.bid\",\"outlook-livecom.bid\",\"update-microsoft.bid\",\"documentsfilesharing.cloud\",\"com-microsoftonline.club\",\n\"confirm-session-identifier.info\",\"session-management.info\",\"confirmation-service.info\",\"document-share.info\",\"broadcast-news.info\",\"customize-identity.info\",\"webemail.info\",\n\"com-identifier-servicelog.info\",\"documentsharing.info\",\"notification-accountservice.info\",\"identifier-activities.info\",\"documentofficupdate.info\",\"recoveryusercustomer.info\",\n\"serverbroadcast.info\",\"account-profile-users.info\",\"account-service-management.info\",\"accounts-manager.info\",\"activity-confirmation-service.info\",\"com-accountidentifier.info\",\n\"com-privacy-help.info\",\"com-sessionidentifier.info\",\"com-useraccount.info\",\"confirmation-users-service.info\",\"confirm-identity.info\",\"confirm-session-identification.info\",\n\"continue-session-identifier.info\",\"customer-recovery.info\",\"customers-activities.info\",\"elitemaildelivery.info\",\"email-delivery.info\",\"identify-user-session.info\",\n\"message-serviceprovider.info\",\"notificationapp.info\",\"notification-manager.info\",\"recognized-activity.info\",\"recover-customers-service.info\",\"recovery-session-change.info\",\n\"service-recovery-session.info\",\"service-session-continue.info\",\"session-mail-customers.info\",\"session-managment.info\",\"session-verify-user.info\",\"shop-sellwear.info\",\n\"supportmailservice.info\",\"terms-service-notification.info\",\"user-activity-issues.info\",\"useridentity-confirm.info\",\"users-issue-services.info\",\"verify-user-session.info\",\n\"login-gov.info\",\"notification-signal-agnecy.info\",\"notifications-center.info\",\"identifier-services-sessions.info\",\"customers-manager.info\",\"session-manager.info\",\n\"customer-managers.info\",\"confirmation-recovery-options.info\",\"service-session-confirm.info\",\"session-recovery-options.info\",\"services-session-confirmation.info\",\n\"notification-managers.info\",\"activities-services-notification.info\",\"activities-recovery-options.info\",\"activity-session-recovery.info\",\"customers-services.info\",\n\"sessions-notification.info\",\"download-teamspeak.info\",\"services-issue-notification.info\",\"microsoft-upgrade.mobi\",\"broadcastnews.pro\",\"mobile-messengerplus.network\"]);\nlet IPList = dynamic([\"51.91.200.147\"]);\nlet IPRegex = '[0-9]{1,3}\\\\.[0-9]{1,3}\\\\.[0-9]{1,3}\\\\.[0-9]{1,3}';\n(union isfuzzy=true\n(CommonSecurityLog \n| where TimeGenerated >= ago(timeframe)\n| parse Message with * '(' DNSName ')' * \n| extend MessageIP = extract(IPRegex, 0, Message)\n| extend RequestURLIP = extract(IPRegex, 0, Message)\n| where (isnotempty(SourceIP) and SourceIP in (IPList)) or (isnotempty(DestinationIP) and DestinationIP in (IPList)) \nor (isnotempty(DNSName) and DNSName in~ (DomainNames)) or (isnotempty(DestinationHostName) and DestinationHostName in~ (DomainNames)) or (isnotempty(RequestURL) and (RequestURL has_any (DomainNames) or RequestURLIP in (IPList))) \nor (isnotempty(Message) and MessageIP in (IPList))\n| extend IPMatch = case(SourceIP in (IPList), \"SourceIP\", DestinationIP in (IPList), \"DestinationIP\", MessageIP in (IPList), \"Message\", RequestURLIP in (IPList), \"RequestUrl\", \"NoMatch\") \n| extend timestamp = TimeGenerated , IPCustomEntity = case(IPMatch == \"SourceIP\", SourceIP, IPMatch == \"DestinationIP\", DestinationIP,IPMatch == \"Message\", MessageIP,\nIPMatch == \"RequestUrl\", RequestURLIP,\"NoMatch\"), Account = SourceUserID, Host = DeviceName\n),\n(DnsEvents \n| where TimeGenerated >= ago(timeframe) \n| extend DestinationIPAddress = IPAddresses, DNSName = Name, Host = Computer\n| where  DestinationIPAddress in (IPList) or DNSName in~ (DomainNames) \n| extend timestamp = TimeGenerated, IPCustomEntity = DestinationIPAddress, HostCustomEntity = Host),\n(VMConnection \n| where TimeGenerated >= ago(timeframe) \n| parse RemoteDnsCanonicalNames with * '[\"' DNSName '\"]' *\n| where isnotempty(SourceIP) or isnotempty(DestinationIP) or isnotempty(DNSName)\n| where SourceIP in (IPList) or DestinationIP in (IPList) or DNSName in~ (DomainNames)\n| extend IPMatch = case( SourceIP in (IPList), \"SourceIP\", DestinationIP in (IPList), \"DestinationIP\", \"None\") \n| extend timestamp = TimeGenerated , IPCustomEntity = case(IPMatch == \"SourceIP\", SourceIP, IPMatch == \"DestinationIP\", DestinationIP, \"None\"), Host = Computer),\n(OfficeActivity\n| where TimeGenerated >= ago(timeframe)\n| extend SourceIPAddress = ClientIP, Account = UserId\n| where  SourceIPAddress in (IPList)\n| extend timestamp = TimeGenerated , IPCustomEntity = SourceIPAddress , AccountCustomEntity = Account )\n)",
+      "queryFrequency": "P1D",
+      "queryPeriod": "P1D",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 0,
+      "entityMappings": [
+        {
+          "entityType": "Account",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "AccountCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "Host",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "HostCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "IP",
+          "fieldMappings": [
+            {
+              "identifier": "Address",
+              "columnName": "IPCustomEntity"
+            }
+          ]
+        }
+      ],
+      "displayName": "Known Phosphorus group domains/IP",
+      "description": "Matches domain name IOCs related to Phosphorus group activity with CommonSecurityLog, DnsEvents, OfficeActivity and VMConnection dataTypes.\nReferences: https://blogs.microsoft.com/on-the-issues/2019/03/27/new-steps-to-protect-customers-from-hacking/.",
+      "tactics": [
+        "CommandAndControl"
+      ],
+      "lastUpdatedDateUTC": "2020-11-17T00:00:00Z",
+      "createdDateUTC": "2020-10-20T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "DNS",
+          "dataTypes": [
+            "DnsEvents"
+          ]
+        },
+        {
+          "connectorId": "AzureMonitor(VMInsights)",
+          "dataTypes": [
+            "VMConnection"
+          ]
+        },
+        {
+          "connectorId": "CiscoASA",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        },
+        {
+          "connectorId": "PaloAltoNetworks",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        },
+        {
+          "connectorId": "Office365",
+          "dataTypes": [
+            "OfficeActivity"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "155f40c6-610d-497d-85fc-3cf06ec13256",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/155f40c6-610d-497d-85fc-3cf06ec13256",
+      "kind": "Scheduled"
+    },
+    {
+      "severity": "High",
+      "query": "let timeframe = 1d;\nlet IPList = dynamic([\"154.223.45.38\",\"185.141.207.140\",\"185.234.73.19\",\"216.245.210.106\",\"51.91.48.210\",\"46.255.230.229\"]);\n(union isfuzzy=true\n(CommonSecurityLog\n| where TimeGenerated >= ago(timeframe) \n| where isnotempty(SourceIP) or isnotempty(DestinationIP)\n| where SourceIP in (IPList) or DestinationIP in (IPList) or Message has_any (IPList)\n| extend IPMatch = case(SourceIP in (IPList), \"SourceIP\", DestinationIP in (IPList), \"DestinationIP\", \"Message\") \n| summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated) by SourceIP, DestinationIP, DeviceProduct, DeviceAction, Message, Protocol, SourcePort, DestinationPort, DeviceAddress, DeviceName, IPMatch\n| extend timestamp = StartTimeUtc, IPCustomEntity = case(IPMatch == \"SourceIP\", SourceIP, IPMatch == \"DestinationIP\", DestinationIP, \"IP in Message Field\") \n),\n(OfficeActivity\n| where TimeGenerated >= ago(timeframe) \n|extend SourceIPAddress = ClientIP, Account = UserId\n| where  SourceIPAddress in (IPList)\n| extend timestamp = TimeGenerated , IPCustomEntity = SourceIPAddress , AccountCustomEntity = Account\n),\n(DnsEvents \n| where TimeGenerated >= ago(timeframe) \n| extend DestinationIPAddress = IPAddresses,  Host = Computer\n| where  DestinationIPAddress has_any (IPList) \n| extend timestamp = TimeGenerated, IPCustomEntity = DestinationIPAddress, HostCustomEntity = Host\n),\n(VMConnection \n| where TimeGenerated >= ago(timeframe) \n| where isnotempty(SourceIp) or isnotempty(DestinationIp) \n| where SourceIp in (IPList) or DestinationIp in (IPList) \n| extend IPMatch = case( SourceIp in (IPList), \"SourceIP\", DestinationIp in (IPList), \"DestinationIP\", \"None\") \n| extend timestamp = TimeGenerated , IPCustomEntity = case(IPMatch == \"SourceIP\", SourceIp, IPMatch == \"DestinationIP\", DestinationIp, \"None\"), Host = Computer\n),\n(Event\n| where TimeGenerated >= ago(timeframe)\n| where Source == \"Microsoft-Windows-Sysmon\"\n| where EventID == 3\n| extend EvData = parse_xml(EventData)\n| extend EventDetail = EvData.DataItem.EventData.Data\n| extend SourceIP = EventDetail.[9].[\"#text\"], DestinationIP = EventDetail.[14].[\"#text\"]\n| where SourceIP in (IPList) or DestinationIP in (IPList) \n| extend IPMatch = case( SourceIP in (IPList), \"SourceIP\", DestinationIP in (IPList), \"DestinationIP\", \"None\") \n| extend timestamp = TimeGenerated, AccountCustomEntity = UserName, HostCustomEntity = Computer , IPCustomEntity = case(IPMatch == \"SourceIP\", SourceIP, IPMatch == \"DestinationIP\", DestinationIP, \"None\")\n), \n(WireData \n| where TimeGenerated >= ago(timeframe)\n| where isnotempty(RemoteIP)\n| where RemoteIP in (IPList)\n| extend timestamp = TimeGenerated, IPCustomEntity = RemoteIP, HostCustomEntity = Computer\n),\n(SigninLogs\n| where TimeGenerated >= ago(timeframe)\n| where isnotempty(IPAddress)\n| where IPAddress in (IPList)\n| extend timestamp = TimeGenerated, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress\n),\n(W3CIISLog \n| where TimeGenerated >= ago(timeframe)\n| where isnotempty(cIP)\n| where cIP in (IPList)\n| extend timestamp = TimeGenerated, IPCustomEntity = cIP, HostCustomEntity = Computer, AccountCustomEntity = csUserName\n),\n(AzureActivity \n| where TimeGenerated >= ago(timeframe)\n| where isnotempty(CallerIpAddress)\n| where CallerIpAddress in (IPList)\n| extend timestamp = TimeGenerated, IPCustomEntity = CallerIpAddress, AccountCustomEntity = Caller\n),\n(\nAWSCloudTrail\n| where TimeGenerated >= ago(timeframe)\n| where isnotempty(SourceIpAddress)\n| where SourceIpAddress in (IPList)\n| extend timestamp = TimeGenerated, IPCustomEntity = SourceIpAddress, AccountCustomEntity = UserIdentityUserName\n)\n)",
+      "queryFrequency": "P1D",
+      "queryPeriod": "P1D",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 0,
+      "entityMappings": [
+        {
+          "entityType": "Account",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "AccountCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "Host",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "HostCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "IP",
+          "fieldMappings": [
+            {
+              "identifier": "Address",
+              "columnName": "IPCustomEntity"
+            }
+          ]
+        }
+      ],
+      "displayName": "Known IRIDIUM IP",
+      "description": "IRIDIUM command and control IP. Identifies a match across various data feeds for IP IOCs related to the IRIDIUM activity group.",
+      "tactics": [
+        "CommandAndControl"
+      ],
+      "lastUpdatedDateUTC": "2020-11-17T00:00:00Z",
+      "createdDateUTC": "2019-12-16T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "Office365",
+          "dataTypes": [
+            "OfficeActivity"
+          ]
+        },
+        {
+          "connectorId": "DNS",
+          "dataTypes": [
+            "DnsEvents"
+          ]
+        },
+        {
+          "connectorId": "AzureMonitor(VMInsights)",
+          "dataTypes": [
+            "VMConnection"
+          ]
+        },
+        {
+          "connectorId": "CiscoASA",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        },
+        {
+          "connectorId": "PaloAltoNetworks",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        },
+        {
+          "connectorId": "SecurityEvents",
+          "dataTypes": [
+            "SecurityEvent"
+          ]
+        },
+        {
+          "connectorId": "AzureActiveDirectory",
+          "dataTypes": [
+            "SigninLogs"
+          ]
+        },
+        {
+          "connectorId": "AzureMonitor(WireData)",
+          "dataTypes": [
+            "WireData"
+          ]
+        },
+        {
+          "connectorId": "AzureMonitor(IIS)",
+          "dataTypes": [
+            "W3CIISLog"
+          ]
+        },
+        {
+          "connectorId": "AzureActivity",
+          "dataTypes": [
+            "AzureActivity"
+          ]
+        },
+        {
+          "connectorId": "AWS",
+          "dataTypes": [
+            "AWSCloudTrail"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "7ee72a9e-2e54-459c-bc8a-8c08a6532a63",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/7ee72a9e-2e54-459c-bc8a-8c08a6532a63",
+      "kind": "Scheduled"
+    },
+    {
+      "severity": "High",
+      "query": "let timeframe = 1d;\nlet DomainNames = dynamic([\"seoulhobi.biz\", \"reader.cash\", \"pieceview.club\", \"app-wallet.com\", \"bigwnet.com\", \"bitwoll.com\", \"cexrout.com\", \"change-pw.com\", \"checkprofie.com\", \"cloudwebappservice.com\", \"ctquast.com\", \"dataviewering.com\", \"day-post.com\", \"dialy-post.com\", \"documentviewingcom.com\", \"dovvn-mail.com\", \"down-error.com\", \"drivecheckingcom.com\", \"drog-service.com\", \"encodingmail.com\", \"filinvestment.com\", \"foldershareing.com\", \"golangapis.com\", \"hotrnall.com\", \"lh-logins.com\", \"login-use.com\", \"mail-down.com\", \"matmiho.com\", \"mihomat.com\", \"natwpersonal-online.com\", \"nidlogin.com\", \"nid-login.com\", \"nidlogon.com\", \"pw-change.com\", \"rnaii.com\", \"rnailm.com\", \"sec-live.com\", \"secrityprocessing.com\", \"securitedmode.com\", \"securytingmail.com\", \"set-login.com\", \"usrchecking.com\", \"com-serviceround.info\", \"mai1.info\", \"reviewer.mobi\", \"files-download.net\", \"fixcool.net\", \"hanrnaii.net\", \"office356-us.org\", \"smtper.org\"]);\n(union isfuzzy=true\n(CommonSecurityLog \n| where TimeGenerated >= ago(timeframe) \n| parse Message with * '(' DNSName ')' * \n| where isnotempty(FileHash)\n| where DNSName in~ (DomainNames)\n| extend Account = SourceUserID, Computer = DeviceName, IPAddress = SourceIP\n),\n(DnsEvents \n| where TimeGenerated >= ago(timeframe) \n| extend DNSName = Name\n| where isnotempty(DNSName)\n| where DNSName  in~ (DomainNames)\n| extend IPAddress = ClientIP\n),\n(VMConnection \n| where TimeGenerated >= ago(timeframe) \n| parse RemoteDnsCanonicalNames with * '[\"' DNSName '\"]' *\n| where isnotempty(DNSName)\n| where DNSName  in~ (DomainNames)\n| extend IPAddress = RemoteIp\n)\n)\n| extend timestamp = TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer, IPCustomEntity = IPAddress",
+      "queryFrequency": "P1D",
+      "queryPeriod": "P1D",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 0,
+      "entityMappings": [
+        {
+          "entityType": "Account",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "AccountCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "Host",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "HostCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "IP",
+          "fieldMappings": [
+            {
+              "identifier": "Address",
+              "columnName": "IPCustomEntity"
+            }
+          ]
+        }
+      ],
+      "displayName": "THALLIUM domains included in DCU takedown",
+      "description": "THALLIUM spearphishing and command and control domains included in December 2019 DCU/MSTIC takedown. \n Matches domain name IOCs related to the THALLIUM activity group with CommonSecurityLog, DnsEvents, VMConnection and SecurityEvents dataTypes.\n References: https://blogs.microsoft.com/on-the-issues/2019/12/30/microsoft-court-action-against-nation-state-cybercrime/ ",
+      "tactics": [
+        "CommandAndControl",
+        "CredentialAccess"
+      ],
+      "lastUpdatedDateUTC": "2020-11-17T00:00:00Z",
+      "createdDateUTC": "2020-01-06T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "DNS",
+          "dataTypes": [
+            "DnsEvents"
+          ]
+        },
+        {
+          "connectorId": "AzureMonitor(VMInsights)",
+          "dataTypes": [
+            "VMConnection"
+          ]
+        },
+        {
+          "connectorId": "CiscoASA",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        },
+        {
+          "connectorId": "PaloAltoNetworks",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "70b12a3b-4896-42cb-910c-5ffaf8d7987d",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/70b12a3b-4896-42cb-910c-5ffaf8d7987d",
+      "kind": "Scheduled"
+    },
+    {
+      "severity": "High",
+      "query": "let timeframe = 1d;\nlet DomainNames = dynamic([\"de-ma.online\", \"g20saudi.000webhostapp.com\", \"ksat20.000webhostapp.com\"]);\nlet EmailAddresses = dynamic([\"munichconference1962@gmail.com\",\"munichconference@outlook.de\", \"munichconference@outlook.com\", \"t20saudiarabia@gmail.com\", \"t20saudiarabia@hotmail.com\", \"t20saudiarabia@outlook.sa\"]);\n(union isfuzzy=true\n(CommonSecurityLog \n| where TimeGenerated >= ago(timeframe)\n| parse Message with * '(' DNSName ')' * \n| extend MessageIP = extract(IPRegex, 0, Message)\n| extend RequestURLIP = extract(IPRegex, 0, Message)\n| where (isnotempty(DNSName) and DNSName has_any (DomainNames)) \n  or (isnotempty(DestinationHostName) and DestinationHostName has_any (DomainNames)) \n  or (isnotempty(RequestURL) and (RequestURL has_any (DomainNames)))\n| extend timestamp = TimeGenerated , AccountCustomEntity = SourceUserID, HostCustomEntity = DeviceName\n),\n(DnsEvents \n| where TimeGenerated >= ago(timeframe) \n| extend DestinationIPAddress = IPAddresses, DNSName = Name, Host = Computer\n| where DNSName has_any (DomainNames) \n| extend timestamp = TimeGenerated, IPCustomEntity = DestinationIPAddress, HostCustomEntity = Host),\n(VMConnection \n| where TimeGenerated >= ago(timeframe) \n| parse RemoteDnsCanonicalNames with * '[\"' DNSName '\"]' *\n| where isnotempty(DNSName)\n| where DNSName has_any (DomainNames)\n| extend timestamp = TimeGenerated , HostCustomEntity = Computer),\n(SecurityAlert\n| where TimeGenerated >= ago(timeframe) \n| where ProviderName =~ 'OATP'\n| extend UPN = case(isnotempty(parse_json(Entities)[0].Upn), parse_json(Entities)[0].Upn, \n                    isnotempty(parse_json(Entities)[1].Upn), parse_json(Entities)[1].Upn,\n                    isnotempty(parse_json(Entities)[2].Upn), parse_json(Entities)[2].Upn,\n                    isnotempty(parse_json(Entities)[3].Upn), parse_json(Entities)[3].Upn,\n                    isnotempty(parse_json(Entities)[4].Upn), parse_json(Entities)[4].Upn,\n                    isnotempty(parse_json(Entities)[5].Upn), parse_json(Entities)[5].Upn,\n                    isnotempty(parse_json(Entities)[6].Upn), parse_json(Entities)[6].Upn,\n                    isnotempty(parse_json(Entities)[7].Upn), parse_json(Entities)[7].Upn,\n                    isnotempty(parse_json(Entities)[8].Upn), parse_json(Entities)[8].Upn,\n                    parse_json(Entities)[9].Upn)\n| where Entities has_any (EmailAddresses)\n| extend timestamp = TimeGenerated, AccountCustomEntity = tostring(UPN)),\n(AzureDiagnostics\n| where TimeGenerated >= ago(timeframe) \n| where ResourceType =~ \"AZUREFIREWALLS\"\n| where msg_s has_any (DomainNames)\n| extend timestamp = TimeGenerated))",
+      "queryFrequency": "P1D",
+      "queryPeriod": "P1D",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 0,
+      "entityMappings": [
+        {
+          "entityType": "Account",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "AccountCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "Host",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "HostCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "IP",
+          "fieldMappings": [
+            {
+              "identifier": "Address",
+              "columnName": "IPCustomEntity"
+            }
+          ]
+        }
+      ],
+      "displayName": "Known PHOSPHORUS group domains/IP - October 2020",
+      "description": "Matches IOCs related to PHOSPHORUS group activity published October 2020 with CommonSecurityLog, DnsEvents, OfficeActivity and VMConnection dataTypes.\nReferences: ",
+      "tactics": [
+        "CommandAndControl",
+        "InitialAccess"
+      ],
+      "lastUpdatedDateUTC": "2020-11-19T00:00:00Z",
+      "createdDateUTC": "2020-10-20T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "DNS",
+          "dataTypes": [
+            "DnsEvents"
+          ]
+        },
+        {
+          "connectorId": "AzureMonitor(VMInsights)",
+          "dataTypes": [
+            "VMConnection"
+          ]
+        },
+        {
+          "connectorId": "CiscoASA",
+          "dataTypes": [
+            "CommonSecurityLog (Cisco)"
+          ]
+        },
+        {
+          "connectorId": "PaloAltoNetworks",
+          "dataTypes": [
+            "CommonSecurityLog (PaloAlto)"
+          ]
+        },
+        {
+          "connectorId": "Zscaler",
+          "dataTypes": [
+            "CommonSecurityLog (Zscaler)"
+          ]
+        },
+        {
+          "connectorId": "Fortinet",
+          "dataTypes": [
+            "CommonSecurityLog (Fortinet)"
+          ]
+        },
+        {
+          "connectorId": "OfficeATP",
+          "dataTypes": [
+            "SecurityAlert (OATP)"
+          ]
+        },
+        {
+          "connectorId": "AzureFirewall",
+          "dataTypes": [
+            "AzureDiagnostics (Azure Firewall)"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "7249500f-3038-4b83-8549-9cd8dfa2d498",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/7249500f-3038-4b83-8549-9cd8dfa2d498",
+      "kind": "Scheduled"
+    },
+    {
+      "severity": "High",
+      "query": "let timeframe = 1d;\nlet IPList = dynamic([\"45.63.52.41\",\"140.82.17.161\",\"207.148.101.95\",\"45.32.87.51\",\"66.42.98.156\",\"45.76.144.105\",\"217.163.28.35\",\"45.32.141.174\",\"149.28.165.249\",\"209.250.225.247\",\"45.63.100.115\",\"95.179.229.230\",\"209.250.233.247\",\"45.77.121.232\",\"45.76.175.65\",\"104.238.160.237\",\"45.77.181.97\",\"95.179.192.125\",\"149.28.93.184\",\"140.82.16.81\",\"45.76.173.103\",\"45.77.255.22\",\"45.32.11.71\",\"149.28.77.26\",\"45.32.54.50\",\"104.156.233.156\",\"45.32.21.118\",\"45.63.62.109\",\"45.77.244.202\",\"149.248.11.205\",\"104.238.190.244\"]);\nlet IOCTerms = \"\\\\?lang=[/..]*/dev/cmdb/sslvpn_websession|/dana-na/jam/[/..]*home/webserver/htdocs/dana/html5acc/guacamole[/..]*etc/passwd\\\\?\";\n(union isfuzzy=true\n(CommonSecurityLog\n| where TimeGenerated >= ago(1d) \n| where isnotempty(SourceIP) or isnotempty(DestinationIP)\n| where SourceIP in (IPList) or DestinationIP in (IPList) or Message has_any (IPList)\n| extend IPMatch = case(\nSourceIP in (IPList), \"SourceIP\", \nDestinationIP in (IPList), \"DestinationIP\",\n\"Message\") \n| where Message matches regex IOCTerms\n| summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated) by SourceIP, DestinationIP, DeviceProduct, DeviceAction, Message, Protocol, SourcePort, DestinationPort, DeviceAddress, DeviceName, IPMatch\n| extend timestamp = StartTimeUtc, IPCustomEntity = case(IPMatch == \"SourceIP\", SourceIP, IPMatch == \"DestinationIP\", DestinationIP, \"IP in Message Field\") \n),\n(OfficeActivity\n| where TimeGenerated >= ago(1d) \n| where isnotempty(UserAgent) and ClientIP in (IPList)\n| where UserAgent contains \"ExchangeServicesClient/0.0.0.0\"\n| summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated) by SourceIP = ClientIP, Account = UserId, Type, RecordType, OfficeWorkload, UserAgent, OfficeObjectId, IPMatch = \"ClientIP\"\n| extend timestamp = StartTimeUtc, AccountCustomEntity = Account, IPCustomEntity = SourceIP\n)\n)",
+      "queryFrequency": "P1D",
+      "queryPeriod": "P1D",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 0,
+      "entityMappings": [
+        {
+          "entityType": "Account",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "AccountCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "IP",
+          "fieldMappings": [
+            {
+              "identifier": "Address",
+              "columnName": "IPCustomEntity"
+            }
+          ]
+        }
+      ],
+      "displayName": "Known Manganese IP and UserAgent activity",
+      "description": "Matches IP plus UserAgent IOCs in OfficeActivity data, along with IP plus Connection string information in the CommonSecurityLog data related to Manganese group activity.\nReferences: \nhttps://kb.pulsesecure.net/articles/Pulse_Security_Advisories/SA44101/\nhttps://fortiguard.com/psirt/FG-IR-18-384",
+      "tactics": [
+        "InitialAccess",
+        "Collection"
+      ],
+      "lastUpdatedDateUTC": "2020-11-17T00:00:00Z",
+      "createdDateUTC": "2019-10-02T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "Office365",
+          "dataTypes": [
+            "OfficeActivity"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "a04cf847-a832-4c60-b687-b0b6147da219",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/a04cf847-a832-4c60-b687-b0b6147da219",
+      "kind": "Scheduled"
+    },
+    {
+      "severity": "High",
+      "query": "let timeframe = 1d;\nlet DomainNames = dynamic([\"asyspy256.ddns.net\",\"hotkillmail9sddcc.ddns.net\",\"rosaf112.ddns.net\",\"cvdfhjh1231.myftp.biz\",\"sz2016rose.ddns.net\",\"dffwescwer4325.myftp.biz\",\"cvdfhjh1231.ddns.net\"]);\nlet SHA1Hash = dynamic ([\"53a44c2396d15c3a03723fa5e5db54cafd527635\", \"9c5e496921e3bc882dc40694f1dcc3746a75db19\", \"aeb573accfd95758550cf30bf04f389a92922844\", \"79ef78a797403a4ed1a616c68e07fff868a8650a\", \"4f6f38b4cec35e895d91c052b1f5a83d665c2196\", \"1e8c2cac2e4ce7cbd33c3858eb2e24531cb8a84d\", \"e841a63e47361a572db9a7334af459ddca11347a\", \"c28f606df28a9bc8df75a4d5e5837fc5522dd34d\", \"2e94b305d6812a9f96e6781c888e48c7fb157b6b\", \"dd44133716b8a241957b912fa6a02efde3ce3025\", \"8793bf166cb89eb55f0593404e4e933ab605e803\", \"a39b57032dbb2335499a51e13470a7cd5d86b138\", \"41cc2b15c662bc001c0eb92f6cc222934f0beeea\", \"d209430d6af54792371174e70e27dd11d3def7a7\", \"1c6452026c56efd2c94cea7e0f671eb55515edb0\", \"c6b41d3afdcdcaf9f442bbe772f5da871801fd5a\", \"4923d460e22fbbf165bbbaba168e5a46b8157d9f\", \"f201504bd96e81d0d350c3a8332593ee1c9e09de\", \"ddd2db1127632a2a52943a2fe516a2e7d05d70d2\"]);\nlet SHA256Hash = dynamic ([\"9ae7c4a4e1cfe9b505c3a47e66551eb1357affee65bfefb0109d02f4e97c06dd\", \"7772d624e1aed327abcd24ce2068063da0e31bb1d5d3bf2841fc977e198c6c5b\", \"657fc7e6447e0065d488a7db2caab13071e44741875044f9024ca843fe4e86b5\", \"2ef157a97e28574356e1d871abf75deca7d7a1ea662f38b577a06dd039dbae29\", \"52fd7b90d7144ac448af4008be639d4d45c252e51823f4311011af3207a5fc77\", \"a370e47cb97b35f1ae6590d14ada7561d22b4a73be0cb6df7e851d85054b1ac3\", \"5bf80b871278a29f356bd42af1e35428aead20cd90b0c7642247afcaaa95b022\", \"6f690ccfd54c2b02f0c3cb89c938162c10cbeee693286e809579c540b07ed883\", \"3c884f776fbd16597c072afd81029e8764dd57ee79d798829ca111f5e170bd8e\", \"1922a419f57afb351b58330ed456143cc8de8b3ebcbd236d26a219b03b3464d7\", \"fe0e4ef832b62d49b43433e10c47dc51072959af93963c790892efc20ec422f1\", \"7ce9e1c5562c8a5c93878629a47fe6071a35d604ed57a8f918f3eadf82c11a9c\", \"178d5ee8c04401d332af331087a80fb4e5e2937edfba7266f9be34a5029b6945\", \"51f70956fa8c487784fd21ab795f6ba2199b5c2d346acdeef1de0318a4c729d9\", \"889bca95f1a69e94aaade1e959ed0d3620531dc0fc563be9a8decf41899b4d79\", \"332ddaa00e2eb862742cb8d7e24ce52a5d38ffb22f6c8bd51162bd35e84d7ddf\", \"44bcf82fa536318622798504e8369e9dcdb32686b95fcb44579f0b4efa79df08\", \"63552772fdd8c947712a2cff00dfe25c7a34133716784b6d486227384f8cf3ef\", \"056744a3c371b5938d63c396fe094afce8fb153796a65afa5103e1bffd7ca070\"]);\nlet SigNames = dynamic([\"TrojanDropper:Win32/BlackMould.A!dha\", \"Trojan:Win32/BlackMould.B!dha\", \"Trojan:Win32/QuarkBandit.A!dha\", \"Trojan:Win32/Sidelod.A!dha\"]);\n(union isfuzzy=true\n(CommonSecurityLog \n| where TimeGenerated >= ago(timeframe) \n| parse Message with * '(' DNSName ')' * \n| where isnotempty(FileHash)\n| where FileHash in (SHA256Hash) or DNSName in~ (DomainNames)\n| extend Account = SourceUserID, Computer = DeviceName, IPAddress = SourceIP\n),\n(DnsEvents \n| where TimeGenerated >= ago(timeframe) \n| extend DNSName = Name\n| where isnotempty(DNSName)\n| where DNSName  in~ (DomainNames)\n| extend IPAddress = ClientIP\n),\n(VMConnection \n| where TimeGenerated >= ago(timeframe) \n| parse RemoteDnsCanonicalNames with * '[\"' DNSName '\"]' *\n| where isnotempty(DNSName)\n| where DNSName  in~ (DomainNames)\n| extend IPAddress = RemoteIp\n),\n(Event\n//This query uses sysmon data depending on table name used this may need updataing\n| where TimeGenerated >= ago(3d)\n| where Source == \"Microsoft-Windows-Sysmon\"\n| extend EvData = parse_xml(EventData)\n| extend EventDetail = EvData.DataItem.EventData.Data\n| extend Hashes = EventDetail.[16].[\"#text\"]\n| parse Hashes with * 'SHA1=' SHA1 ',' * \n| where isnotempty(Hashes)\n| where Hashes in (SHA1Hash) \n| extend Account = UserName\n),\n(SecurityAlert\n| where TimeGenerated >= ago(timeframe)\n| where Entities has_any (SigNames)\n| extend Computer = tostring(parse_json(Entities)[0].HostName) \n)\n)\n| extend timestamp = TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer, IPCustomEntity = IPAddress",
+      "queryFrequency": "P1D",
+      "queryPeriod": "P1D",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 0,
+      "entityMappings": [
+        {
+          "entityType": "Account",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "AccountCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "Host",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "HostCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "IP",
+          "fieldMappings": [
+            {
+              "identifier": "Address",
+              "columnName": "IPCustomEntity"
+            }
+          ]
+        }
+      ],
+      "displayName": "Known GALLIUM domains and hashes",
+      "description": "GALLIUM command and control domains and hash values for tools and malware used by GALLIUM. \n Matches domain name IOCs related to the GALLIUM activity group with CommonSecurityLog, DnsEvents, VMConnection and SecurityEvents dataTypes.\n References: https://www.microsoft.com/security/blog/2019/12/12/gallium-targeting-global-telecom/ ",
+      "tactics": [
+        "CommandAndControl",
+        "CredentialAccess"
+      ],
+      "lastUpdatedDateUTC": "2020-11-17T00:00:00Z",
+      "createdDateUTC": "2019-12-06T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "DNS",
+          "dataTypes": [
+            "DnsEvents"
+          ]
+        },
+        {
+          "connectorId": "AzureMonitor(VMInsights)",
+          "dataTypes": [
+            "VMConnection"
+          ]
+        },
+        {
+          "connectorId": "CiscoASA",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        },
+        {
+          "connectorId": "PaloAltoNetworks",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        },
+        {
+          "connectorId": "SecurityEvents",
+          "dataTypes": [
+            "SecurityEvent"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "26a3b261-b997-4374-94ea-6c37f67f4f39",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/26a3b261-b997-4374-94ea-6c37f67f4f39",
+      "kind": "Scheduled"
+    },
+    {
+      "severity": "High",
+      "query": "let timeframe = 1d;\nlet DomainNames = dynamic([\"irf.services\",\"microsoft-onthehub.com\",\"msofficelab.com\",\"com-mailbox.com\",\"my-sharefile.com\",\"my-sharepoints.com\",\n\"accounts-web-mail.com\",\"customer-certificate.com\",\"session-users-activities.com\",\"user-profile-credentials.com\",\"verify-linke.com\",\"support-servics.net\",\n\"onedrive-sharedfile.com\",\"onedrv-live.com\",\"transparencyinternational-my-sharepoint.com\",\"transparencyinternational-my-sharepoints.com\",\"soros-my-sharepoint.com\"]);\n(union isfuzzy=true\n(CommonSecurityLog \n| where TimeGenerated >= ago(timeframe) \n| parse Message with * '(' DNSName ')' * \n| extend Account = SourceUserID, Host = DeviceName, IPAddress = SourceIP),\n(DnsEvents \n| where TimeGenerated >= ago(timeframe) \n| extend IPAddress = ClientIP, DNSName = Name, Host = Computer),\n(VMConnection \n| where TimeGenerated >= ago(timeframe) \n| parse RemoteDnsCanonicalNames with * '[\"' DNSName '\"]' *\n| extend IPAddress = RemoteIp, Host = Computer)\n)\n| where isnotempty(DNSName)\n| where DNSName  in~ (DomainNames)\n| extend timestamp = TimeGenerated, IPCustomEntity = IPAddress, AccountCustomEntity = Account, HostCustomEntity = Host",
+      "queryFrequency": "P1D",
+      "queryPeriod": "P1D",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 0,
+      "entityMappings": [
+        {
+          "entityType": "Account",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "AccountCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "Host",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "HostCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "IP",
+          "fieldMappings": [
+            {
+              "identifier": "Address",
+              "columnName": "IPCustomEntity"
+            }
+          ]
+        }
+      ],
+      "displayName": "Known STRONTIUM group domains - July 2019",
+      "description": "Matches domain name IOCs related to Strontium group activity published July 2019 with CommonSecurityLog, DnsEvents and VMConnection dataTypes.\nReferences: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreats-require-new-ways-to-protect-democracy/.",
+      "tactics": [
+        "CommandAndControl"
+      ],
+      "lastUpdatedDateUTC": "2020-11-17T00:00:00Z",
+      "createdDateUTC": "2019-07-25T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "DNS",
+          "dataTypes": [
+            "DnsEvents"
+          ]
+        },
+        {
+          "connectorId": "AzureMonitor(VMInsights)",
+          "dataTypes": [
+            "VMConnection"
+          ]
+        },
+        {
+          "connectorId": "CiscoASA",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        },
+        {
+          "connectorId": "PaloAltoNetworks",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "074ce265-f684-41cd-af07-613c5f3e6d0d",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/074ce265-f684-41cd-af07-613c5f3e6d0d",
+      "kind": "Scheduled"
+    },
+    {
+      "severity": "High",
+      "query": "let timeframe = 1d;\nlet DomainNames = \"miniodaum.ml\";\nlet SHA256Hash = dynamic ([\"53f5773bbfbfbee660989d135c042c9f6f69024b9a4b65bdc0dfd44771762257\", \"0897c80df8b80b4c49bf1ccf876f5f782849608b830c3b5cb3ad212dc3e19eff\"]);\n(union isfuzzy=true\n(CommonSecurityLog \n| where TimeGenerated >= ago(timeframe) \n| parse Message with * '(' DNSName ')' * \n| where isnotempty(FileHash)\n| where FileHash in (SHA256Hash) or DNSName =~ DomainNames\n| extend Account = SourceUserID, Computer = DeviceName, IPAddress = SourceIP\n),\n(DnsEvents \n| where TimeGenerated >= ago(timeframe) \n| extend DNSName = Name\n| where isnotempty(DNSName)\n| where DNSName =~ DomainNames\n| extend IPAddress = ClientIP\n),\n(VMConnection \n| where TimeGenerated >= ago(timeframe) \n| parse RemoteDnsCanonicalNames with * '[\"' DNSName '\"]' *\n| where isnotempty(DNSName)\n| where DNSName =~ DomainNames\n| extend IPAddress = RemoteIp\n)\n)\n| extend timestamp = TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer, IPCustomEntity = IPAddress",
+      "queryFrequency": "P1D",
+      "queryPeriod": "P1D",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 0,
+      "entityMappings": [
+        {
+          "entityType": "Account",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "AccountCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "Host",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "HostCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "IP",
+          "fieldMappings": [
+            {
+              "identifier": "Address",
+              "columnName": "IPCustomEntity"
+            }
+          ]
+        }
+      ],
+      "displayName": "Known CERIUM domains and hashes",
+      "description": "CERIUM malicious webserver and hash values for maldocs and malware. \n Matches domain name IOCs related to the CERIUM activity group with CommonSecurityLog, DnsEvents, and VMConnection dataTypes.",
+      "tactics": [
+        "CommandAndControl",
+        "CredentialAccess"
+      ],
+      "lastUpdatedDateUTC": "2020-11-17T00:00:00Z",
+      "createdDateUTC": "2020-10-30T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "DNS",
+          "dataTypes": [
+            "DnsEvents"
+          ]
+        },
+        {
+          "connectorId": "AzureMonitor(VMInsights)",
+          "dataTypes": [
+            "VMConnection"
+          ]
+        },
+        {
+          "connectorId": "CiscoASA",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        },
+        {
+          "connectorId": "PaloAltoNetworks",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "c87fb346-ea3a-4c64-ba92-3dd383e0f0b5",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/c87fb346-ea3a-4c64-ba92-3dd383e0f0b5",
+      "kind": "Scheduled"
+    },
+    {
+      "severity": "High",
+      "query": "let timeframe = 1d;\nlet SHA256Hash = \"1174fd03271f80f5e2a6435c72bdd0272a6e3a37049f6190abf125b216a83471\" ;\n(union isfuzzy=true\n(CommonSecurityLog \n| where TimeGenerated >= ago(timeframe) \n| parse Message with * '(' DNSName ')' * \n| where isnotempty(FileHash)\n| where FileHash in (SHA256Hash) \n| extend Account = SourceUserID, Computer = DeviceName, IPAddress = SourceIP\n),\n(Event\n//This query uses sysmon data depending on table name used this may need updataing\n| where TimeGenerated >= ago(3d)\n| where Source == \"Microsoft-Windows-Sysmon\"\n| extend EvData = parse_xml(EventData)\n| extend EventDetail = EvData.DataItem.EventData.Data\n| extend Hashes = EventDetail.[16].[\"#text\"]\n| parse Hashes with * 'SHA256=' SHA265 ',' * \n| where isnotempty(Hashes)\n| where Hashes in (SHA256Hash) \n| extend Account = UserName\n)\n)\n| extend timestamp = TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer, IPCustomEntity = IPAddress",
+      "queryFrequency": "P1D",
+      "queryPeriod": "P1D",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 0,
+      "entityMappings": [
+        {
+          "entityType": "Account",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "AccountCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "Host",
+          "fieldMappings": [
+            {
+              "identifier": "FullName",
+              "columnName": "HostCustomEntity"
+            }
+          ]
+        },
+        {
+          "entityType": "IP",
+          "fieldMappings": [
+            {
+              "identifier": "Address",
+              "columnName": "IPCustomEntity"
+            }
+          ]
+        }
+      ],
+      "displayName": "Known ZINC related maldoc hash",
+      "description": "Document hash used by ZINC in highly targeted spear phishing campaign.",
+      "tactics": [
+        "CommandAndControl",
+        "CredentialAccess"
+      ],
+      "lastUpdatedDateUTC": "2020-11-17T00:00:00Z",
+      "createdDateUTC": "2020-10-30T00:00:00Z",
+      "status": "Available",
+      "requiredDataConnectors": [
+        {
+          "connectorId": "CiscoASA",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        },
+        {
+          "connectorId": "PaloAltoNetworks",
+          "dataTypes": [
+            "CommonSecurityLog"
+          ]
+        },
+        {
+          "connectorId": "SecurityEvents",
+          "dataTypes": [
+            "SecurityEvent"
+          ]
+        }
+      ],
+      "alertRulesCreatedByTemplateCount": 0,
+      "name": "3174a9ec-d0ad-4152-8307-94ed04fa450a",
+      "id": "/subscriptions/e5be695c-5b12-4936-862a-d298fc9b88d5/resourceGroups/azur-rg-prod-common/providers/Microsoft.OperationalInsights/workspaces/azur-prod-workspace/providers/Microsoft.SecurityInsights/AlertRuleTemplates/3174a9ec-d0ad-4152-8307-94ed04fa450a",
+      "kind": "Scheduled"
+    }
+  ],
   "MLBehaviorAnalytics": [
     {
       "displayName": "(Preview) Anomalous SSH Login Detection",
-      "enabled": true,
+      "enabled": false,
       "alertRuleTemplateName": "fa118b98-de46-4e94-87f9-8e6d5060b60b"
-    }
-  ],
-  "MicrosoftSecurityIncidentCreation": [
-    {
-      "displayName": "Create incidents based on Azure Active Directory Identity Protection alerts",
-      "description": "Create incidents based on all alerts generated in Azure Active Directory Identity Protection",
-      "enabled": true,
-      "productFilter": "Azure Active Directory Identity Protection",
-      "severitiesFilter": [
-        "High",
-        "Medium",
-        "Low"
-      ],
-      "displayNamesFilter": null
     }
   ]
 }
