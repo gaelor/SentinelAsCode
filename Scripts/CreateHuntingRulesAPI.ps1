@@ -1,36 +1,44 @@
 param(
-    [Parameter(Mandatory=$true)]$Workspace,
-    [Parameter(Mandatory=$true)]$RulesFile
+    [Parameter(Mandatory=$true)]$OnboardingFile,
+    [Parameter(Mandatory=$true)]$RulesFile,
+    [Parameter(Mandatory=$true)]$Azure_User,
+    [Parameter(Mandatory=$true)]$Azure_Pwd
 )
 
 #Adding AzSentinel module
-Install-Module AzSentinel -Scope CurrentUser -Force
+Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
 Import-Module AzSentinel
 
-#Name of the Azure DevOps artifact
-$artifactName = "HuntingFile"
+#Getting all workspaces from file
+$workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
 
-#Build the full path for the hunting rules file
-$artifactPath = Join-Path $env:Pipeline_Workspace $artifactName 
-$rulesFilePath = Join-Path $artifactPath $RulesFile
+$AzurePwd = ConvertTo-SecureString -String $Azure_Pwd -AsPlainText -Force
+
+$Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $Azure_User,$AzurePwd
+
+Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscription $workspaces.subscription
 
 #Getting all hunting rules from file
-$rules = Get-Content -Raw -Path $rulesFilePath | ConvertFrom-Json
+$rules = Get-Content -Raw -Path $rulesFile | ConvertFrom-Json
 
-foreach ($rule in $rules.hunting) {
-    Write-Host "Processing hunting rule: " -NoNewline 
-    Write-Host "$($rule.displayName)" -ForegroundColor Green
 
-    $existingRule = Get-AzSentinelHuntingRule -WorkspaceName $Workspace -RuleName $rule.displayName -ErrorAction SilentlyContinue
-    
-    if ($existingRule) {
-        Write-Host "Hunting rule $($rule.displayName) already exists. Updating..."
+foreach ($item in $workspaces.deployments){
+    Write-Host "Processing workspace $($item.workspace) ..."
+    foreach ($rule in $rules.hunting) {
+        Write-Host "Processing hunting rule: " -NoNewline 
+        Write-Host "$($rule.displayName)" -ForegroundColor Green
 
-        New-AzSentinelHuntingRule -WorkspaceName $Workspace -DisplayName $rule.displayName -Query $rule.query -Description $rule.description -Tactics $rule.tactics -confirm:$false
-    }
-    else {
-        Write-Host "Hunting rule $($rule.displayName) doesn't exist. Creating..."
+        $existingRule = Get-AzSentinelHuntingRule -WorkspaceName $item.workspace -RuleName $rule.displayName -ErrorAction SilentlyContinue
 
-        New-AzSentinelHuntingRule -WorkspaceName $Workspace -DisplayName $rule.displayName -Query $rule.query -Description $rule.description -Tactics $rule.tactics -confirm:$false
+        if ($existingRule) {
+            Write-Host "Hunting rule $($rule.displayName) already exists. Updating..."
+
+            New-AzSentinelHuntingRule -WorkspaceName $item.workspace -DisplayName $rule.displayName -Query $rule.query -Description $rule.description -Tactics $rule.tactics -confirm:$false
+        }
+        else {
+            Write-Host "Hunting rule $($rule.displayName) doesn't exist. Creating..."
+
+            New-AzSentinelHuntingRule -WorkspaceName $item.workspace -DisplayName $rule.displayName -Query $rule.query -Description $rule.description -Tactics $rule.tactics -confirm:$false
+        }
     }
 }
