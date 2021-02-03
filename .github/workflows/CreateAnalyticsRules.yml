@@ -32,8 +32,8 @@ jobs:
           AZURE_PWD: ${{secrets.AZURE_PWD}}
         run: |
               Scripts/CreateAnalyticsRules.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile AnalyticsRules\analytics-rules.json -Azure_User ${{ env.AZURE_USER }} -Azure_Pwd '${{ env.AZURE_PWD }}' -Outvariable issues
-              $errors   = $issues.Where({$_.Severity -eq 'ERROR'})
-              $warnings = $issues.Where({$_.Severity -eq 'WARNING'})
+              $errors   = $issues.Where({$_.Severity -eq 'Error'})
+              $warnings = $issues.Where({$_.Severity -eq 'Warning'})
               if ($errors) {
                   Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
               } else {
