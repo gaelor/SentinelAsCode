@@ -25,20 +25,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: list dir
-        shell: pwsh
-        run: ls
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
-
-      - name: Perform a Pester test from the command-line
-        shell: pwsh
-        run: Test-Path README.md | Should -Be $true
-
       - name: Install PSScriptAnalyzer module
         shell: pwsh
         run: |
@@ -48,7 +34,7 @@ jobs:
       - name: Lint with PSScriptAnalyzer
         shell: pwsh
         run: |
-              Invoke-ScriptAnalyzer -Path Scripts/*.ps1 -Recurse -Outvariable issues
+              Invoke-ScriptAnalyzer -Path Scripts/*.ps1 LocalScripts/*.ps1 -Recurse -Outvariable issues
               $errors   = $issues.Where({$_.Severity -eq 'Error'})
               $warnings = $issues.Where({$_.Severity -eq 'Warning'})
               if ($errors) {
