@@ -9,7 +9,11 @@ Import-Module AzSentinel
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
 
-Connect-AzAccount -Tenant $workspaces.tenant -Subscription $workspaces.subscription
+$User = 'thomas.couilleaux@theclemvp.com'
+$PWord = ConvertTo-SecureString -String 'ENL8wbISkdwZw$3N4ural' -AsPlainText -Force
+$Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $User,$PWord
+
+Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscription $workspaces.subscription
 
 foreach ($item in $workspaces.deployments){
     Write-Host "Processing workspace $($item.workspace) ..."
