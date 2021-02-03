@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
 
       # Runs a single command using the runners shell
-      - name: Install Sentinel on Client Tenant
+      - name: Create Analytics Rules on Client Tenant
         shell: pwsh
         env:
           AZURE_USER: ${{secrets.AZURE_USER}}
