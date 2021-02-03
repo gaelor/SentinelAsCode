@@ -9,13 +9,12 @@ Import-Module AzSentinel
 Install-Module Az.OperationalInsights -Scope CurrentUser -Force
 Import-Module Az.OperationalInsights
 
-Write-Host $Azure_User
-Write-Host $Azure_Pwd
-
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
 
-$Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $Azure_User,$Azure_Pwd
+$AzurePwd = ConvertTo-SecureString -String $Azure_Pwd -AsPlainText -Force
+
+$Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $Azure_User,$AzurePwd
 
 Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscription $workspaces.subscription
 
