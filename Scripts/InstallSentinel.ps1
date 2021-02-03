@@ -4,6 +4,8 @@ param (
 
 Install-Module AzSentinel -Scope CurrentUser -Force
 Import-Module AzSentinel
+Install-Module Az -Scope CurrentUser -Force
+Import-Module Az
 
 Get-Module -ListAvailable "AzureRM*"
 Get-Command -Module AzSentinel
