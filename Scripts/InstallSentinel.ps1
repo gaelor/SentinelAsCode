@@ -16,10 +16,6 @@ $AzurePwd = ConvertTo-SecureString -String $Azure_Pwd -AsPlainText -Force
 
 $Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $Azure_User,$AzurePwd
 
-Write-Host $Azure_User
-Write-Host $Azure_Pwd
-Write-Host $Credential
-
 Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscription $workspaces.subscription
 
 foreach ($item in $workspaces.deployments){
