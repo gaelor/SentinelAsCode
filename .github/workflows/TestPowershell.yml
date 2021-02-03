@@ -6,7 +6,8 @@ name: TestPowershell
 on:
   # Allows you to run this workflow manually from the Actions tab and VS Code
   workflow_dispatch:
-  
+
+  # Allows you to run this workflow manually from VS Code
   repository_dispatch:
     types: [ master ]
 
@@ -38,10 +39,10 @@ jobs:
         shell: pwsh
         run: |
               Invoke-ScriptAnalyzer -Path Scripts/*.ps1 -Recurse -Outvariable issues
-              $errors   = $issues.Where({$_.Severity -eq 'Error'})
-              $warnings = $issues.Where({$_.Severity -eq 'Warning'})
-              if ($errors) {
-                  Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
-              } else {
-                  Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
-              }
+#              $errors   = $issues.Where({$_.Severity -eq 'Error'})
+#              $warnings = $issues.Where({$_.Severity -eq 'Warning'})
+#              if ($errors) {
+#                  Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
+#              } else {
+#                  Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
+#              }
