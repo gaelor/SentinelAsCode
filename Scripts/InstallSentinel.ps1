@@ -3,7 +3,6 @@ param (
 )
 
 #Adding AzSentinel module
-Uninstall-AzureRm
 Install-Module AzSentinel -Scope CurrentUser -Force
 Import-Module AzSentinel
 
