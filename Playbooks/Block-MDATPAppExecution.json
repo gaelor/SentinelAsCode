@@ -7,11 +7,11 @@
             "type": "string"
         },
         "connections_azuresentinel_externalid": {
-            "defaultValue": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]",
+            "defaultValue": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/azuresentinel",
             "type": "string"
         },
         "connections_wdatp_externalid": {
-            "defaultValue": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/wdatp')]",
+            "defaultValue": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/wdatp",
             "type": "string"
         }
     },
