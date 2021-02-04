@@ -30,11 +30,11 @@ Reads the config file in the HuntingRules folder and deploys its contents to a s
 
 ### Syntax
 
-`CreateHuntingRulesAPI.ps1 -Workspace <String> -RulesFile <String>`
+`CreateHuntingRulesAPI.ps1 -Workspace <String> -RulesFile <String> -Azure_User <String> -Azure_Pwd '<String>'`
 
 ### Sample
 
-`.\CreateHuntingRulesAPI.ps1 -OnboardingFile "..\Onboard\onboarding.json" -RulesFile "..\HuntingRules\hunting-rules.json"`
+`.\CreateHuntingRulesAPI.ps1 -OnboardingFile "..\Onboard\onboarding.json" -RulesFile "..\HuntingRules\hunting-rules.json" -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
 
 ## Playbooks deployment script (CreatePLaybooks.ps1)
 
@@ -54,8 +54,8 @@ Takes all the json files within a folder (specified as WorkbooksFolder) and depl
 
 ### Syntax
 
-`CreateWorkbooks.ps1 -OnboardingFile <String> -WorkbooksFolder <String>`
+`CreateWorkbooks.ps1 -OnboardingFile <String> -WorkbooksFolder <String> -Azure_User <String> -Azure_Pwd '<String>'`
 
 ### Sample
 
-`.\CreateWorkbooks.ps1 -OnboardingFile "..\Onboard\onboarding.json" -WorkbooksFolder "..\Workbooks\"`
+`.\CreateWorkbooks.ps1 -OnboardingFile "..\Onboard\onboarding.json" -WorkbooksFolder "..\Workbooks\" -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
