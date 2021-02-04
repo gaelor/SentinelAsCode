@@ -170,11 +170,13 @@
                         "value": {
                             "azuresentinel": {
                                 "connectionId": "[parameters('connections_azuresentinel_externalid')]",
-                                "connectionName": "azuresentinel"
+                                "connectionName": "azuresentinel",
+                                "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/azuresentinel"
                             },
                             "wdatp": {
                                 "connectionId": "[parameters('connections_wdatp_externalid')]",
-                                "connectionName": "wdatp"
+                                "connectionName": "wdatp",
+                                "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/wdatp"
                             }
                         }
                     }

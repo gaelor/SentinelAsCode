@@ -170,10 +170,13 @@
                         "value": {
                             "azuresentinel": {
                                 "connectionId": "[parameters('connections_azuresentinel_externalid')]",
-                                "connectionName": "azuresentinel"                            },
+                                "connectionName": "azuresentinel",
+                                "id": ""
+                            },
                             "wdatp": {
                                 "connectionId": "[parameters('connections_wdatp_externalid')]",
-                                "connectionName": "wdatp"
+                                "connectionName": "wdatp",
+                                "id": ""
                             }
                         }
                     }
