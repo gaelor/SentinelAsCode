@@ -7,11 +7,11 @@
             "type": "string"
         },
         "connections_azuresentinel_externalid": {
-            "defaultValue": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/azuresentinel",
+            "defaultValue": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/resourceGroups/AccorInvest/providers/Microsoft.Web/connections/azuresentinel",
             "type": "string"
         },
         "connections_wdatp_externalid": {
-            "defaultValue": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/wdatp",
+            "defaultValue": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/resourceGroups/AccorInvest/providers/Microsoft.Web/connections/wdatp",
             "type": "string"
         }
     },
