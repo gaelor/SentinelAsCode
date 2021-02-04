@@ -4,15 +4,15 @@
     "parameters": {
         "workflows_Collect_MDATPMachine_name": {
             "defaultValue": "Collect-MDATPMachine",
-            "type": "String"
+            "type": "string"
         },
-        "connections_azuresentinel_1_externalid": {
-            "defaultValue": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/resourceGroups/AccorInvest/providers/Microsoft.Web/connections/azuresentinel-1",
-            "type": "String"
+        "connections_azuresentinel_externalid": {
+            "defaultValue": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/azuresentinel",
+            "type": "string"
         },
         "connections_wdatp_externalid": {
-            "defaultValue": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/resourceGroups/AccorInvest/providers/Microsoft.Web/connections/wdatp",
-            "type": "String"
+            "defaultValue": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/wdatp",
+            "type": "string"
         }
     },
     "variables": {},
@@ -168,15 +168,13 @@
                 "parameters": {
                     "$connections": {
                         "value": {
-                            "azuresentinel_1": {
-                                "connectionId": "[parameters('connections_azuresentinel_1_externalid')]",
-                                "connectionName": "azuresentinel-1",
-                                "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/azuresentinel"
+                            "azuresentinel": {
+                                "connectionId": "[parameters('connections_azuresentinel_externalid')]",
+                                "connectionName": "azuresentinel"
                             },
                             "wdatp": {
                                 "connectionId": "[parameters('connections_wdatp_externalid')]",
-                                "connectionName": "wdatp",
-                                "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/wdatp"
+                                "connectionName": "wdatp"
                             }
                         }
                     }
