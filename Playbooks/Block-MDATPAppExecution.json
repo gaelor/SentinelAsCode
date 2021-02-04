@@ -166,6 +166,20 @@
                     "outputs": {}
                 },
                 "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[parameters('connections_azuresentinel_externalid')]",
+                                "connectionName": "azuresentinel",
+                                "id": "[parameters('connections_azuresentinel_externalid')]"
+                            },
+                            "wdatp": {
+                                "connectionId": "[parameters('connections_wdatp_externalid')]",
+                                "connectionName": "wdatp",
+                                "id": "[parameters('connections_wdatp_externalid')]"
+                            }
+                        }
+                    }
                 }
             }
         }

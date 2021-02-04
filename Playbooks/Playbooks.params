@@ -2,20 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "$connections": {
-            "value": {
-                "azuresentinel": {
-                    "connectionId": "[parameters('connections_azuresentinel_externalid')]",
-                    "connectionName": "azuresentinel",
-                    "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/azuresentinel"
-                },
-                "wdatp": {
-                    "connectionId": "[parameters('connections_wdatp_externalid')]",
-                    "connectionName": "wdatp",
-                    "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/wdatp"
-                }
-            }
-        },
         "connections_azuresentinel_externalid": {
             "Value": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/resourceGroups/AccorInvest/providers/Microsoft.Web/connections/azuresentinel",
             "type": "string"
