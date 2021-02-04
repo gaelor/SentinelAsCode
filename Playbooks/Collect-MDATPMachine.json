@@ -170,11 +170,13 @@
                         "value": {
                             "azuresentinel": {
                                 "connectionId": "[parameters('connections_azuresentinel_externalid')]",
-                                "connectionName": "azuresentinel"
+                                "connectionName": "azuresentinel",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
                             },
                             "wdatp": {
                                 "connectionId": "[parameters('connections_wdatp_externalid')]",
-                                "connectionName": "wdatp"
+                                "connectionName": "wdatp",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/wdatp')]"
                             }
                         }
                     }
