@@ -8,6 +8,8 @@ param(
 #Adding AzSentinel module
 Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
 Import-Module AzSentinel
+Install-Module Az.OperationalInsights -Scope CurrentUser -Force
+Import-Module Az.OperationalInsights
 
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
