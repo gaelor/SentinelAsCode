@@ -8,10 +8,12 @@
         },
         "connections_azuresentinel_externalid": {
             "defaultValue": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/azuresentinel",
+            "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/azuresentinel",
             "type": "string"
         },
         "connections_wdatp_externalid": {
             "defaultValue": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/wdatp",
+            "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/azuresentinel",
             "type": "string"
         }
     },
@@ -170,13 +172,11 @@
                         "value": {
                             "azuresentinel": {
                                 "connectionId": "[parameters('connections_azuresentinel_externalid')]",
-                                "connectionName": "azuresentinel",
-                                "id": ""
+                                "connectionName": "azuresentinel"
                             },
                             "wdatp": {
                                 "connectionId": "[parameters('connections_wdatp_externalid')]",
-                                "connectionName": "wdatp",
-                                "id": ""
+                                "connectionName": "wdatp"
                             }
                         }
                     }
