@@ -10,7 +10,7 @@ Reads configuration file under Onboard folder and installs SecurityInsights (Sen
 
 ### Sample
 
-`.\InstallSentinel.ps1 -OnboardingFile ..\Onboard\onboarding.json -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
+`.\Script\InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
 
 ## Analytics Rules deployment script (CreateAnalyticsRules.ps1)
 
@@ -22,7 +22,7 @@ Reads the config file in the AnalyticsRules folder and deploys its contents to a
 
 ### Sample
 
-`.\CreateAnalyticsRules.ps1 -OnboardingFile "..\Onboard\onboarding.json" -RulesFile "..\AnalyticsRules\analytics-rules.json" -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
+`.\Script\CreateAnalyticsRules.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile AnalyticsRules\analytics-rules.json -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
 
 ## Hunting Rules deployment script (CreateHuntingRulesAPI.ps1)
 
@@ -34,7 +34,7 @@ Reads the config file in the HuntingRules folder and deploys its contents to a s
 
 ### Sample
 
-`.\CreateHuntingRulesAPI.ps1 -OnboardingFile "..\Onboard\onboarding.json" -RulesFile "..\HuntingRules\hunting-rules.json" -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
+`.\Script\CreateHuntingRulesAPI.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile HuntingRules\hunting-rules.json -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
 
 ## Playbooks deployment script (CreatePLaybooks.ps1)
 
@@ -42,11 +42,11 @@ Takes all the json files within a folder (specified as PlaybooksFolder parameter
 
 ### Syntax
 
-`CreatePlaybooks.ps1 -ResourceGroup <String> -PlaybooksFolder <String> -PlaybooksParams <String>`
+`CreatePlaybooks.ps1 -ResourceGroup <String> -PlaybooksFolder <String> -PlaybooksParams <String> -Azure_User <String> -Azure_Pwd '<String>'`
 
 ### Sample
 
-`.\CreatePlaybooks.ps1 -OnboardingFile "..\Onboard\onboarding.json" -PlaybooksFolder "..\Playbooks\" -PlaybooksParams "..\Playbooks\Playbooks.params"`
+`.\Script\CreatePlaybooks.ps1 -OnboardingFile Onboard\onboarding.json -PlaybooksFolder Playbooks -PlaybooksParams Playbooks\Playbooks.params -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
 
 ## Workbooks deployment script (CreateWorkbooks.ps1)
 
@@ -58,4 +58,4 @@ Takes all the json files within a folder (specified as WorkbooksFolder) and depl
 
 ### Sample
 
-`.\CreateWorkbooks.ps1 -OnboardingFile "..\Onboard\onboarding.json" -WorkbooksFolder "..\Workbooks\" -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
+`.\Script\CreateWorkbooks.ps1 -OnboardingFile Onboard\onboarding.json -WorkbooksFolder Workbooks -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`

@@ -10,7 +10,7 @@ Reads configuration file under Onboard folder and installs SecurityInsights (Sen
 
 ### Sample
 
-`.\InstallSentinel.ps1 -OnboardingFile ..\Onboard\onboarding.json`
+`.\LocalScripts\InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json`
 
 ## Analytics Rules deployment script (CreateAnalyticsRules.ps1)
 
@@ -22,7 +22,7 @@ Reads the config file in the AnalyticsRules folder and deploys its contents to a
 
 ### Sample
 
-`.\CreateAnalyticsRules.ps1 -OnboardingFile "..\Onboard\onboarding.json" -RulesFile "..\AnalyticsRules\analytics-rules.json"`
+`.\LocalScripts\CreateAnalyticsRules.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile AnalyticsRules\analytics-rules.json`
 
 ## Hunting Rules deployment script (CreateHuntingRulesAPI.ps1)
 
@@ -34,7 +34,7 @@ Reads the config file in the HuntingRules folder and deploys its contents to a s
 
 ### Sample
 
-`.\CreateHuntingRulesAPI.ps1 -OnboardingFile "..\Onboard\onboarding.json" -RulesFile "..\HuntingRules\hunting-rules.json"`
+`.\LocalScripts\CreateHuntingRulesAPI.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile HuntingRules\hunting-rules.json`
 
 ## Playbooks deployment script (CreatePLaybooks.ps1)
 
@@ -46,7 +46,7 @@ Takes all the json files within a folder (specified as PlaybooksFolder parameter
 
 ### Sample
 
-`.\CreatePlaybooks.ps1 -OnboardingFile "..\Onboard\onboarding.json" -PlaybooksFolder "..\Playbooks\" -PlaybooksParams "..\Playbooks\Playbooks.params"`
+`.\LocalScripts\CreatePlaybooks.ps1 -OnboardingFile Onboard\onboarding.json -PlaybooksFolder Playbooks -PlaybooksParams Playbooks\Playbooks.params`
 
 ## Workbooks deployment script (CreateWorkbooks.ps1)
 
@@ -58,4 +58,4 @@ Takes all the json files within a folder (specified as WorkbooksFolder) and depl
 
 ### Sample
 
-`.\CreateWorkbooks.ps1 -OnboardingFile "..\Onboard\onboarding.json" -WorkbooksFolder "..\Workbooks\"`
+`.\LocalScripts\CreateWorkbooks.ps1 -OnboardingFile Onboard\onboarding.json -WorkbooksFolder Workbooks`

@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "workflows_Block_MDATPAppExecution_name": {
-            "defaultValue": "Block-MDATPAppExecution",
+            "defaultValue": "Restrict-MDATPAppExecution",
             "type": "String"
         },
         "connections_azuresentinel_externalid": {
