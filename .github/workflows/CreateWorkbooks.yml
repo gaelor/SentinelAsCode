@@ -34,8 +34,8 @@ jobs:
               Scripts/CreateWorkbooks.ps1 -OnboardingFile Onboard\onboarding.json -WorkbooksFolder Workbooks -Azure_User ${{ env.AZURE_USER }} -Azure_Pwd '${{ env.AZURE_PWD }}' -Outvariable issues
               $errors   = $issues.Where({$_.Severity -eq 'Error'})
               $warnings = $issues.Where({$_.Severity -eq 'Warning'})
-              if ($errors) {
-                  Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
-              } else {
-                  Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
-              }
+              #if ($errors) {
+              #    Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
+              #} else {
+              #    Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
+              #}

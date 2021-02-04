@@ -33,12 +33,12 @@ foreach ($item in $workspaces.deployments){
     $workbookSourceId = "/subscriptions/$($workspaces.subscription)/resourcegroups/$($item.resourcegroup)/providers/microsoft.operationalinsights/workspaces/$($item.workspace)"
 
     foreach ($armTemplate in $armTemplateFiles) {
-        try {
+#        try {
             New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -WorkbookSourceId $workbookSourceId
-        }
-        catch {
-            $ErrorMessage = $_.Exception.Message
-            Write-Error "Workbook deployment failed with message: $ErrorMessage" 
-        }
+#        }
+#        catch {
+#            $ErrorMessage = $_.Exception.Message
+#            Write-Error "Workbook deployment failed with message: $ErrorMessage" 
+#        }
     }
 }
