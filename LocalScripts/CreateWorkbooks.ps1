@@ -6,6 +6,8 @@ param(
 #Adding AzSentinel module
 Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
 Import-Module AzSentinel
+Install-Module Az.Resources -AllowClobber -Scope CurrentUser -Force
+Import-Module Az.Resources
 Clear-AzContext
 
 #Getting all workspaces from file

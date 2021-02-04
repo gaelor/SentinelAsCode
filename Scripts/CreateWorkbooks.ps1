@@ -34,7 +34,7 @@ foreach ($item in $workspaces.deployments){
 
     foreach ($armTemplate in $armTemplateFiles) {
         try {
-            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -WorkbookSourceId $workbookSourceId 
+            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -WorkbookSourceId $workbookSourceId
         }
         catch {
             $ErrorMessage = $_.Exception.Message

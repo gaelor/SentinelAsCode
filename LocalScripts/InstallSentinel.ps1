@@ -5,6 +5,8 @@ param (
 #Adding AzSentinel module
 Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
 Import-Module AzSentinel
+Install-Module Az.OperationalInsights -AllowClobber -Scope CurrentUser -Force
+Import-Module Az.OperationalInsights
 Clear-AzContext
 
 #Getting all workspaces from file
