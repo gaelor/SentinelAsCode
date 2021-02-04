@@ -38,7 +38,7 @@ foreach ($item in $workspaces.deployments){
         }
         catch {
             $ErrorMessage = $_.Exception.Message
-            Write-Error "Workbook deployment failed with message: $ErrorMessage" 
+            Write-Error "Workbook deployment failed with message" 
         }
     }
 }
