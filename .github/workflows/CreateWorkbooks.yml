@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
 
       # Runs a single command using the runners shell
-      - name: Create Hunting Rules on Client Tenant
+      - name: Create Workbooks on Client Tenant
         shell: pwsh
         env:
           AZURE_USER: ${{secrets.AZURE_USER}}
