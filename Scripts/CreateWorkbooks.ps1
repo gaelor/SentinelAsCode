@@ -5,6 +5,9 @@ param(
     [Parameter(Mandatory=$true)]$Azure_Pwd
 )
 
+#Continue if workbook exist
+$ErrorActionPreference = 'SilentlyContinue'
+
 #Adding AzSentinel module
 Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
 Import-Module AzSentinel
@@ -34,7 +37,7 @@ foreach ($item in $workspaces.deployments){
 
     foreach ($armTemplate in $armTemplateFiles) {
         try {
-            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -WorkbookSourceId $workbookSourceId -ErrorAction SilentlyContinue
+            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -WorkbookSourceId $workbookSourceId
         }
         catch {
             $ErrorMessage = $_.Exception.Message
