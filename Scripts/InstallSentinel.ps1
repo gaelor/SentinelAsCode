@@ -4,9 +4,9 @@ param (
     [Parameter(Mandatory=$true)]$Azure_Pwd
 )
 
-Install-Module AzSentinel -Scope CurrentUser -Force
+Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
 Import-Module AzSentinel
-Install-Module Az.OperationalInsights -Scope CurrentUser -Force
+Install-Module Az.OperationalInsights -AllowClobber -Scope CurrentUser -Force
 Import-Module Az.OperationalInsights
 
 #Getting all workspaces from file
