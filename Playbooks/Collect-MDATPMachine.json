@@ -2,17 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "workflows_Unblock_MDATPAppExecution_name": {
-            "defaultValue": "Unblock-MDATPAppExecution",
-            "type": "string"
+        "workflows_Collect_MDATPMachine_name": {
+            "defaultValue": "Collect-MDATPMachine",
+            "type": "String"
         },
-        "connections_azuresentinel_externalid": {
-            "defaultValue": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/azuresentinel",
-            "type": "string"
+        "connections_azuresentinel_1_externalid": {
+            "defaultValue": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/resourceGroups/AccorInvest/providers/Microsoft.Web/connections/azuresentinel-1",
+            "type": "String"
         },
         "connections_wdatp_externalid": {
-            "defaultValue": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/wdatp",
-            "type": "string"
+            "defaultValue": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/resourceGroups/AccorInvest/providers/Microsoft.Web/connections/wdatp",
+            "type": "String"
         }
     },
     "variables": {},
@@ -20,7 +20,7 @@
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_Unblock_MDATPAppExecution_name')]",
+            "name": "[parameters('workflows_Collect_MDATPMachine_name')]",
             "location": "westeurope",
             "tags": {
                 "LogicAppsCategory": "security"
@@ -45,7 +45,7 @@
                                 },
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
                                     }
                                 },
                                 "path": "/subscribe"
@@ -64,7 +64,7 @@
                                 "body": "@triggerBody()?['Entities']",
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
                                     }
                                 },
                                 "method": "post",
@@ -77,7 +77,7 @@
                             "inputs": {
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
                                     }
                                 },
                                 "method": "get",
@@ -87,6 +87,22 @@
                         "For_each": {
                             "foreach": "@body('Alert_-_Get_hosts')?['Hosts']",
                             "actions": {
+                                "Actions_-_Collect_investigation_package": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "Comment": "Collect Investigation from playbook for Azure Sentinel Incident: @{body('Alert_-_Get_incident')?['properties']?['CaseNumber']} - @{body('Alert_-_Get_incident')?['properties']?['Title']}"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['wdatp']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/api/machines/@{encodeURIComponent(items('For_each')?['MdatpDeviceId'])}/collectInvestigationPackage"
+                                    }
+                                },
                                 "Actions_-_Get_single_machine_action": {
                                     "runAfter": {
                                         "Delay": [
@@ -101,26 +117,10 @@
                                             }
                                         },
                                         "method": "get",
-                                        "path": "/api/machineactions/@{encodeURIComponent(body('Actions_-_Remove_app_execution_restriction')?['id'])}"
+                                        "path": "/api/machineactions/@{encodeURIComponent(body('Actions_-_Collect_investigation_package')?['id'])}"
                                     }
                                 },
-                                "Actions_-_Remove_app_execution_restriction": {
-                                    "runAfter": {},
-                                    "type": "ApiConnection",
-                                    "inputs": {
-                                        "body": {
-                                            "Comment": "Unblock App Execution from playbook for Azure Sentinel Incident: @{body('Alert_-_Get_incident')?['properties']?['CaseNumber']} - @{body('Alert_-_Get_incident')?['properties']?['Title']}"
-                                        },
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['wdatp']['connectionId']"
-                                            }
-                                        },
-                                        "method": "post",
-                                        "path": "/api/machines/@{encodeURIComponent(items('For_each')?['MdatpDeviceId'])}/unrestrictCodeExecution"
-                                    }
-                                },
-                                "Add_comment_to_incident_(V2)": {
+                                "Add_comment_to_incident_(V2)_2": {
                                     "runAfter": {
                                         "Actions_-_Get_single_machine_action": [
                                             "Succeeded"
@@ -129,11 +129,11 @@
                                     "type": "ApiConnection",
                                     "inputs": {
                                         "body": {
-                                            "Value": "@{items('For_each')?['HostName']} was triggered for unrestrict app execution, the status is @{body('Actions_-_Get_single_machine_action')?['status']} (last update: @{body('Actions_-_Get_single_machine_action')?['lastUpdateDateTimeUtc']})."
+                                            "Value": "Investigation collect was done on @{items('For_each')?['HostName']}and the status was @{body('Actions_-_Get_single_machine_action')?['status']} (last update: @{body('Actions_-_Get_single_machine_action')?['lastUpdateDateTimeUtc']})."
                                         },
                                         "host": {
                                             "connection": {
-                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                                "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
                                             }
                                         },
                                         "method": "put",
@@ -142,7 +142,7 @@
                                 },
                                 "Delay": {
                                     "runAfter": {
-                                        "Actions_-_Remove_app_execution_restriction": [
+                                        "Actions_-_Collect_investigation_package": [
                                             "Succeeded"
                                         ]
                                     },
@@ -168,12 +168,15 @@
                 "parameters": {
                     "$connections": {
                         "value": {
-                            "azuresentinel": {
-                                "connectionId": "[parameters('connections_azuresentinel_externalid')]",
-                                "connectionName": "azuresentinel"                            },
+                            "azuresentinel_1": {
+                                "connectionId": "[parameters('connections_azuresentinel_1_externalid')]",
+                                "connectionName": "azuresentinel-1",
+                                "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/azuresentinel"
+                            },
                             "wdatp": {
                                 "connectionId": "[parameters('connections_wdatp_externalid')]",
-                                "connectionName": "wdatp"
+                                "connectionName": "wdatp",
+                                "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/wdatp"
                             }
                         }
                     }
