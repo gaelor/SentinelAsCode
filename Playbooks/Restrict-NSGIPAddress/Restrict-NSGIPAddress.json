@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Restrict-NSGIPAdress",
+            "defaultValue": "Restrict-NSGIPAddress",
             "type": "string"
         },
         "UserName": {
