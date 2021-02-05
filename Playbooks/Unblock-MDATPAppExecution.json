@@ -6,25 +6,59 @@
             "defaultValue": "Unblock-MDATPAppExecution",
             "type": "string"
         },
-        "connections_azuresentinel_externalid": {
-            "defaultValue": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]",
+        "UserName": {
+            "defaultValue": "<username>@<domain>",
             "type": "string"
         },
-        "connections_wdatp_externalid": {
-            "defaultValue": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/wdatp')]",
+        "AzureSentinelConnectionName": {
+            "defaultValue": "azuresentinel",
             "type": "string"
-        }
+        },
+        "MDATPConnectionName": {
+            "defaultValue": "wdatp",
+            "type": "string"
+        }        
     },
     "variables": {},
     "resources": [
         {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('MDATPConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/wdatp')]"
+                }
+            }
+        },
+        {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_Unblock_MDATPAppExecution_name')]",
-            "location": "westeurope",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
             "tags": {
                 "LogicAppsCategory": "security"
             },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('MDATPConnectionName'))]"
+            ],
             "properties": {
                 "state": "Enabled",
                 "definition": {
@@ -169,13 +203,13 @@
                     "$connections": {
                         "value": {
                             "azuresentinel": {
-                                "connectionId": "[parameters('connections_azuresentinel_externalid')]",
-                                "connectionName": "azuresentinel",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]",
+                                "connectionName": "[parameters('AzureSentinelConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
                             },
                             "wdatp": {
-                                "connectionId": "[parameters('connections_wdatp_externalid')]",
-                                "connectionName": "wdatp",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('MDATPConnectionName'))]",
+                                "connectionName": "[parameters('MDATPConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/wdatp')]"
                             }
                         }
