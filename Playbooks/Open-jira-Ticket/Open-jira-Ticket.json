@@ -1,0 +1,561 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Restrict-NSGIPAddress",
+            "type": "string"
+        },
+        "UserName": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        },
+        "AzureSentinelConnectionName": {
+            "defaultValue": "azuresentinel",
+            "type": "string"
+        },
+        "MDATPConnectionName": {
+            "defaultValue": "wdatp",
+            "type": "string"
+        },
+        "integrationAccount": {
+            "defaultValue": "integrationAccount",
+            "type": "string"
+        },
+        "integrationAccount_resourceGroup": {
+            "defaultValue": "integrationAccount_resourceGroup",
+            "type": "string"
+        },
+        "CA_LocationName": {
+            "defaultValue": "CA_LocationName",
+            "type": "string"
+        },
+        "NSG_Group": {
+            "defaultValue": "NSG_Group",
+            "type": "string"
+        },
+        "NSG_ResourceGroup": {
+            "defaultValue": "NSG_ResourceGroup",
+            "type": "string"
+        },
+        "Jira_Organization": {
+            "defaultValue": "Jira_Organization",
+            "type": "string"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]"            
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "integrationAccount": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('integrationAccount_resourceGroup'), '/providers/Microsoft.Logic/integrationAccounts/', parameters('integrationAccount'))]"
+                },
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_response_to_an_Azure_Sentinel_alert_is_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "path": "/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Add_comment_to_incident_(V2)": {
+                            "runAfter": {
+                                "Switch": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "Value": "Incident create in Jira with http status @{outputs('HTTP')['statusCode']}.\nTicket Information:\n@{body('HTTP')}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "method": "put",
+                                "path": "/Comment/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}/@{encodeURIComponent('Incident')}/@{encodeURIComponent(body('Alert_-_Get_incident')?['properties']?['CaseNumber'])}"
+                            }
+                        },
+                        "Alert_-_Get_incident": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/Cases/@{encodeURIComponent(triggerBody()?['SystemAlertId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}"
+                            }
+                        },
+                        "For_each": {
+                            "foreach": "@body('Parse_JSON')?['value']",
+                            "actions": {
+                                "Condition": {
+                                    "actions": {
+                                        "Set_variable": {
+                                            "runAfter": {},
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "workspace_name",
+                                                "value": "@items('For_each')?['name']"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@items('For_each')?['properties']?['customerId']",
+                                                    "@triggerBody()?['WorkspaceId']"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "HTTP_2": {
+                            "runAfter": {
+                                "Initialize_variable_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions/@{triggerBody()?['WorkspaceSubscriptionId']}/providers/Microsoft.OperationalInsights/workspaces?api-version=2020-08-01"
+                            }
+                        },
+                        "Initialize_variable": {
+                            "runAfter": {
+                                "Alert_-_Get_incident": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "workspace_name",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_2": {
+                            "runAfter": {
+                                "Initialize_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "organization",
+                                        "type": "string",
+                                        "value": "[parameters('Jira_Organization')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_JSON": {
+                            "runAfter": {
+                                "HTTP_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('HTTP_2')",
+                                "schema": {
+                                    "properties": {
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "location": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "properties": {
+                                                        "properties": {
+                                                            "createdDate": {
+                                                                "type": "string"
+                                                            },
+                                                            "customerId": {
+                                                                "type": "string"
+                                                            },
+                                                            "features": {
+                                                                "properties": {
+                                                                    "enableLogAccessUsingOnlyResourcePermissions": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "legacy": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "searchVersion": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "modifiedDate": {
+                                                                "type": "string"
+                                                            },
+                                                            "privateLinkScopedResources": {
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "resourceId": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "scopeId": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "resourceId",
+                                                                        "scopeId"
+                                                                    ],
+                                                                    "type": "object"
+                                                                },
+                                                                "type": "array"
+                                                            },
+                                                            "provisioningState": {
+                                                                "type": "string"
+                                                            },
+                                                            "publicNetworkAccessForIngestion": {
+                                                                "type": "string"
+                                                            },
+                                                            "publicNetworkAccessForQuery": {
+                                                                "type": "string"
+                                                            },
+                                                            "retentionInDays": {
+                                                                "type": "integer"
+                                                            },
+                                                            "sku": {
+                                                                "properties": {
+                                                                    "lastSkuUpdate": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "maxCapacityReservationLevel": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "source": {
+                                                                "type": "string"
+                                                            },
+                                                            "workspaceCapping": {
+                                                                "properties": {
+                                                                    "dailyQuotaGb": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "dataIngestionStatus": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "quotaNextResetTime": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "tags": {
+                                                        "properties": {},
+                                                        "type": "object"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "properties",
+                                                    "id",
+                                                    "name",
+                                                    "type",
+                                                    "location"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Switch": {
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "cases": {
+                                "Case": {
+                                    "case": "Low",
+                                    "actions": {
+                                        "HTTP": {
+                                            "runAfter": {},
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "password": "${{secrets.JIRA_PWD}}",
+                                                    "type": "Basic",
+                                                    "username": "${{secrets.JIRA_USER}}"
+                                                },
+                                                "body": {
+                                                    "fields": {
+                                                        "components": [
+                                                            {
+                                                                "id": "10600"
+                                                            }
+                                                        ],
+                                                        "customfield_10002": [
+                                                            13
+                                                        ],
+                                                        "customfield_10210": {
+                                                            "id": "10500"
+                                                        },
+                                                        "description": "https://portal.azure.com/#blade/Microsoft_Azure_Security_Insights/MainMenuBlade/11/subscriptionId/@{triggerBody()?['WorkspaceSubscriptionId']}/resourceGroup/@{triggerBody()?['WorkspaceResourceGroup']}/workspaceName/@{variables('workspace_name')}\nIncident ID: @{body('Alert_-_Get_incident')?['properties']?['CaseNumber']}\n@{body('Alert_-_Get_incident')?['properties']?['Description']}",
+                                                        "issuetype": {
+                                                            "name": "Incident"
+                                                        },
+                                                        "priority": {
+                                                            "name": "Low"
+                                                        },
+                                                        "project": {
+                                                            "key": "SOCM"
+                                                        },
+                                                        "summary": "@{body('Alert_-_Get_incident')?['properties']?['Title']}"
+                                                    }
+                                                },
+                                                "method": "POST",
+                                                "uri": "https://support.metsys.fr/rest/api/2/issue/"
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_2": {
+                                    "case": "Medium",
+                                    "actions": {
+                                        "HTTP_3": {
+                                            "runAfter": {},
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "password": "@@zerty!123",
+                                                    "type": "Basic",
+                                                    "username": "couilleaux"
+                                                },
+                                                "body": {
+                                                    "fields": {
+                                                        "components": [
+                                                            {
+                                                                "id": "10600"
+                                                            }
+                                                        ],
+                                                        "customfield_10002": [
+                                                            13
+                                                        ],
+                                                        "customfield_10210": {
+                                                            "id": "10500"
+                                                        },
+                                                        "description": "https://portal.azure.com/#blade/Microsoft_Azure_Security_Insights/MainMenuBlade/11/subscriptionId/@{triggerBody()?['WorkspaceSubscriptionId']}/resourceGroup/@{triggerBody()?['WorkspaceResourceGroup']}/workspaceName/@{variables('workspace_name')}\nIncident ID: @{body('Alert_-_Get_incident')?['properties']?['CaseNumber']}\n@{body('Alert_-_Get_incident')?['properties']?['Description']}",
+                                                        "issuetype": {
+                                                            "name": "Incident"
+                                                        },
+                                                        "priority": {
+                                                            "name": "Medium"
+                                                        },
+                                                        "project": {
+                                                            "key": "SOCM"
+                                                        },
+                                                        "summary": "@{body('Alert_-_Get_incident')?['properties']?['Title']}"
+                                                    }
+                                                },
+                                                "method": "POST",
+                                                "uri": "https://support.metsys.fr/rest/api/2/issue/"
+                                            }
+                                        }
+                                    }
+                                },
+                                "Case_3": {
+                                    "case": "High",
+                                    "actions": {
+                                        "HTTP_4": {
+                                            "runAfter": {},
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "password": "@@zerty!123",
+                                                    "type": "Basic",
+                                                    "username": "couilleaux"
+                                                },
+                                                "body": {
+                                                    "fields": {
+                                                        "components": [
+                                                            {
+                                                                "id": "10600"
+                                                            }
+                                                        ],
+                                                        "customfield_10002": [
+                                                            13
+                                                        ],
+                                                        "customfield_10210": {
+                                                            "id": "10500"
+                                                        },
+                                                        "description": "https://portal.azure.com/#blade/Microsoft_Azure_Security_Insights/MainMenuBlade/11/subscriptionId/@{triggerBody()?['WorkspaceSubscriptionId']}/resourceGroup/@{triggerBody()?['WorkspaceResourceGroup']}/workspaceName/@{variables('workspace_name')}\nIncident ID: @{body('Alert_-_Get_incident')?['properties']?['CaseNumber']}\n@{body('Alert_-_Get_incident')?['properties']?['Description']}",
+                                                        "issuetype": {
+                                                            "name": "Incident"
+                                                        },
+                                                        "priority": {
+                                                            "name": "High"
+                                                        },
+                                                        "project": {
+                                                            "key": "SOCM"
+                                                        },
+                                                        "summary": "@{body('Alert_-_Get_incident')?['properties']?['Title']}"
+                                                    }
+                                                },
+                                                "method": "POST",
+                                                "uri": "https://support.metsys.fr/rest/api/2/issue/"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "default": {
+                                "actions": {
+                                    "HTTP_5": {
+                                        "runAfter": {},
+                                        "type": "Http",
+                                        "inputs": {
+                                            "authentication": {
+                                                "password": "@@zerty!123",
+                                                "type": "Basic",
+                                                "username": "couilleaux"
+                                            },
+                                            "body": {
+                                                "fields": {
+                                                    "components": [
+                                                        {
+                                                            "id": "10600"
+                                                        }
+                                                    ],
+                                                    "customfield_10002": [
+                                                        13
+                                                    ],
+                                                    "customfield_10210": {
+                                                        "id": "10500"
+                                                    },
+                                                    "description": "https://portal.azure.com/#blade/Microsoft_Azure_Security_Insights/MainMenuBlade/11/subscriptionId/@{triggerBody()?['WorkspaceSubscriptionId']}/resourceGroup/@{triggerBody()?['WorkspaceResourceGroup']}/workspaceName/@{variables('workspace_name')}\nIncident ID: @{body('Alert_-_Get_incident')?['properties']?['CaseNumber']}\n@{body('Alert_-_Get_incident')?['properties']?['Description']}",
+                                                    "issuetype": {
+                                                        "name": "Incident"
+                                                    },
+                                                    "priority": {
+                                                        "name": "Medium"
+                                                    },
+                                                    "project": {
+                                                        "key": "SOCM"
+                                                    },
+                                                    "summary": "@{body('Alert_-_Get_incident')?['properties']?['Title']}"
+                                                }
+                                            },
+                                            "method": "POST",
+                                            "uri": "https://support.metsys.fr/rest/api/2/issue/"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": "@body('Alert_-_Get_incident')?['properties']?['Severity']",
+                            "type": "Switch"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]",
+                                "connectionName": "[parameters('AzureSentinelConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -33,6 +33,10 @@
         "NSG_ResourceGroup": {
             "Value": "AccordInvest-resources",
             "type": "string"
+        },
+        "Jira_Organization": {
+            "Value": "AccordInvest",
+            "type": "string"
         }
     }
 }
