@@ -2,13 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "connections_azuresentinel_externalid": {
-            "Value": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/azuresentinel",
+        "UserName": {
+            "Value": "thomas.couilleaux@theclemvp.com",
             "type": "string"
         },
-        "connections_wdatp_externalid": {
-            "Value": "/subscriptions/<subscription_id>/resourceGroups/<resourceGroupName>/providers/Microsoft.Web/connections/wdatp",
+        "AzureSentinelConnectionName": {
+            "Value": "azuresentinel",
             "type": "string"
-        }
+        },
+        "MDATPConnectionName": {
+            "Value": "wdatp",
+            "type": "string"
+        },
     }
 }

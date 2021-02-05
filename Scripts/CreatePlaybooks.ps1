@@ -30,7 +30,8 @@ foreach ($item in $workspaces.deployments){
     $content = Get-Content -Path $PlaybooksParams
     $newContent = $content -replace  '(?<=/subscriptions/).*?(?=</resourceGroups/)', $workspaces.subscription
     $newContent2 = $newContent -replace '(?<=/resourceGroups/).*?(?=</providers/)', $item.resourcegroup
-    $newContent2 | Set-Content -Path $PlaybooksParams
+    $newContent2 | Set-Content -Path $PlaybooksParams.tmp
+    Get-Content -Path $PlaybooksParams.tmp
 
     #Getting all playbooks from folder
     $armTemplateFiles = Get-ChildItem -Path $PlaybooksFolder -Filter *.json
@@ -39,7 +40,7 @@ foreach ($item in $workspaces.deployments){
 
     foreach ($armTemplate in $armTemplateFiles) {
         try {
-            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -TemplateParameterFile $PlaybooksParams
+            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -TemplateParameterFile $PlaybooksParams.tmp
         }
         catch {
             $ErrorMessage = $_.Exception.Message
