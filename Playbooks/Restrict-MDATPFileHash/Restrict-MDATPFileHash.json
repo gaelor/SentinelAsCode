@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Restrict-MDATPDomain",
+            "defaultValue": "Restrict-MDATPFileHash",
             "type": "string"
         },
         "UserName": {

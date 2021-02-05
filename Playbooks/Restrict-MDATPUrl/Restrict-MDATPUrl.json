@@ -2,28 +2,50 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "workflows_Restrict_MDATPUrl_name": {
-            "defaultValue": "Restrict-MDATPUrl",
-            "type": "String"
+        "PlaybookName": {
+            "defaultValue": "Restrict-MDATPURL",
+            "type": "string"
         },
-        "connections_azuresentinel_1_externalid": {
-            "defaultValue": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/resourceGroups/AccorInvest/providers/Microsoft.Web/connections/azuresentinel-1",
-            "type": "String"
+        "UserName": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        },
+        "AzureSentinelConnectionName": {
+            "defaultValue": "azuresentinel",
+            "type": "string"
+        },
+        "MDATPConnectionName": {
+            "defaultValue": "wdatp",
+            "type": "string"
         }
     },
     "variables": {},
     "resources": [
         {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_Restrict_MDATPUrl_name')]",
-            "location": "westeurope",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
             "tags": {
                 "LogicAppsCategory": "security"
             },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]"            
+            ],
             "identity": {
-                "principalId": "cac7efce-02f0-470b-98ed-4842a342fe35",
-                "tenantId": "a63c8ef2-c3d2-4df0-be32-e15159f96f69",
                 "type": "SystemAssigned"
             },
             "properties": {
@@ -46,7 +68,7 @@
                                 },
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
                                     }
                                 },
                                 "path": "/subscribe"
@@ -67,7 +89,7 @@
                                 },
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
                                     }
                                 },
                                 "method": "put",
@@ -80,7 +102,7 @@
                             "inputs": {
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
                                     }
                                 },
                                 "method": "get",
@@ -162,10 +184,10 @@
                 "parameters": {
                     "$connections": {
                         "value": {
-                            "azuresentinel_1": {
-                                "connectionId": "[parameters('connections_azuresentinel_1_externalid')]",
-                                "connectionName": "azuresentinel-1",
-                                "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/azuresentinel"
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]",
+                                "connectionName": "[parameters('AzureSentinelConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
                             }
                         }
                     }
