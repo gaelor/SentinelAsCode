@@ -13,10 +13,6 @@
         "AzureSentinelConnectionName": {
             "defaultValue": "azuresentinel",
             "type": "string"
-        },
-        "MDATPConnectionName": {
-            "defaultValue": "wdatp",
-            "type": "string"
         }
     },
     "variables": {},
@@ -43,9 +39,7 @@
                 "LogicAppsCategory": "security"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]",
-                "[resourceId('Microsoft.Web/connections', parameters('MDATPConnectionName'))]"
-            ],
+                "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]"            ],
             "properties": {
                 "state": "Enabled",
                 "definition": {
