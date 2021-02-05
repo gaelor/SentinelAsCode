@@ -17,6 +17,10 @@
         "integrationAccount": {
             "Value": "AccorInvest",
             "type": "string"
+        },
+        "integrationAccount_resourceGroup": {
+            "Value": "accorinvest",
+            "type": "string"
         }
     }
 }

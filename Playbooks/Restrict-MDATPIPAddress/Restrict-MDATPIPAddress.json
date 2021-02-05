@@ -21,6 +21,10 @@
         "integrationAccount": {
             "defaultValue": "integrationAccount",
             "type": "string"
+        },
+        "integrationAccount_resourceGroup": {
+            "defaultValue": "integrationAccount_resourceGroup",
+            "type": "string"
         }
     },
     "variables": {},
@@ -55,7 +59,7 @@
             "properties": {
                 "state": "Enabled",
                 "integrationAccount": {
-                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().toto, '/providers/Microsoft.Logic/integrationAccounts/', parameters('integrationAccount'))]"
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('integrationAccount_resourceGroup'), '/providers/Microsoft.Logic/integrationAccounts/', parameters('integrationAccount'))]"
                 },
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
