@@ -397,7 +397,7 @@
                         },
                         "Init_NSG_Group": {
                             "runAfter": {
-                                "Init_Expiration": [
+                                "Init_NSG_ResourceGroup": [
                                     "Succeeded"
                                 ]
                             },
