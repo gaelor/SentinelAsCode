@@ -17,7 +17,11 @@
         "MDATPConnectionName": {
             "defaultValue": "wdatp",
             "type": "string"
-        }        
+        },
+        "integrationAccount": {
+            "defaultValue": "integrationAccount",
+            "type": "string"
+        }
     },
     "variables": {},
     "resources": [

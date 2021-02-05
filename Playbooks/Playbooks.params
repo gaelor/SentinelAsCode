@@ -14,5 +14,9 @@
             "Value": "wdatp",
             "type": "string"
         },
+        "integrationAccount": {
+            "Value": "AccorInvest",
+            "type": "string"
+        }
     }
 }
