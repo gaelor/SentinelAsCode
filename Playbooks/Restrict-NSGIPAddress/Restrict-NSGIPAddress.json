@@ -35,7 +35,7 @@
             "type": "string"
         },
         "NSG_ResourceGroup": {
-            "defaultValue": "NSG_Group",
+            "defaultValue": "NSG_ResourceGroup",
             "type": "string"
         }
     },
@@ -136,7 +136,7 @@
                                     "Content-type": "application/json"
                                 },
                                 "method": "PUT",
-                                "uri": "https://management.azure.com/subscriptions/@{triggerBody()?['WorkspaceSubscriptionId']}/resourceGroups/AccordInvest-resources/providers/Microsoft.Network/networkSecurityGroups/@{variables('nsg_group')}/securityRules/Sentinel_@{outputs('Month')?['body']}_@{body('Alert_-_Get_incident')?['properties']?['incidentNumber']}?api-version=2019-02-01"
+                                "uri": "https://management.azure.com/subscriptions/@{triggerBody()?['WorkspaceSubscriptionId']}/resourceGroups/@{variables('nsg_resourcegroup')}/providers/Microsoft.Network/networkSecurityGroups/@{variables('nsg_group')}/securityRules/Sentinel_@{outputs('Month')?['body']}_@{body('Alert_-_Get_incident')?['properties']?['incidentNumber']}?api-version=2019-02-01"
                             }
                         },
                         "Add_comment_to_incident_(V2)": {
@@ -190,7 +190,7 @@
                                                                     "type": "ManagedServiceIdentity"
                                                                 },
                                                                 "method": "DELETE",
-                                                                "uri": "[concat('https://management.azure.com/subscriptions/', subscription().subscriptionId, '/resourceGroups/', [parameters('NSG_resourceGroup')], '/providers/Microsoft.Network/networkSecurityGroups/', [parameters('NSG_Group')], '/securityRules/Sentinel_', @{outputs('RuleName')?['body']}, '?api-version=2020-07-01'"
+                                                                "uri": "[concat('https://management.azure.com/subscriptions/', subscription().subscriptionId, '/resourceGroups/', [parameters('NSG_resourceGroup')], '/providers/Microsoft.Network/networkSecurityGroups/', [parameters('NSG_Group')], '/securityRules/Sentinel_', @{outputs('RuleName')?['body']}, '?api-version=2020-07-01')]"
                                                             }
                                                         }
                                                     },
@@ -411,6 +411,23 @@
                                 ]
                             }
                         },
+                        "Init_NSG_ResourceGroup": {
+                            "runAfter": {
+                                "Init_Expiration": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "nsg_resourcegroup",
+                                        "type": "string",
+                                        "value": "[parameters('NSG_ResourceGroup')]"
+                                    }
+                                ]
+                            }
+                        },
                         "Init_NSG_Priorities": {
                             "runAfter": {
                                 "Init_Date": [
@@ -476,7 +493,7 @@
                                     "Content-type": "application/json"
                                 },
                                 "method": "GET",
-                                "uri": "[concat('https://management.azure.com/subscriptions/', subscription().subscriptionId, '/resourceGroups/', [parameters('NSG_resourceGroup')], '/providers/Microsoft.Network/networkSecurityGroups?api-version=2020-07-01'"
+                                "uri": "[concat('https://management.azure.com/subscriptions/', subscription().subscriptionId, '/resourceGroups/', [parameters('NSG_resourceGroup')], '/providers/Microsoft.Network/networkSecurityGroups?api-version=2020-07-01)]'"
                             }
                         },
                         "Month": {
