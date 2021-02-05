@@ -13,13 +13,13 @@
 |  |- Onboard/  ______________________ # Subfolder for Onboarding
 |     |- onboarding.json _________________ # Onboarding definition file (JSON)
 |
-|  |- Pipelines/ _____________________ # Subfolder for Pipelines 
-|     |- pipeline.yml _______________ # Pipeline definition files (YAML)
-|
 |  |- Playbooks/  ______________________ # Subfolder for Playbooks
 |     |- playbook.json _________________ # Playbooks definition files (ARM)
 |
 |  |- Scripts/ _____________________ # Subfolder for script helpers 
+|     |- CreateAnalyticsRules.ps1 _______________ # Script files
+|
+|  |- LocalScripts/ _____________________ # Subfolder for local script helpers
 |     |- CreateAnalyticsRules.ps1 _______________ # Script files
 |
 |  |- Workbooks/  ______________________ # Subfolder for Workbooks
