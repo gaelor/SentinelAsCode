@@ -27,7 +27,7 @@
             "type": "string"
         },
         "NSG_Group": {
-            "Value": "AccorInvest Blocked IP List",
+            "Value": "AccordInvest-syslog-nsg",
             "type": "string"
         },
         "NSG_ResourceGroup": {
