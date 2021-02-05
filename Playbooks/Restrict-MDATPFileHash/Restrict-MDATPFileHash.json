@@ -1,0 +1,206 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflows_Restrict_MDATPFileHash_name": {
+            "defaultValue": "Restrict-MDATPFileHash",
+            "type": "String"
+        },
+        "connections_azuresentinel_1_externalid": {
+            "defaultValue": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/resourceGroups/AccorInvest/providers/Microsoft.Web/connections/azuresentinel-1",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_Restrict_MDATPFileHash_name')]",
+            "location": "westeurope",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "identity": {
+                "principalId": "650f5161-b594-48a4-848f-6014a5196c6b",
+                "tenantId": "a63c8ef2-c3d2-4df0-be32-e15159f96f69",
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_response_to_an_Azure_Sentinel_alert_is_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                    }
+                                },
+                                "path": "/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Add_comment_to_incident_(V2)": {
+                            "runAfter": {
+                                "For_each_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "Value": "Files Hashes are blocked in MDATP .\n@{body('Entities_-_Get_FileHashes')}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                    }
+                                },
+                                "method": "put",
+                                "path": "/Comment/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}/@{encodeURIComponent('Incident')}/@{encodeURIComponent(body('Alert_-_Get_incident')?['properties']?['CaseNumber'])}"
+                            }
+                        },
+                        "Alert_-_Get_incident": {
+                            "runAfter": {
+                                "Entities_-_Get_FileHashes": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/Cases/@{encodeURIComponent(triggerBody()?['SystemAlertId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}"
+                            }
+                        },
+                        "Entities_-_Get_FileHashes": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "@triggerBody()?['Entities']",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/entities/filehash"
+                            }
+                        },
+                        "For_each_2": {
+                            "foreach": "@body('Entities_-_Get_FileHashes')?['Filehashes']",
+                            "actions": {
+                                "Switch_2": {
+                                    "runAfter": {},
+                                    "cases": {
+                                        "Case": {
+                                            "case": "SHA1",
+                                            "actions": {
+                                                "HTTP_3": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://api.securitycenter.windows.com",
+                                                            "clientId": "74a1f35c-7f9e-4b80-99f9-a2bede0f1d98",
+                                                            "secret": "0x8.2~bN0QYjQ4jobuGvL1_Piu5xU-hYtE",
+                                                            "tenant": "a63c8ef2-c3d2-4df0-be32-e15159f96f69",
+                                                            "type": "ActiveDirectoryOAuth"
+                                                        },
+                                                        "body": {
+                                                            "action": "AlertAndBlock",
+                                                            "application": "@{triggerBody()?['ProductName']}",
+                                                            "description": "@{body('Alert_-_Get_incident')?['properties']?['Title']}",
+                                                            "expirationTime": "@{addDays(triggerBody()?['TimeGenerated'], 90)}",
+                                                            "indicatorType": "FileSha1",
+                                                            "indicatorValue": "@{items('For_each_2')?['Value']}",
+                                                            "severity": "@{body('Alert_-_Get_incident')?['properties']?['Severity']}",
+                                                            "title": "@{guid()}"
+                                                        },
+                                                        "method": "POST",
+                                                        "uri": "https://api.securitycenter.windows.com/api/indicators"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Case_2": {
+                                            "case": "SHA256",
+                                            "actions": {
+                                                "HTTP_4": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://api.securitycenter.windows.com",
+                                                            "clientId": "74a1f35c-7f9e-4b80-99f9-a2bede0f1d98",
+                                                            "secret": "0x8.2~bN0QYjQ4jobuGvL1_Piu5xU-hYtE",
+                                                            "tenant": "a63c8ef2-c3d2-4df0-be32-e15159f96f69",
+                                                            "type": "ActiveDirectoryOAuth"
+                                                        },
+                                                        "body": {
+                                                            "action": "AlertAndBlock",
+                                                            "application": "@{triggerBody()?['ProductName']}",
+                                                            "description": "@{body('Alert_-_Get_incident')?['properties']?['Title']}",
+                                                            "expirationTime": "@{addDays(triggerBody()?['TimeGenerated'], 90)}",
+                                                            "indicatorType": "FileSha256",
+                                                            "indicatorValue": "@{items('For_each_2')?['Value']}",
+                                                            "severity": "@{body('Alert_-_Get_incident')?['properties']?['Severity']}",
+                                                            "title": "@{guid()}"
+                                                        },
+                                                        "method": "POST",
+                                                        "uri": "https://api.securitycenter.windows.com/api/indicators"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "default": {
+                                        "actions": {}
+                                    },
+                                    "expression": "@items('For_each_2')?['Algorithm']",
+                                    "type": "Switch"
+                                }
+                            },
+                            "runAfter": {
+                                "Alert_-_Get_incident": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel_1": {
+                                "connectionId": "[parameters('connections_azuresentinel_1_externalid')]",
+                                "connectionName": "azuresentinel-1",
+                                "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/azuresentinel"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

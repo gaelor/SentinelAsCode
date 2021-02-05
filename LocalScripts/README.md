@@ -1,4 +1,4 @@
-# Scripts
+# LocalScripts
 
 ## Install Sentinel script (InstallSentinel.ps1)
 

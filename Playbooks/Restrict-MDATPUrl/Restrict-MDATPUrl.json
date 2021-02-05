@@ -1,0 +1,176 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflows_Restrict_MDATPUrl_name": {
+            "defaultValue": "Restrict-MDATPUrl",
+            "type": "String"
+        },
+        "connections_azuresentinel_1_externalid": {
+            "defaultValue": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/resourceGroups/AccorInvest/providers/Microsoft.Web/connections/azuresentinel-1",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_Restrict_MDATPUrl_name')]",
+            "location": "westeurope",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "identity": {
+                "principalId": "cac7efce-02f0-470b-98ed-4842a342fe35",
+                "tenantId": "a63c8ef2-c3d2-4df0-be32-e15159f96f69",
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_response_to_an_Azure_Sentinel_alert_is_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                    }
+                                },
+                                "path": "/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Add_comment_to_incident_(V2)": {
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "Value": "URLs are blocked in MDATP ."
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                    }
+                                },
+                                "method": "put",
+                                "path": "/Comment/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}/@{encodeURIComponent('Incident')}/@{encodeURIComponent(body('Alert_-_Get_incident')?['properties']?['CaseNumber'])}"
+                            }
+                        },
+                        "Alert_-_Get_incident": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/Incidents/subscriptions/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/resourceGroups/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}/workspaces/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/alerts/@{encodeURIComponent(triggerBody()?['SystemAlertId'])}"
+                            }
+                        },
+                        "For_each": {
+                            "foreach": "@body('Parse_JSON')",
+                            "actions": {
+                                "HTTP": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://api.securitycenter.windows.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "body": {
+                                            "action": "AlertAndBlock",
+                                            "application": "@{triggerBody()?['ProductName']}",
+                                            "description": "@{triggerBody()?['AlertDisplayName']}",
+                                            "expirationTime": "@{addDays(string(triggerbody()['TimeGenerated']), 90)}",
+                                            "indicatorType": "Url",
+                                            "indicatorValue": "@{items('For_each')['Url']}",
+                                            "severity": "Medium",
+                                            "title": "@{guid()}"
+                                        },
+                                        "headers": {
+                                            "Content-type": "application/json"
+                                        },
+                                        "method": "POST",
+                                        "uri": "https://api.securitycenter.windows.com/api/indicators"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Parse_JSON": {
+                            "runAfter": {
+                                "Alert_-_Get_incident": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@triggerBody()?['Entities']",
+                                "schema": {
+                                    "items": {
+                                        "properties": {
+                                            "$id": {
+                                                "type": "string"
+                                            },
+                                            "Type": {
+                                                "type": "string"
+                                            },
+                                            "Url": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "$id",
+                                            "Url",
+                                            "Type"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel_1": {
+                                "connectionId": "[parameters('connections_azuresentinel_1_externalid')]",
+                                "connectionName": "azuresentinel-1",
+                                "id": "/subscriptions/c3a3408b-632a-4df4-9c92-deded42a7e48/providers/Microsoft.Web/locations/westeurope/managedApis/azuresentinel"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
