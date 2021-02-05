@@ -190,7 +190,7 @@
                                                                     "type": "ManagedServiceIdentity"
                                                                 },
                                                                 "method": "DELETE",
-                                                                "uri": "[concat('https://management.azure.com/subscriptions/', subscription().subscriptionId, '/resourceGroups/', [parameters('NSG_resourceGroup')], '/providers/Microsoft.Network/networkSecurityGroups/', [parameters('NSG_Group')], '/securityRules/Sentinel_', @{outputs('RuleName')?['body']}, '?api-version=2020-07-01')]"
+                                                                "uri": "[concat('https://management.azure.com/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('NSG_resourceGroup'), '/providers/Microsoft.Network/networkSecurityGroups/', parameters('NSG_Group'), '/securityRules/Sentinel_', @{outputs('RuleName')?['body']}, '?api-version=2020-07-01')]"
                                                             }
                                                         }
                                                     },
@@ -493,7 +493,7 @@
                                     "Content-type": "application/json"
                                 },
                                 "method": "GET",
-                                "uri": "[concat('https://management.azure.com/subscriptions/', subscription().subscriptionId, '/resourceGroups/', [parameters('NSG_resourceGroup')], '/providers/Microsoft.Network/networkSecurityGroups?api-version=2020-07-01)]'"
+                                "uri": "[concat('https://management.azure.com/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('NSG_resourceGroup'), '/providers/Microsoft.Network/networkSecurityGroups?api-version=2020-07-01')]"
                             }
                         },
                         "Month": {
