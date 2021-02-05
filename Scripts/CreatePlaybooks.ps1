@@ -28,7 +28,7 @@ foreach ($item in $workspaces.deployments){
     Write-Host "Processing resourcegroup $($item.resourcegroup) ..."
 
     #Getting all playbooks from folder
-    $armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter *CAIPAddress.json
+    $armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter *CAIPAdress.json
 
     Write-Host "Files are: " $armTemplateFiles
 
