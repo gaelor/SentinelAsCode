@@ -46,8 +46,6 @@
                 "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]"            
             ],
             "identity": {
-                "principalId": "bf62eac1-c635-4d4d-8870-664e6e97f8d2",
-                "tenantId": "a63c8ef2-c3d2-4df0-be32-e15159f96f69",
                 "type": "SystemAssigned"
             },
             "properties": {
