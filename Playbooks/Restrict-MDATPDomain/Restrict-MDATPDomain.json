@@ -13,11 +13,7 @@
         "AzureSentinelConnectionName": {
             "defaultValue": "azuresentinel",
             "type": "string"
-        },
-        "MDATPConnectionName": {
-            "defaultValue": "wdatp",
-            "type": "string"
-        }        
+        }       
     },
     "variables": {},
     "resources": [
@@ -31,19 +27,6 @@
                 "customParameterValues": {},
                 "api": {
                     "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Web/connections",
-            "apiVersion": "2016-06-01",
-            "name": "[parameters('MDATPConnectionName')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "displayName": "[parameters('UserName')]",
-                "customParameterValues": {},
-                "api": {
-                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/wdatp')]"
                 }
             }
         },
