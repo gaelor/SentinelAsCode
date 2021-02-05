@@ -25,6 +25,14 @@
         "CA_LocationName": {
             "Value": "AccorInvest Blocked IP List",
             "type": "string"
+        },
+        "NSG_Group": {
+            "Value": "AccorInvest Blocked IP List",
+            "type": "NSG_Group"
+        },
+        "NSG_ResourceGroup": {
+            "Value": "AccordInvest-resources",
+            "type": "NSG_Group"
         }
     }
 }
