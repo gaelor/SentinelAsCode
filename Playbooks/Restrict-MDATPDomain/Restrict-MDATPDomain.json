@@ -13,6 +13,10 @@
         "AzureSentinelConnectionName": {
             "defaultValue": "azuresentinel",
             "type": "string"
+        },
+        "MDATPConnectionName": {
+            "defaultValue": "wdatp",
+            "type": "string"
         }
     },
     "variables": {},
