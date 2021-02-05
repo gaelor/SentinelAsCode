@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Restrict-NSGIPAddress",
+            "defaultValue": "Open-jira-Ticket",
             "type": "string"
         },
         "UserName": {
@@ -370,9 +370,9 @@
                                             "type": "Http",
                                             "inputs": {
                                                 "authentication": {
-                                                    "password": "${{secrets.JIRA_PWD}}",
+                                                    "password": "secrets.('JIRA_PWD')",
                                                     "type": "Basic",
-                                                    "username": "${{secrets.JIRA_USER}}"
+                                                    "username": "secrets.('JIRA_USER')"
                                                 },
                                                 "body": {
                                                     "fields": {
