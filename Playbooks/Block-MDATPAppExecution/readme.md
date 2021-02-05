@@ -1,4 +1,4 @@
-# Restrict-MDATPAppExecution
+# Block-MDATPAppExecution
 author: Thomas Couilleaux
 
 This playbook will block app execution on the machine in Microsoft Defender ATP.
