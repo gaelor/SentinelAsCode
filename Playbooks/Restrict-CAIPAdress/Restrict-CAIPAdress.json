@@ -313,7 +313,7 @@
                                     {
                                         "name": "ca_location_name",
                                         "type": "string",
-                                        "value": "@parameters('CA_LocationName')"
+                                        "value": "[parameters('CA_LocationName')]"
                                     }
                                 ]
                             }
