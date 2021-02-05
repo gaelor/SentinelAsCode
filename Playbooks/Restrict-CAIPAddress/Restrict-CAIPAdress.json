@@ -26,6 +26,10 @@
         "integrationAccount_resourceGroup": {
             "defaultValue": "integrationAccount_resourceGroup",
             "type": "string"
+        },
+        "CA_LocationName": {
+            "defaultValue": "CA_LocationName",
+            "type": "string"
         }
     },
     "variables": {},
@@ -309,7 +313,7 @@
                                     {
                                         "name": "ca_location_name",
                                         "type": "string",
-                                        "value": "AccorInvest Blocked IP List"
+                                        "value": "parameters('CA_LocationName')"
                                     }
                                 ]
                             }

@@ -21,6 +21,10 @@
         "integrationAccount_resourceGroup": {
             "Value": "accorinvest",
             "type": "string"
+        },
+        "CA_LocationName": {
+            "Value": "AccorInvest Blocked IP List",
+            "type": "string"
         }
     }
 }
