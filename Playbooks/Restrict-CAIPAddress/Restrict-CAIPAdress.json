@@ -1,0 +1,468 @@
+
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Restrict-CAIPAddress",
+            "type": "string"
+        },
+        "UserName": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        },
+        "AzureSentinelConnectionName": {
+            "defaultValue": "azuresentinel",
+            "type": "string"
+        },
+        "MDATPConnectionName": {
+            "defaultValue": "wdatp",
+            "type": "string"
+        },
+        "integrationAccount": {
+            "defaultValue": "integrationAccount",
+            "type": "string"
+        },
+        "integrationAccount_resourceGroup": {
+            "defaultValue": "integrationAccount_resourceGroup",
+            "type": "string"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]"            
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "integrationAccount": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('integrationAccount_resourceGroup'), '/providers/Microsoft.Logic/integrationAccounts/', parameters('integrationAccount'))]"
+                },
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_response_to_an_Azure_Sentinel_alert_is_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "path": "/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Alert_-_Get_incident": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/Cases/@{encodeURIComponent(triggerBody()?['SystemAlertId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}"
+                            }
+                        },
+                        "CA_Location_Name": {
+                            "runAfter": {
+                                "Init_CA_Location_Name": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": "@variables('ca_location_name')"
+                        },
+                        "For_Each_Location": {
+                            "foreach": "@body('Location_JSON')?['value']",
+                            "actions": {
+                                "Condition_CA_Location_Name": {
+                                    "actions": {
+                                        "Add_comment_to_incident_(V2)": {
+                                            "runAfter": {
+                                                "Update_CA_Location": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": {
+                                                    "Value": "IPS are blocked in Conditional Access and the http status is @{outputs('Update_CA_Location')['statusCode']}.\nIPS List:\n@{outputs('IPS_Total')}"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "put",
+                                                "path": "/Comment/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}/@{encodeURIComponent('Incident')}/@{encodeURIComponent(body('Alert_-_Get_incident')?['properties']?['CaseNumber'])}"
+                                            }
+                                        },
+                                        "CA_Location_JSON": {
+                                            "runAfter": {
+                                                "IPS_Total": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "JavaScriptCode",
+                                            "inputs": {
+                                                "code": "var ips = workflowContext.actions.IPS_Total.outputs;\r\nvar result = [];\r\n\r\nfor (var ip in ips) {\r\n  result += \"{\\\"cidrAddress\\\":\" + \"\\\"\" + ips[ip] + \"\\\",\" + \"\\\"@odata.type\\\": \\\"#microsoft.graph.iPv4CidrRange\\\"},\";\r\n}\r\n\r\nconst search = '\\\\';\r\nconst replaceWith = '';\r\n\r\nvar string = JSON.stringify(result.replace(/,$/,']}').replace(/^/,'{\"displayName\": \"ca_location_name\",\"isTrusted\": false,\"@odata.type\": \"#microsoft.graph.ipNamedLocation\",\"ipRanges\": [')).split(search).join(replaceWith).replace(new RegExp(\"ca_location_name\", \"g\"),workflowContext.actions.CA_Location_Name.outputs);\r\n\r\nvar json = string.replace(/^\\\"/,'').replace(/\\\"$/,'');\r\n\r\nreturn json;"
+                                            }
+                                        },
+                                        "For_Each_IPRanges": {
+                                            "foreach": "@items('For_Each_Location')?['ipRanges']",
+                                            "actions": {
+                                                "Append_IPS": {
+                                                    "runAfter": {},
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "IPS",
+                                                        "value": "@items('For_Each_IPRanges')?['cidrAddress']"
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Set_CA_Location_ID": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Foreach"
+                                        },
+                                        "IPS_Total": {
+                                            "runAfter": {
+                                                "For_Each_IPRanges": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Compose",
+                                            "inputs": "@variables('IPS')"
+                                        },
+                                        "Set_CA_Location_ID": {
+                                            "runAfter": {},
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "ca_location_id",
+                                                "value": "@items('For_Each_Location')?['id']"
+                                            }
+                                        },
+                                        "Update_CA_Location": {
+                                            "runAfter": {
+                                                "CA_Location_JSON": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "audience": "https://graph.microsoft.com/",
+                                                    "clientId": "8744aa41-c14c-43a6-8963-b0427b9c44b6",
+                                                    "secret": "BbkMwl4d.4jjRQHHgfk0HXs0_~n1r__-2b",
+                                                    "tenant": "a63c8ef2-c3d2-4df0-be32-e15159f96f69",
+                                                    "type": "ActiveDirectoryOAuth"
+                                                },
+                                                "body": "@outputs('CA_Location_JSON')?['body']",
+                                                "headers": {
+                                                    "Content-type": "application/json"
+                                                },
+                                                "method": "PATCH",
+                                                "uri": "https://graph.microsoft.com/v1.0/identity/conditionalAccess/namedLocations/@{variables('ca_location_id')}"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@items('For_Each_Location')?['displayName']",
+                                                    "@variables('ca_location_name')"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                }
+                            },
+                            "runAfter": {
+                                "Location_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "IPS": {
+                            "runAfter": {
+                                "IPS_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": "@body('IPS_JSON')?['Source IP(s) [Number of attempts]']"
+                        },
+                        "IPS_Array": {
+                            "runAfter": {
+                                "IPS": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "JavaScriptCode",
+                            "inputs": {
+                                "code": "var list = workflowContext.actions.IPS.outputs;\r\n\r\nconst search = 'IP: ';\r\nconst replaceWith = '';\r\n\r\nconst replace1 = list.split(search).join(replaceWith);\r\n\r\nconst searchRegExp = / .*/ig;\r\n\r\nconst ips = replace1.replace(searchRegExp, replaceWith).replace(/\\r\\n/ig,'/32,').replace(/$/,'/32').split(',');\r\n\r\nreturn ips;"
+                            }
+                        },
+                        "IPS_JSON": {
+                            "runAfter": {
+                                "CA_Location_Name": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@triggerBody()?['ExtendedProperties']",
+                                "schema": {
+                                    "properties": {
+                                        "Destination Port": {
+                                            "type": "string"
+                                        },
+                                        "Investigation Steps": {
+                                            "type": "string"
+                                        },
+                                        "ProcessedBySentinel": {
+                                            "type": "string"
+                                        },
+                                        "Protocol": {
+                                            "type": "string"
+                                        },
+                                        "Source IP(s) [Number of attempts]": {
+                                            "type": "string"
+                                        },
+                                        "resourceType": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Init_CA_Location_ID": {
+                            "runAfter": {
+                                "Init_IPS": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ca_location_id",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Init_CA_Location_Name": {
+                            "runAfter": {
+                                "Init_CA_Location_ID": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ca_location_name",
+                                        "type": "string",
+                                        "value": "AccorInvest Blocked IP List"
+                                    }
+                                ]
+                            }
+                        },
+                        "Init_IPAddress": {
+                            "runAfter": {
+                                "Alert_-_Get_incident": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "IPAddress",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Init_IPS": {
+                            "runAfter": {
+                                "Init_IPAddress": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "IPS",
+                                        "type": "array"
+                                    }
+                                ]
+                            }
+                        },
+                        "List_NamedLocations": {
+                            "runAfter": {
+                                "Set_IPS": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://graph.microsoft.com/",
+                                    "clientId": "8744aa41-c14c-43a6-8963-b0427b9c44b6",
+                                    "secret": "BbkMwl4d.4jjRQHHgfk0HXs0_~n1r__-2b",
+                                    "tenant": "a63c8ef2-c3d2-4df0-be32-e15159f96f69",
+                                    "type": "ActiveDirectoryOAuth"
+                                },
+                                "headers": {
+                                    "Content-type": "application/json"
+                                },
+                                "method": "GET",
+                                "uri": "https://graph.microsoft.com/v1.0/identity/conditionalAccess/namedLocations"
+                            }
+                        },
+                        "Location_JSON": {
+                            "runAfter": {
+                                "List_NamedLocations": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('List_NamedLocations')",
+                                "schema": {
+                                    "properties": {
+                                        "@@odata.context": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "@@odata.type": {
+                                                        "type": "string"
+                                                    },
+                                                    "createdDateTime": {},
+                                                    "displayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "ipRanges": {
+                                                        "items": {
+                                                            "properties": {
+                                                                "@@odata.type": {
+                                                                    "type": "string"
+                                                                },
+                                                                "cidrAddress": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "@@odata.type",
+                                                                "cidrAddress"
+                                                            ],
+                                                            "type": "object"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "isTrusted": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "modifiedDateTime": {}
+                                                },
+                                                "required": [
+                                                    "@@odata.type",
+                                                    "id",
+                                                    "displayName",
+                                                    "modifiedDateTime",
+                                                    "createdDateTime",
+                                                    "isTrusted",
+                                                    "ipRanges"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Set_IPS": {
+                            "runAfter": {
+                                "IPS_Array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "IPS",
+                                "value": "@outputs('IPS_Array')?['body']"
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]",
+                                "connectionName": "[parameters('AzureSentinelConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
