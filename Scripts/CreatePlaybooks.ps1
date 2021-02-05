@@ -27,11 +27,12 @@ Write-Host "Playbooks Parameter Files is: $($PlaybooksParams)"
 foreach ($item in $workspaces.deployments){
     Write-Host "Processing resourcegroup $($item.resourcegroup) ..."
 
+    $TempFile = New-TemporaryFile
     $content = Get-Content -Path $PlaybooksParams
     $newContent = $content -replace  '(?<=/subscriptions/).*?(?=</resourceGroups/)', $workspaces.subscription
     $newContent2 = $newContent -replace '(?<=/resourceGroups/).*?(?=</providers/)', $item.resourcegroup
-    $newContent2 | Set-Content -Path $PlaybooksParams.tmp
-    Get-Content -Path $PlaybooksParams.tmp
+    $newContent2 | Set-Content -Path $TempFile
+    Get-Content -Path $TempFile
 
     #Getting all playbooks from folder
     $armTemplateFiles = Get-ChildItem -Path $PlaybooksFolder -Filter *.json
