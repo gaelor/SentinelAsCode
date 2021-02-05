@@ -55,7 +55,7 @@
             "properties": {
                 "state": "Enabled",
                 "integrationAccount": {
-                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().location, '/providers/Microsoft.Logic/integrationAccounts/', parameters('integrationAccount'))]"
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Logic/integrationAccounts/', parameters('integrationAccount'))]"
                 },
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
