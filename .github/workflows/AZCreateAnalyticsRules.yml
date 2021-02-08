@@ -32,5 +32,5 @@ jobs:
 
       - name: Deploy ARM Template
         run: |
-          az deployment group create -g accorinvest --template-file tmp/Get-IPReputation.json --parameters tmp/PlaybooksParams.json Azure_ServiceAccount=thomas.couilleaux@theclemvp.com
+          az deployment group create -g accorinvest --template-file tmp/Get-IPReputation.json --parameters tmp/PlaybooksParams.json Azure_ServiceAccount=${{secrets.AZURE_SERVICEACCOUNT}} Jira_User=${{secrets.JIRA_USER}} Jira_Pwd=${{secrets.JIRA_PWD}} Virustotal_Key=${{secrets.VIRUSTOTAL_KEY}}
         shell: bash

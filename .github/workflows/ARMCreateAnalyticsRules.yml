@@ -38,5 +38,5 @@ jobs:
           subscriptionId: c3a3408b-632a-4df4-9c92-deded42a7e48
           resourceGroupName: accorinvest
           templateLocation: tmp/Get-IPReputation.json
-          parameters: tmp/PlaybooksParams.json Azure_ServiceAccount=thomas.couilleaux@theclemvp.com
+          parameters: tmp/PlaybooksParams.json Azure_ServiceAccount=${{secrets.AZURE_SERVICEACCOUNT}} Jira_User=${{secrets.JIRA_USER}} Jira_Pwd=${{secrets.JIRA_PWD}} Virustotal_Key=${{secrets.VIRUSTOTAL_KEY}}
           deploymentName: github-advanced-test3

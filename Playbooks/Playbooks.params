@@ -42,12 +42,12 @@
             "Value": "AccordInvest",
             "type": "string"
         },
-        "Jira_Pwd": {
-            "Value": "<jira_pwd>",
-            "type": "string"
-        },
         "Jira_User": {
             "Value": "<jira_user>",
+            "type": "string"
+        },
+        "Jira_Pwd": {
+            "Value": "<jira_pwd>",
             "type": "string"
         },
         "Virustotal_Key": {
