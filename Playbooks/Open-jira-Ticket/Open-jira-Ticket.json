@@ -189,7 +189,7 @@
                         },
                         "HTTP_2": {
                             "runAfter": {
-                                "Initialize_variable_2": [
+                                "Initialize_variable_4": [
                                     "Succeeded"
                                 ]
                             },
@@ -236,7 +236,11 @@
                             }
                         },
                         "Initialize_variable_3": {
-                            "runAfter": {},
+                            "runAfter": {
+                                "Initialize_variable_2": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
@@ -249,7 +253,11 @@
                             }
                         },
                         "Initialize_variable_4": {
-                            "runAfter": {},
+                            "runAfter": {
+                                "Initialize_variable_3": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
