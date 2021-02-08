@@ -35,6 +35,6 @@ jobs:
         id: deploy
         with:
           resourceGroupName: accorinvest
-          template: Playbooks/Get-IPReputation/Get-IPReputation.json
-          parameters: Playbooks/Playbooks.params Azure_ServiceAccount=thomas.couilleaux@theclemvp.com
+          template: tmp/Get-IPReputation.json
+          parameters: tmp/PlaybooksParams.json Azure_ServiceAccount=thomas.couilleaux@theclemvp.com
           deploymentName: github-advanced-test2
