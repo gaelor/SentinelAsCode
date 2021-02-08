@@ -41,6 +41,10 @@
         "TriClient": {
             "defaultValue": "Acc",
             "type": "string"
+        },
+        "Jira_Organization": {
+            "defaultValue": "Jira_Organization",
+            "type": "string"
         }
     },
     "variables": {},
