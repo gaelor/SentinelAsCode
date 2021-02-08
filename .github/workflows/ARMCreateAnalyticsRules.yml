@@ -29,9 +29,14 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-#az deployment group create -g accorinvest --template-file Playbooks/Get-IPReputation/Get-IPReputation.json --parameters Azure_ServiceAccount=thomas.couilleaux@theclemvp.com integrationAccount=AccorInvest integrationAccount_resourceGroup=accorinvest      
+      
       - name: Deploy ARM Template
-        run: |
-          az deployment group create -g accorinvest --template-file tmp/Get-IPReputation.json --parameters tmp/PlaybooksParams.json Azure_ServiceAccount=thomas.couilleaux@theclemvp.com
-        shell: bash
+        uses: whiteducksoftware/azure-arm-action-js@v4.1
+        id: deploy
+        with:
+          scope: resourcegroup
+          subscriptionId: c3a3408b-632a-4df4-9c92-deded42a7e48
+          resourceGroupName: accorinvest
+          templateLocation: tmp/Get-IPReputation.json
+          parameters: tmp/PlaybooksParams.json Azure_ServiceAccount=thomas.couilleaux@theclemvp.com
+          deploymentName: github-advanced-test3

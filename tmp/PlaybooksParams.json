@@ -3,30 +3,43 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "Azure_ServiceAccount": {
-            "value": "<username>@<domain>"        },
+            "value": "<username>@<domain>"
+        },
         "AzureSentinelConnectionName": {
-            "value": "azuresentinel"        },
+            "value": "azuresentinel"
+        },
         "MDATPConnectionName": {
-            "value": "wdatp"        },
+            "value": "wdatp"
+        },
         "integrationAccount": {
-            "value": "AccorInvest"        },
+            "value": "AccorInvest"
+        },
         "integrationAccount_resourceGroup": {
-            "value": "accorinvest"        },
+            "value": "accorinvest"
+        },
         "CA_LocationName": {
-            "value": "AccorInvest Blocked IP List"        },
+            "value": "AccorInvest Blocked IP List"
+        },
         "NSG_Group": {
-            "value": "AccordInvest-syslog-nsg"        },
+            "value": "AccordInvest-syslog-nsg"
+        },
         "NSG_ResourceGroup": {
-            "value": "AccordInvest-resources"        },
+            "value": "AccordInvest-resources"
+        },
         "TriClient": {
-            "value": "Acc"        },
+            "value": "Acc"
+        },
         "Jira_Organization": {
-            "value": "AccordInvest"        },
+            "value": "AccordInvest"
+        },
         "Jira_Pwd": {
-            "value": "<jira_pwd>"        },
+            "value": "<jira_pwd>"
+        },
         "Jira_User": {
-            "value": "<jira_user>"        },
+            "value": "<jira_user>"
+        },
         "Virustotal_Key": {
-            "value": "<virustotal_key>"        }
+            "value": "<virustotal_key>"
+        }
     }
 }
