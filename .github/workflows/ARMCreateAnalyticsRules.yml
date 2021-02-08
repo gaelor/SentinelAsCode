@@ -32,5 +32,5 @@ jobs:
       
       - name: Deploy ARM Template
         run: |
-          az deployment group create -g accorinvest --template-file ./Playbooks/Get-IPReputation/Get-IPReputation.json --parameters Azure_ServiceAccount=thomas.couilleaux@theclemvp.com
+          az deployment group create -g accorinvest --template-file ./Playbooks/Get-IPReputation/Get-IPReputation.json --parameters ./Playbooks/Playbooks.params
         shell: bash
