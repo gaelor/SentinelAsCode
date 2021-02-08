@@ -31,7 +31,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Deploy ARM Template
-        uses: azure/arm-deploy@v1
+        uses: whiteducksoftware/azure-arm-action-js@v4.1
         id: deploy
         with:
           scope: resourcegroup
