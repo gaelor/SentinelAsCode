@@ -25,12 +25,13 @@ Write-Host "Folder is: $($PlaybooksFolder)"
 Write-Host "Playbooks Parameter Files is: $($PlaybooksParams)"
 
 $Params = Get-Content -Path $PlaybooksParams
-$TmpParams = $Params.replace('<username>@<domain>','toto@theclemvp.com')
-$TmpFile = New-TemporaryFile
-$TmpParams | out-file -filepath $TmpFile
+$TmpParams = $Params.replace('<username>@<domain>',$Azure_ServiceAccount)
+$TmpParamsFile = New-TemporaryFile
+$TmpParams | out-file -filepath $TmpParamsFile
 
-foreach ($item in $workspaces.deployments){
-    Write-Host "Processing resourcegroup $($item.resourcegroup) ..."
+#foreach ($item in $workspaces.deployments){
+#    Write-Host "Processing resourcegroup $($item.resourcegroup) ..."
+    Write-Host "Processing resourcegroup $($workspaces.deployments[0].resourcegroup)"
 
     #Getting all playbooks from folder
     $armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter *NSGIPAddress.json
@@ -39,11 +40,11 @@ foreach ($item in $workspaces.deployments){
 
     foreach ($armTemplate in $armTemplateFiles) {
         try {
-            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -TemplateParameterFile $TmpFile
+            New-AzResourceGroupDeployment -ResourceGroupName $workspaces.deployments[0].resourcegroup -TemplateFile $armTemplate -TemplateParameterFile $TmpParamsFile
         }
         catch {
             $ErrorMessage = $_.Exception.Message
-            Write-Error "Playbook deployment failed with message: $ErrorMessage" 
+            Write-Error "Playbook deployment failed with message: $ErrorMessage"
         }
     }
-}
+#}
