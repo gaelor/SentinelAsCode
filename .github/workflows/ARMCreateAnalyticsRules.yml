@@ -34,4 +34,4 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           resourceGroupName: accorinvest
-          template: ./Playbooks/Get-IPReputation/Get-IPReputation.json
+          template: Playbook/analytics-rules.json
