@@ -42,7 +42,7 @@
             "Value": "AccordInvest",
             "type": "string"
         },
-        "Jira_Pwd": {
+        "Jira": {
             "Value": "<jira_pwd>",
             "type": "string"
         },
