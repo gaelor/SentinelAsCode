@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory=$true)]$OnboardingFile,
     [Parameter(Mandatory=$true)]$PlaybooksFolder,
     [Parameter(Mandatory=$true)]$PlaybooksParams,
+    [Parameter(Mandatory=$true)]$Azure_ServiceAccount,
     [Parameter(Mandatory=$true)]$Azure_User,
     [Parameter(Mandatory=$true)]$Azure_Pwd
 )
