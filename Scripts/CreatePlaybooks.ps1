@@ -24,6 +24,9 @@ Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscripti
 Write-Host "Folder is: $($PlaybooksFolder)"
 Write-Host "Playbooks Parameter Files is: $($PlaybooksParams)"
 
+$Params = Get-Content -Path $PlaybooksParams
+Write-Host $Params.replace('thomas.couilleaux@theclemvp.com','toto@theclemvp.com')
+
 foreach ($item in $workspaces.deployments){
     Write-Host "Processing resourcegroup $($item.resourcegroup) ..."
 
