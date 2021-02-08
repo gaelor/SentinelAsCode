@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Get-FileReputation",
+            "defaultValue": "Get-IPReputation",
             "type": "string"
         },
         "Azure_ServiceAccount": {
@@ -47,15 +47,15 @@
             "type": "string"
         },
         "Jira_Pwd": {
-            "defaultValue": "<jira_pwd>",
+            "Value": "<jira_pwd>",
             "type": "string"
         },
         "Jira_User": {
-            "defaultValue": "<jira_user>",
+            "Value": "<jira_user>",
             "type": "string"
         },
         "Virustotal_Key": {
-            "defaultValue": "<virustotal_key>",
+            "Value": "<virustotal_key>",
             "type": "string"
         }
     },
