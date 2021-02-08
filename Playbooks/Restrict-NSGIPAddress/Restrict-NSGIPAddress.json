@@ -6,7 +6,7 @@
             "defaultValue": "[concat('Restrict-Restrict-NSGIPAddress_', parameters('TriClient'), '_', parameters('NSG_Group'))]",
             "type": "string"
         },
-        "UserName": {
+        "Azure_ServiceAccount": {
             "defaultValue": "<username>@<domain>",
             "type": "string"
         },
