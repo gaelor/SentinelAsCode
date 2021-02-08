@@ -41,6 +41,18 @@
         "Jira_Organization": {
             "Value": "AccordInvest",
             "type": "string"
+        },
+        "Jira_Pwd": {
+            "Value": "<jira_pwd>",
+            "type": "string"
+        },
+        "Jira_User": {
+            "Value": "<jira_user>",
+            "type": "string"
+        },
+        "Virustotal_Key": {
+            "Value": "<virustotal_key>",
+            "type": "string"
         }
     }
 }

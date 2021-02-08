@@ -19,31 +19,43 @@
             "type": "string"
         },
         "integrationAccount": {
-            "defaultValue": "integrationAccount",
+            "defaultValue": "<integrationaccount>",
             "type": "string"
         },
         "integrationAccount_resourceGroup": {
-            "defaultValue": "integrationAccount_resourceGroup",
+            "defaultValue": "<integrationaccount_resourcegroup>",
             "type": "string"
         },
         "CA_LocationName": {
-            "defaultValue": "CA_LocationName",
+            "defaultValue": "<ca_locationname>",
             "type": "string"
         },
         "NSG_Group": {
-            "defaultValue": "NSG_Group",
+            "defaultValue": "<nsg_group>",
             "type": "string"
         },
         "NSG_ResourceGroup": {
-            "defaultValue": "NSG_ResourceGroup",
+            "defaultValue": "<nsg_resourcegroup>",
             "type": "string"
         },
         "TriClient": {
-            "defaultValue": "Acc",
+            "defaultValue": "<acc>",
             "type": "string"
         },
         "Jira_Organization": {
-            "defaultValue": "Jira_Organization",
+            "defaultValue": "<jira_organization>",
+            "type": "string"
+        },
+        "Jira_Pwd": {
+            "Value": "<jira_pwd>",
+            "type": "string"
+        },
+        "Jira_User": {
+            "Value": "<jira_user>",
+            "type": "string"
+        },
+        "Virustotal_Key": {
+            "Value": "<virustotal_key>",
             "type": "string"
         }
     },
@@ -55,7 +67,7 @@
             "name": "[parameters('AzureSentinelConnectionName')]",
             "location": "[resourceGroup().location]",
             "properties": {
-                "displayName": "[parameters('UserName')]",
+                "displayName": "[parameters('Azure_ServiceAccount')]",
                 "customParameterValues": {},
                 "api": {
                     "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
@@ -352,7 +364,7 @@
                                     {
                                         "name": "APIKey",
                                         "type": "String",
-                                        "value": "a37d570c6cd60f69aa9cb69686469886db6d043ac7407dec1ef9c03329cad751"
+                                        "value": "parameters('Virustotal_Key')"
                                     }
                                 ]
                             }

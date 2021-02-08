@@ -4,7 +4,10 @@ param(
     [Parameter(Mandatory=$true)]$PlaybooksParams,
     [Parameter(Mandatory=$true)]$Azure_ServiceAccount,
     [Parameter(Mandatory=$true)]$Azure_User,
-    [Parameter(Mandatory=$true)]$Azure_Pwd
+    [Parameter(Mandatory=$true)]$Azure_Pwd,
+    [Parameter(Mandatory=$true)]$Jira_Pwd,
+    [Parameter(Mandatory=$true)]$Jira_User,
+    [Parameter(Mandatory=$true)]$Virustotal_Key
 )
 
 #Adding AzSentinel module
@@ -26,7 +29,7 @@ Write-Host "Folder is: $($PlaybooksFolder)"
 Write-Host "Playbooks Parameter Files is: $($PlaybooksParams)"
 
 $Params = Get-Content -Path $PlaybooksParams
-$TmpParams = $Params.replace('<username>@<domain>',$Azure_ServiceAccount)
+$TmpParams = $Params.replace('<username>@<domain>',$Azure_ServiceAccount).replace('<jira_pwd>',$Jira_Pwd).replace('<jira_user>',$Jira_User).replace('<virustotal_key>',$Virustotal_Key)
 $TmpParamsFile = New-TemporaryFile
 $TmpParams | out-file -filepath $TmpParamsFile
 
@@ -35,7 +38,7 @@ $TmpParams | out-file -filepath $TmpParamsFile
     Write-Host "Processing resourcegroup $($workspaces.deployments[0].resourcegroup)"
 
     #Getting all playbooks from folder
-    $armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter *NSGIPAddress.json
+    $armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter Get*Reputation.json
 
     Write-Host "Files are: " $armTemplateFiles
 
