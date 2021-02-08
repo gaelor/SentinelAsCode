@@ -38,6 +38,10 @@
             "defaultValue": "NSG_ResourceGroup",
             "type": "string"
         },
+        "TriClient": {
+            "defaultValue": "<acc>",
+            "type": "string"
+        },
         "Jira_Organization": {
             "defaultValue": "Jira_Organization",
             "type": "string"
