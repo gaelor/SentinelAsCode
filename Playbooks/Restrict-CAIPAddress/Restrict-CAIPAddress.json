@@ -4,7 +4,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Restrict-CAIPAddress",
+            "defaultValue": "[concat('Restrict-CAIPAddress_', parameters('PlaybookName'))]",
             "type": "string"
         },
         "UserName": {

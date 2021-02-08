@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Restrict-NSGIPAddress",
+            "defaultValue": "[concat('Restrict-Restrict-NSGIPAddress_', parameters('TriClient'), '_', parameters('NSG_Group'))]",
             "type": "string"
         },
         "UserName": {
@@ -36,6 +36,10 @@
         },
         "NSG_ResourceGroup": {
             "defaultValue": "NSG_ResourceGroup",
+            "type": "string"
+        },
+        "TriClient": {
+            "defaultValue": "Acc",
             "type": "string"
         }
     },

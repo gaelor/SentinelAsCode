@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "UserName": {
+        "Azure_ServiceAccount": {
             "Value": "thomas.couilleaux@theclemvp.com",
             "type": "string"
         },
@@ -32,6 +32,10 @@
         },
         "NSG_ResourceGroup": {
             "Value": "AccordInvest-resources",
+            "type": "string"
+        },
+        "TriClient": {
+            "Value": "Acc",
             "type": "string"
         },
         "Jira_Organization": {
