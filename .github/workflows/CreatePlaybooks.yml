@@ -31,7 +31,7 @@ jobs:
           AZURE_USER: ${{secrets.AZURE_USER}}
           AZURE_PWD: ${{secrets.AZURE_PWD}}
         run: |
-              Scripts/CreatePlaybooks.ps1 -OnboardingFile Onboard\onboarding.json -PlaybooksFolder Playbooks -PlaybooksParams ".\Playbooks\Playbooks.params" -Azure_ServiceAccount thomas.couilleaux@theclemvp.com -Azure_User ${{ env.AZURE_USER }} -Azure_Pwd '${{ env.AZURE_PWD }}' -Jira_Pwd '${{ env.JIRA_PWD }}' -Jira_User ${{ env.JIRA_USER }} -Virustotal_Key ${{ env.VIRUSTOTAL_KEY }} -Outvariable issues
+              Scripts/CreatePlaybooks.ps1 -OnboardingFile Onboard\onboarding.json -PlaybooksFolder Playbooks -PlaybooksParams ".\Playbooks\Playbooks.params" -Azure_ServiceAccount ${{ env.AZURE_SERVICEACCOUNT }} -Azure_User ${{ env.AZURE_USER }} -Azure_Pwd '${{ env.AZURE_PWD }}' -Jira_Pwd '${{ env.JIRA_PWD }}' -Jira_User ${{ env.JIRA_USER }} -Virustotal_Key ${{ env.VIRUSTOTAL_KEY }} -Outvariable issues
               $errors   = $issues.Where({$_.Severity -eq 'Error'})
               $warnings = $issues.Where({$_.Severity -eq 'Warning'})
               if ($errors) {
