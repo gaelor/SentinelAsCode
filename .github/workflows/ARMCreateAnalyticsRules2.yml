@@ -34,4 +34,4 @@ jobs:
         uses: whiteducksoftware/azure-arm-action-js@v1
         with:
           resourceGroupName: accorinvest
-          templateLocation: AnalyticsRules/analytics-rules.json
+          templateLocation: Playbooks/Get-IPReputation/Get-IPReputation.json
