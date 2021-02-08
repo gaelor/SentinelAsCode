@@ -32,8 +32,11 @@ jobs:
       
       - name: Deploy ARM Template
         uses: azure/arm-deploy@v1
+        id: deploy
         with:
+          scope: resourcegroup
+          subscriptionId: c3a3408b-632a-4df4-9c92-deded42a7e48
           resourceGroupName: accorinvest
           template: Playbooks/Get-IPReputation/Get-IPReputation.json
-          parameters: Azure_ServiceAccount=thomas.couilleaux@theclemvp.com
+          parameters: Playbooks/Playbooks.params Azure_ServiceAccount=thomas.couilleaux@theclemvp.com
           deploymentName: github-advanced-test
