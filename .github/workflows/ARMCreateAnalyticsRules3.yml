@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: ARMCreateAnalyticsRules2
+name: ARMCreateAnalyticsRules
 
 # Controls when the action will run.
 # Allows you to run this workflow manually from the Actions tab and VS Code
@@ -10,7 +10,7 @@ on:
 
   # Allows you to run this workflow manually from VS Code
   repository_dispatch:
-    types: [ createanalyticsrules2 ]
+    types: [ createanalyticsrules ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -31,7 +31,9 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Deploy ARM Template
-        uses: whiteducksoftware/azure-arm-action-js@v1
+        uses: azure/arm-deploy@v1
         with:
           resourceGroupName: accorinvest
-          templateLocation: AnalyticsRules/analytics-rules.json
+          template: Playbooks/Get-IPReputation/Get-IPReputation.json
+          parameters: Playbooks/Playbooks.params
+          deploymentName: github-advanced-test

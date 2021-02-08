@@ -30,7 +30,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
-      - name: Deploy Template
+      - name: Deploy ARM Template
         run: |
           az deployment group create -g accorinvest --template-file ./AnalyticsRules/analytics-rules.json
         shell: bash
