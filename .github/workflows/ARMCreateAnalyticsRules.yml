@@ -32,5 +32,5 @@ jobs:
       
       - name: Deploy
         run: |
-          az deployment group create -g accorinvest --template-file ./AnalyticsRule/analytics-rules.json
+          az deployment group create -g accorinvest --template-file ./AnalyticsRules/analytics-rules.json
         shell: bash
