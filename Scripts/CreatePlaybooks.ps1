@@ -32,23 +32,18 @@ $Params = Get-Content -Path $PlaybooksParams
 $TmpParams = $Params.replace('<username>@<domain>',$Azure_ServiceAccount).replace('<jira_pwd>',$Jira_Pwd).replace('<jira_user>',$Jira_User).replace('<virustotal_key>',$Virustotal_Key)
 $TmpParamsFile = New-TemporaryFile
 $TmpParams | out-file -filepath $TmpParamsFile
+Write-Host $TmpParams
 
-#foreach ($item in $workspaces.deployments){
-#    Write-Host "Processing resourcegroup $($item.resourcegroup) ..."
-    Write-Host "Processing resourcegroup $($workspaces.deployments[0].resourcegroup)"
-
-    #Getting all playbooks from folder
-    $armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter Get*Reputation.json
-
-    Write-Host "Files are: " $armTemplateFiles
-
-    foreach ($armTemplate in $armTemplateFiles) {
-        try {
-            New-AzResourceGroupDeployment -ResourceGroupName $workspaces.deployments[0].resourcegroup -TemplateFile $armTemplate -TemplateParameterFile $TmpParamsFile
-        }
-        catch {
-            $ErrorMessage = $_.Exception.Message
-            Write-Error "Playbook deployment failed with message: $ErrorMessage"
-        }
+Write-Host "Processing resourcegroup $($workspaces.deployments[0].resourcegroup)"
+#Getting all playbooks from folder
+$armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter Get*Reputation.json
+Write-Host "Files are: " $armTemplateFiles
+foreach ($armTemplate in $armTemplateFiles) {
+    try {
+        New-AzResourceGroupDeployment -ResourceGroupName $workspaces.deployments[0].resourcegroup -TemplateFile $armTemplate -TemplateParameterFile $TmpParamsFile
     }
-#}
+    catch {
+        $ErrorMessage = $_.Exception.Message
+        Write-Error "Playbook deployment failed with message: $ErrorMessage"
+    }
+}
