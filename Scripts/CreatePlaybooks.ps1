@@ -32,9 +32,9 @@ $Params = Get-Content -Path $PlaybooksParams
 $TmpParams = $Params.replace('<username>@<domain>',$Azure_ServiceAccount).replace('<jira_user>',$Jira_User).replace('<jira_pwd>',$Jira_Pwd).replace('<virustotal_key>',$Virustotal_Key)
 $TmpParamsFile = New-TemporaryFile
 $TmpParams | out-file -filepath $TmpParamsFile
-Write-Host $TmpParams
 
 Write-Host "Processing resourcegroup $($workspaces.deployments[0].resourcegroup)"
+
 #Getting all playbooks from folder
 $armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter Open-jira*.json
 Write-Host "Files are: " $armTemplateFiles

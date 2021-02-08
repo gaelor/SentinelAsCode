@@ -42,11 +42,11 @@ Takes all the json files within a folder (specified as PlaybooksFolder parameter
 
 ### Syntax
 
-`CreatePlaybooks.ps1 -ResourceGroup <String> -PlaybooksFolder <String> -PlaybooksParams <String>`
+`CreatePlaybooks.ps1 -ResourceGroup <String> -PlaybooksFolder <String> -PlaybooksParams <String> -Azure_ServiceAccount <String> -Jira_User <String> -Jira_Pwd '<String>' -Virustotal_Key '<String>'`
 
 ### Sample
 
-`.\LocalScripts\CreatePlaybooks.ps1 -OnboardingFile Onboard\onboarding.json -PlaybooksFolder Playbooks -PlaybooksParams Playbooks\Playbooks.params`
+`.\Script\CreatePlaybooks.ps1 -OnboardingFile Onboard\onboarding.json -PlaybooksFolder Playbooks -PlaybooksParams Playbooks\Playbooks.params -Azure_ServiceAccount thomas.couilleaux@theclemvp.com -Jira_User couilleaux -Jira_Pwd '<String>' -Virustotal_Key '<String>'`
 
 ## Workbooks deployment script (CreateWorkbooks.ps1)
 
