@@ -408,9 +408,9 @@
                                             "type": "Http",
                                             "inputs": {
                                                 "authentication": {
-                                                    "password": "secrets.('JIRA_PWD')",
+                                                    "password": "@{variables('Jira_Pwd')}",
                                                     "type": "Basic",
-                                                    "username": "secrets.('JIRA_USER')"
+                                                    "username": "@{variables('Jira_User')}"
                                                 },
                                                 "body": {
                                                     "fields": {
@@ -496,9 +496,9 @@
                                             "type": "Http",
                                             "inputs": {
                                                 "authentication": {
-                                                    "password": "@@zerty!123",
+                                                    "password": "@{variables('Jira_Pwd')}",
                                                     "type": "Basic",
-                                                    "username": "couilleaux"
+                                                    "username": "@{variables('Jira_User')}"
                                                 },
                                                 "body": {
                                                     "fields": {
@@ -540,9 +540,9 @@
                                         "type": "Http",
                                         "inputs": {
                                             "authentication": {
-                                                "password": "@@zerty!123",
+                                                "password": "@{variables('Jira_Pwd')}",
                                                 "type": "Basic",
-                                                "username": "couilleaux"
+                                                "username": "@{variables('Jira_User')}"
                                             },
                                             "body": {
                                                 "fields": {
