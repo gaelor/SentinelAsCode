@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "Azure_ServiceAccount": {
-            "Value": "thomas.couilleaux@theclemvp.com",
+            "Value": "<username>@<domain>",
             "type": "string"
         },
         "AzureSentinelConnectionName": {

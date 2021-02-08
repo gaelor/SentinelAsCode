@@ -25,7 +25,9 @@ Write-Host "Folder is: $($PlaybooksFolder)"
 Write-Host "Playbooks Parameter Files is: $($PlaybooksParams)"
 
 $Params = Get-Content -Path $PlaybooksParams
-Write-Host $Params.replace('thomas.couilleaux@theclemvp.com','toto@theclemvp.com')
+$TmpParams = $Params.replace('<username>@<domain>','toto@theclemvp.com')
+$TmpFile = New-TemporaryFile
+$TmpParams | out-file -filepath $TmpFile
 
 foreach ($item in $workspaces.deployments){
     Write-Host "Processing resourcegroup $($item.resourcegroup) ..."
@@ -37,7 +39,7 @@ foreach ($item in $workspaces.deployments){
 
     foreach ($armTemplate in $armTemplateFiles) {
         try {
-            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -TemplateParameterFile $PlaybooksParams
+            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -TemplateParameterFile $TmpFile
         }
         catch {
             $ErrorMessage = $_.Exception.Message
