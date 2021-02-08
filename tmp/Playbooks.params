@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Azure_ServiceAccount": {
+            "Value": "<username>@<domain>",
+            "type": "string"
+        },
+        "AzureSentinelConnectionName": {
+            "Value": "azuresentinel",
+            "type": "string"
+        },
+        "MDATPConnectionName": {
+            "Value": "wdatp",
+            "type": "string"
+        },
+        "integrationAccount": {
+            "Value": "AccorInvest",
+            "type": "string"
+        },
+        "integrationAccount_resourceGroup": {
+            "Value": "accorinvest",
+            "type": "string"
+        },
+        "CA_LocationName": {
+            "Value": "AccorInvest Blocked IP List",
+            "type": "string"
+        },
+        "NSG_Group": {
+            "Value": "AccordInvest-syslog-nsg",
+            "type": "string"
+        },
+        "NSG_ResourceGroup": {
+            "Value": "AccordInvest-resources",
+            "type": "string"
+        },
+        "TriClient": {
+            "Value": "Acc",
+            "type": "string"
+        },
+        "Jira_Organization": {
+            "Value": "AccordInvest",
+            "type": "string"
+        },
+        "Jira_Pwd": {
+            "Value": "<jira_pwd>",
+            "type": "string"
+        },
+        "Jira_User": {
+            "Value": "<jira_user>",
+            "type": "string"
+        },
+        "Virustotal_Key": {
+            "Value": "<virustotal_key>",
+            "type": "string"
+        }
+    }
+}
