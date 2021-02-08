@@ -47,15 +47,15 @@
             "type": "string"
         },
         "Jira_Pwd": {
-            "Value": "",
+            "defaultValue": "<jira_pwd>",
             "type": "string"
         },
         "Jira_User": {
-            "Value": "<jira_user>",
+            "defaultValue": "<jira_user>",
             "type": "string"
         },
         "Virustotal_Key": {
-            "Value": "<virustotal_key>",
+            "defaultValue": "<virustotal_key>",
             "type": "string"
         }
     },
