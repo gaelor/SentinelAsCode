@@ -43,7 +43,7 @@
             "type": "string"
         },
         "Jira_Pwd": {
-            "Value": "",
+            "Value": "<jira_pwd>",
             "type": "string"
         },
         "Jira_User": {
