@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: PSCreatePlaybooks
+name: ARMCreatePlaybooks
 
 # Controls when the action will run.
 # Allows you to run this workflow manually from the Actions tab and VS Code
@@ -10,29 +10,33 @@ on:
 
   # Allows you to run this workflow manually from VS Code
   repository_dispatch:
-    types: [ pscreateplaybooks ]
+    types: [ createplaybooks ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  # This workflow contains a single job called "validate-and-deploy"
+  validate-and-deploy:
     # The type of runner that the job will run on
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
-      - name: Create Playbooks on Client Tenant
-        shell: pwsh
-        run: |
-              Scripts/CreatePlaybooks.ps1 -OnboardingFile Onboard\onboarding.json -PlaybooksFolder Playbooks -PlaybooksParams ".\Playbooks\Playbooks.params" -Azure_ServiceAccount ${{ secrets.AZURE_SERVICEACCOUNT }} -Azure_User ${{ secrets.AZURE_USER }} -Azure_Pwd '${{ secrets.AZURE_PWD }}' -Jira_User ${{ secrets.JIRA_USER }} -Jira_Pwd '${{ secrets.JIRA_PWD }}' -Virustotal_Key ${{ secrets.VIRUSTOTAL_KEY }} -Outvariable issues
-              $errors   = $issues.Where({$_.Severity -eq 'Error'})
-              $warnings = $issues.Where({$_.Severity -eq 'Warning'})
-              if ($errors) {
-                  Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
-              } else {
-                  Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
-              }
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Deploy ARM Template
+        uses: whiteducksoftware/azure-arm-action-js@v4.1
+        id: deploy
+        with:
+          scope: resourcegroup
+          subscriptionId: c3a3408b-632a-4df4-9c92-deded42a7e48
+          resourceGroupName: accorinvest
+          templateLocation: Playbooks/Get-IPReputation/Get-IPReputation.json
+          parameters: Playbooks/Playbooks.params Azure_ServiceAccount=${{secrets.AZURE_SERVICEACCOUNT}} Jira_User=${{secrets.JIRA_USER}} Jira_Pwd=${{secrets.JIRA_PWD}} Virustotal_Key=${{secrets.VIRUSTOTAL_KEY}}
+          deploymentName: createplaybooks
