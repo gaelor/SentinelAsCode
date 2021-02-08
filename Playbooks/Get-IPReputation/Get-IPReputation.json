@@ -364,7 +364,7 @@
                                     {
                                         "name": "APIKey",
                                         "type": "String",
-                                        "value": "parameters('Virustotal_Key')"
+                                        "value": "[parameters('Virustotal_Key')]"
                                     }
                                 ]
                             }

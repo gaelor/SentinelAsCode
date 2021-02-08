@@ -239,7 +239,7 @@
                                     {
                                         "name": "Jira_User",
                                         "type": "String",
-                                        "value": "parameters('Jira_User')"
+                                        "value": "[parameters('Jira_User')]"
                                     }
                                 ]
                             }
@@ -252,7 +252,7 @@
                                     {
                                         "name": "Jira_Pwd",
                                         "type": "String",
-                                        "value": "parameters('Jira_Pwd')"
+                                        "value": "[parameters('Jira_Pwd')]"
                                     }
                                 ]
                             }
