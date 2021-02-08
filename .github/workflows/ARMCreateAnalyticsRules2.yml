@@ -31,7 +31,10 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Deploy ARM Template
-        uses: whiteducksoftware/azure-arm-action-js@v1
+        uses: azure/arm-deploy@v1
+        id: deploy
         with:
           resourceGroupName: accorinvest
-          templateLocation: AnalyticsRules/analytics-rules.json
+          template: Playbooks/Get-IPReputation/Get-IPReputation.json
+          parameters: Playbooks/Playbooks.params Azure_ServiceAccount=thomas.couilleaux@theclemvp.com
+          deploymentName: github-advanced-test2
