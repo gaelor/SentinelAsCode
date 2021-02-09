@@ -36,12 +36,7 @@ jobs:
         shell: bash
         id: list_files
         run: |
-          declare -a arrFiles
-          for file in Playbooks/*.json
-          do
-            arrFiles=(${arrFiles[@]} "$file")
-          done
-          echo "listfiles=${arrFiles[@]}"
+          declare -a arrFiles; for file in Playbooks/*.json; do arrFiles=(${arrFiles[@]} "$file"); done; echo "listfiles=${arrFiles[@]}"
           echo "listfiles=${arrFiles[@]}" >> $GITHUB_ENV
 
       - name: echo1
