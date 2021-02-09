@@ -4,7 +4,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "[concat('Restrict-CAIPAddress_', parameters('PlaybookName'))]",
+            "defaultValue": "[concat('Restrict-CAIPAddress_', parameters('TriClient'), '_', parameters('CA_LocationName'))]",
             "type": "string"
         },
         "Azure_ServiceAccount": {
