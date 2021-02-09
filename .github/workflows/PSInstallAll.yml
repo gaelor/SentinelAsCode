@@ -54,6 +54,7 @@ PSCreateAnalyticsRules:
 PSCreateHuntingRules:
   build:
     runs-on: windows-latest
+    steps:
       - name: Create Hunting Rules on Client Tenant
         shell: pwsh
         env:
@@ -72,6 +73,7 @@ PSCreateHuntingRules:
 PSCreateWorkbooks:
   build:
     runs-on: windows-latest
+    steps:
       - name: Create Workbooks on Client Tenant
         shell: pwsh
         env:
@@ -90,6 +92,7 @@ PSCreateWorkbooks:
 PSCreatePlaybooks:
   build:
     runs-on: windows-latest
+    steps:
       - name: Create Playbooks on Client Tenant
         shell: pwsh
         run: |
