@@ -5,15 +5,15 @@
 
 > Author: [thomas couilleaux](https://www.metsys.fr/)
 
-**Reference:** [Link to medium post](https://medium.com/falconforce/falconfriday-detecting-certutil-and-suspicious-code-compilation-0xff02-cfe8fb5e159e?source=friends_link&sk=3c63b684a2f6a203d8627554cec9a628)
+> Reference: [Link to medium post](https://medium.com/falconforce/falconfriday-detecting-certutil-and-suspicious-code-compilation-0xff02-cfe8fb5e159e?source=friends_link&sk=3c63b684a2f6a203d8627554cec9a628)
 
-> ATT&CK Tags
+### ATT&CK Tags
 
-Tactics: ['Persistence', 'LateralMovement', 'Collection']
+> Tactics: ['Persistence', 'LateralMovement', 'Collection']
 
-> Hunt details
+### Hunt details
 
-**Description:** test
+> Description: test
 
 > Query:
 
@@ -23,15 +23,15 @@ Tactics: ['Persistence', 'LateralMovement', 'Collection']
 
 > Author: [thomas couilleaux](https://www.metsys.fr/)
 
-**Reference:** [Link to medium post](https://medium.com/falconforce/falconfriday-detecting-certutil-and-suspicious-code-compilation-0xff02-cfe8fb5e159e?source=friends_link&sk=3c63b684a2f6a203d8627554cec9a628)
+> Reference: [Link to medium post](https://medium.com/falconforce/falconfriday-detecting-certutil-and-suspicious-code-compilation-0xff02-cfe8fb5e159e?source=friends_link&sk=3c63b684a2f6a203d8627554cec9a628)
 
-> ATT&CK Tags
+### ATT&CK Tags
 
-Tactics: ['Persistence', 'LateralMovement']
+> Tactics: ['Persistence', 'LateralMovement']
 
-> Hunt details
+### Hunt details
 
-**Description:** test
+> Description: test
 
 > Query:
 
