@@ -41,5 +41,5 @@ jobs:
         run: |
           git config --global user.name 'gaelor'
           git config --global user.email 'thomas.couilleaux@metsys.fr'
-          git commit -am "Automated report"
+          git commit -am "Automated Readme"
           git push
