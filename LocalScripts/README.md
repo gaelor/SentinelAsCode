@@ -1,3 +1,5 @@
+![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")
+
 # LocalScripts
 
 ## Install Sentinel script (InstallSentinel.ps1)
