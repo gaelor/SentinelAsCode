@@ -11,12 +11,12 @@ for huntingrule in myjson:
 #        for value in item.items():
 #            if key == 'displayName' or key == 'author':
         print('## ' + item["displayName"])
-        print('> Hunt Tags\n')
+        print('### Hunt Tags\n')
         print('**Author:** [' + item["author"] + '](https://www.metsys.fr/)' + '\n')
         print('**Reference:** [Link to medium post](' + item["reference"] + ')' + '\n')
         print('> ATT&CK Tags\n')
         print('Tactics: ' + str(item["tactics"]) + '\n')
         print('> Hunt details\n')
         print('**Description:** ' + item["description"] + '\n')
-        print('> Query:**\n')
+        print('> Query:\n')
         print('```C#' + item["query"] + '```')

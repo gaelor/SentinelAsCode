@@ -1,7 +1,7 @@
 ![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")
 # Hunting Rules
 ## HuntingRule01
-> Hunt Tags
+### Hunt Tags
 
 **Author:** [thomas couilleaux](https://www.metsys.fr/)
 
@@ -15,11 +15,11 @@ Tactics: ['Persistence', 'LateralMovement', 'Collection']
 
 **Description:** test
 
-> Query:**
+> Query:
 
 ```C#SecurityEvent | where EventID == "4687" | where CommandLine contains "-noni -ep bypass $"```
 ## HuntingRule02
-> Hunt Tags
+### Hunt Tags
 
 **Author:** [thomas couilleaux](https://www.metsys.fr/)
 
@@ -33,6 +33,6 @@ Tactics: ['Persistence', 'LateralMovement']
 
 **Description:** test
 
-> Query:**
+> Query:
 
 ```C#SecurityEvent | where EventID == "4688" | where CommandLine contains "-noni -ep bypass $"```
