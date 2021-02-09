@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "[concat('Restrict-NSGIPAddress_', parameters('TriClient'), '_', replace(parameters('NSG_Group'), ' ', '_'))]",
+            "defaultValue": "[concat('Restrict-NSGIPAddress_', parameters('TriClient'), '_', replace(parameters('NSG_Group'), ' ', '-'))]",
             "type": "string"
         },
         "Azure_ServiceAccount": {
