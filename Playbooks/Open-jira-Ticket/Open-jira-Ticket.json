@@ -7,7 +7,7 @@
             "type": "string"
         },
         "Azure_ServiceAccount": {
-            "defaultValue": "<username>@<domain>",
+            "defaultValue": "<azure_serviceaccount>",
             "type": "string"
         },
         "AzureSentinelConnectionName": {

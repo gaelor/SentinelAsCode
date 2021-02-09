@@ -6,8 +6,8 @@
             "defaultValue": "Investigate-MDATPMachine",
             "type": "string"
         },
-        "UserName": {
-            "defaultValue": "<username>@<domain>",
+        "Azure_ServiceAccount": {
+            "defaultValue": "<azure_serviceaccount>",
             "type": "string"
         },
         "AzureSentinelConnectionName": {
@@ -19,7 +19,43 @@
             "type": "string"
         },
         "integrationAccount": {
-            "defaultValue": "integrationAccount",
+            "defaultValue": "<integrationaccount>",
+            "type": "string"
+        },
+        "integrationAccount_resourceGroup": {
+            "defaultValue": "<integrationaccount_resourcegroup>",
+            "type": "string"
+        },
+        "CA_LocationName": {
+            "defaultValue": "<ca_locationname>",
+            "type": "string"
+        },
+        "NSG_Group": {
+            "defaultValue": "<nsg_group>",
+            "type": "string"
+        },
+        "NSG_ResourceGroup": {
+            "defaultValue": "<nsg_resourcegroup>",
+            "type": "string"
+        },
+        "TriClient": {
+            "defaultValue": "<acc>",
+            "type": "string"
+        },
+        "Jira_Organization": {
+            "defaultValue": "<jira_organization>",
+            "type": "string"
+        },
+        "Jira_Pwd": {
+            "defaultValue": "<jira_pwd>",
+            "type": "string"
+        },
+        "Jira_User": {
+            "defaultValue": "<jira_user>",
+            "type": "string"
+        },
+        "Virustotal_Key": {
+            "defaultValue": "<virustotal_key>",
             "type": "string"
         }
     },
