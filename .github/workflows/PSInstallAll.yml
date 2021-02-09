@@ -35,6 +35,7 @@ jobs:
   PSCreateAnalyticsRules:
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Create Analytics Rules on Client Tenant
         shell: pwsh
         env:
