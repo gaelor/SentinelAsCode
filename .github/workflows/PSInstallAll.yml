@@ -54,6 +54,7 @@ jobs:
   PSCreateHuntingRules:
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Create Hunting Rules on Client Tenant
         shell: pwsh
         env:
@@ -72,6 +73,7 @@ jobs:
   PSCreateWorkbooks:
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Create Workbooks on Client Tenant
         shell: pwsh
         env:
@@ -90,6 +92,7 @@ jobs:
   PSCreatePlaybooks:
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Create Playbooks on Client Tenant
         shell: pwsh
         run: |
