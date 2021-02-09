@@ -33,17 +33,17 @@ $TmpParams = $Params.replace('<azure_serviceaccount>',$Azure_ServiceAccount).rep
 $TmpParamsFile = New-TemporaryFile
 $TmpParams | out-file -filepath $TmpParamsFile
 
-Write-Host "Processing resourcegroup $($workspaces.deployments[0].resourcegroup)"
+Write-Host "Processing resourcegroup: $($workspaces.deployments[0].resourcegroup)"
 
 #Getting all playbooks from folder
 $armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter *.json
 foreach ($armTemplate in $armTemplateFiles) {
     try {
-        Write-Host "Processing template file: " $armTemplate
+        Write-Host "Processing template file:  $($armTemplate)"
         New-AzResourceGroupDeployment -ResourceGroupName $workspaces.deployments[0].resourcegroup -TemplateFile $armTemplate -TemplateParameterFile $TmpParamsFile
     }
     catch {
         $ErrorMessage = $_.Exception.Message
-        Write-Error "Playbook deployment failed with message: $ErrorMessage"
+        Write-Error "Playbook deployment failed with message: $($ErrorMessage)"
     }
 }
