@@ -36,10 +36,10 @@ jobs:
         run: |
           python Scripts/genmd_huntinrules.py > HuntingRules/README.md
 
-      - name: Commit Readme
+      - name: Commit Hunting Rules Readme
         run: |
           git config --global user.name 'gaelor'
           git config --global user.email 'thomas.couilleaux@metsys.fr'
-          git add HuntingRules/readme.md
+          git add HuntingRules/README.md
           git commit -am "Automated Readme"
           git push
