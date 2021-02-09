@@ -36,7 +36,7 @@ $TmpParams | out-file -filepath $TmpParamsFile
 Write-Host "Processing resourcegroup: $($workspaces.deployments[0].resourcegroup)"
 
 #Getting all playbooks from folder
-$armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter Restrict-CAIPAddress.json
+$armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter *.json
 foreach ($armTemplate in $armTemplateFiles) {
     try {
         Write-Host "Processing template file:  $($armTemplate)"
