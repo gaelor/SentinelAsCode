@@ -41,6 +41,7 @@ jobs:
           do
             arrFiles=("${Files[@]}" "$file")
           done
+          echo "listfiles=${arrFiles[@]}"
           echo "listfiles=${arrFiles[@]}" >> $GITHUB_ENV
 
       - name: echo1
