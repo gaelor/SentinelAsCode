@@ -33,12 +33,6 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: List files in folder
-        id: list_files
-        run: |
-          echo "action_state=yellow" >> $GITHUB_ENV
-        shell: bash
-
-      - name: List files in folder
         shell: bash
         id: list_files
         run: |
