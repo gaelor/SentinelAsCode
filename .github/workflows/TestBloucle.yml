@@ -36,8 +36,12 @@ jobs:
         shell: bash
         id: list_files
         run: |
-          i=0; while read line; do arrFiles[ $i ]="$line"; (( i++ )); done < <(ls);
-          echo "listfiles=${arrFiles[@]}" >> $GITHUB_ENV
+          declare -a arrPics
+          for file in *.jpg
+          do
+            arrPics=("${Pics[@]}" "$file")
+          done
+          echo "listfiles=${arrFiles[@]}"
 
       - name: echo1
         shell: bash
