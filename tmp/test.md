@@ -1,35 +1,90 @@
 # T1105 - Ingress Tool Transfer - Certutil
 
-> A JSON to Markdown converter.
+## Hunt Tags
 
-![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")
+**ID:** T1105-WIN-001
 
-![](https://azure.microsoft.com/svghandler/azure-sentinel/?width=600&height=315 "Microsoft Sentinel")
+**Last Modified:** 09/09/2020 10:00
 
+**Author:** [FalconForce](https://falconforce.nl/)
 
-## Features
+**License:** [BSD 3-Clause License](https://github.com/FalconForceTeam/FalconFriday/blob/master/LICENSE)
 
+**References:** [Link to medium post](https://medium.com/falconforce/falconfriday-detecting-certutil-and-suspicious-code-compilation-0xff02-cfe8fb5e159e?source=friends_link&sk=3c63b684a2f6a203d8627554cec9a628)
 
- - Easy to use
- - You can programmatically generate Markdown content
- - ...
+## ATT&CK Tags
 
-## How to contribute
+**Tactic:** Multiple
 
+**Technique:** Multiple
+​
+## Technical description of the attack
+​
+An attacker can use this binary for the following techniques;
+* T1105 - Ingress Tool Transfer
+* T1564.004 - Hide Artifacts: NTFS File Attributes
+* T1027 - Obfuscated Files or Information
+* T1140 - Deobfuscate/Decode Files or Information
 
- 1. Fork the project
- 2. Create your branch
- 3. Raise a pull request
+## Permission required to execute the technique
 
-## Code blocks
+User
 
+## Detection description
 
-Below you can see a code block example.
+This detection addresses most of the known ways to utilize this binary for malicious/unintended purposes. It attempts to accomodate for most detection evasion techniques, like commandline obfuscation and binary renaming
 
-```js
-function sum (a, b) {
-   return a + b
-}
-sum(1, 2)
+## Utilized Data Source
+
+| Event ID | Event Name | Log Provider | ATT&CK Data Source |
+|---------|---------|----------|---------|
+| - | DeviceProcessEvents | DATP | Process Monitoring |
+| - | DeviceFileEvents | DATP | File metadata |
+​
+## Hunt details
+
+### KQL
+
+**FP Rate:** *Low*
+
+**Source:** *DATP*
+
+**Description:** *This detection addresses most of the known ways to utilize this binary for malicious/unintended purposes. It attempts to accomodate for most detection evasion techniques, like commandline obfuscation and binary renaming*
+**Query:**
+
+```C#
+// set the time span for the query
+let Timeframe = 30d;
+// set the HashTimeframe for the hash lookup, longer makes more accurate but obviously also more resource intensive
+let HashTimeframe = 30d;
+// Get all known SHA1 hashes for certutil executions or renamed files formerly named certutil
+let CertUtilPESha1=DeviceProcessEvents | where Timestamp > ago(HashTimeframe)| where FileName contains "certutil"  | where isnotempty(SHA1) | summarize sha1=make_set(SHA1);
+let CertUtilFESha1=DeviceFileEvents | where Timestamp > ago(HashTimeframe)| where PreviousFileName contains "certutil" or FileName contains "certutil"  | where isnotempty(SHA1) | summarize sha1=make_set(SHA1);
+DeviceProcessEvents
+| where Timestamp > ago(Timeframe)
+// get all executions by processes with a SHA1 hash that is or was named certutil
+| where SHA1 in (CertUtilPESha1) or SHA1 in (CertUtilFESha1) or FileName =~ "certutil.exe" or ProcessCommandLine has_any ("certutil")
+// create a new field called CleanProcessCommandLine which gets populated with the value of ProcessCommandLine as Windows parses it for execution, 
+// removing any potential command line obfuscation 
+| extend CleanProcessCommandLine=parse_command_line(ProcessCommandLine, "windows")
+// search for de-obfuscated commands used 
+| where CleanProcessCommandLine has_any ("decode", "encode", "verify","url") 
+// urlcache is the documented attribute, only url is also accepted
+// verifyctl is the documented attribute, only verify is also accepted
+| order by Timestamp
+| project Timestamp, CleanProcessCommandLine, ProcessCommandLine, SHA1
 ```
 
+## Considerations
+
+* Take into account that there are always bypasses possible. 
+* For the download technique you could match it to DeviceNetworkEvents that connect to the internet for more contextual information
+
+## False Positives
+
+## Detection Blind Spots
+
+## References
+
+* https://lolbas-project.github.io/lolbas/Binaries/Certutil/
+* https://medium.com/r/?url=https%3A%2F%2Fwww.fireeye.com%2Fblog%2Fthreat-research%2F2018%2F03%2Fdosfuscation-exploring-obfuscation-and-detection-techniques.html

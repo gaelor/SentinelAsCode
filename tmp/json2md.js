@@ -1,15 +1,15 @@
 const json2md = require("json2md")
 
 console.log(json2md([
-    { h1: "T1105 - Ingress Tool Transfer - Certutil" }
-  , { blockquote: "A JSON to Markdown converter." }
+    { h1: "Hunting Rules" }
+  , { blockquote: "T1105 - Ingress Tool Transfer - Certutil" }
   , { img: [
         { title: "Metsys", source: "https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg" }
       ]
     }
-  , { h2: "Features" }
+  , { h2: "Hunt Tags" }
   , { ul: [
-        "Easy to use"
+        {bold: 'ID:'} "T1105-WIN-001"
       , "You can programmatically generate Markdown content"
       , "..."
       ]
