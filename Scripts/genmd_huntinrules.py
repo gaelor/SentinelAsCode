@@ -1,6 +1,6 @@
 import json
 
-with open('c:\\Users\\thomas.couilleaux\\OneDrive - METSYS\\SentinelAsCode\\SentinelAsCode\\HuntingRules\\hunting-rules.json', 'r') as huntingrules:
+with open('HuntingRules\\hunting-rules.json', 'r') as huntingrules:
     myjson = json.load(huntingrules)
 
 print('![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")')
