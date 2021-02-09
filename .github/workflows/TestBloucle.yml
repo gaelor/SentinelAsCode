@@ -39,7 +39,7 @@ jobs:
           declare -a arrFiles
           for file in Playbooks/*.json
           do
-            arrFiles=("${Files[@]}" "$file")
+            arrFiles=(${arrFiles[@]} "$file")
           done
           echo "listfiles=${arrFiles[@]}"
           echo "listfiles=${arrFiles[@]}" >> $GITHUB_ENV
