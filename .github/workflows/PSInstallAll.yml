@@ -12,19 +12,11 @@ on:
   repository_dispatch:
     types: [ psinstallall ]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  # This workflow contains a single job called "build"
+PSInstallSentinel:
   build:
-    # The type of runner that the job will run on
     runs-on: windows-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
       - name: Install Sentinel on Client Tenant
         shell: pwsh
         env:
@@ -40,6 +32,10 @@ jobs:
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
 
+PSCreateAnalyticsRules:
+  build:
+    runs-on: windows-latest
+    steps:
       - name: Create Analytics Rules on Client Tenant
         shell: pwsh
         env:
@@ -55,6 +51,9 @@ jobs:
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
 
+PSCreateHuntingRules:
+  build:
+    runs-on: windows-latest
       - name: Create Hunting Rules on Client Tenant
         shell: pwsh
         env:
@@ -70,6 +69,9 @@ jobs:
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
 
+PSCreateWorkbooks:
+  build:
+    runs-on: windows-latest
       - name: Create Workbooks on Client Tenant
         shell: pwsh
         env:
@@ -85,6 +87,9 @@ jobs:
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
 
+PSCreatePlaybooks:
+  build:
+    runs-on: windows-latest
       - name: Create Playbooks on Client Tenant
         shell: pwsh
         run: |
