@@ -1,6 +1,7 @@
 {
   "hunting": [
     {
+      "author": "thomas couilleaux",
       "displayName": "HuntingRule01",
       "description": "test",
       "query": "SecurityEvent | where EventID == \"4687\" | where CommandLine contains \"-noni -ep bypass $\"",
@@ -11,6 +12,7 @@
       ]
     },
     {
+      "author": "thomas couilleaux",
       "displayName": "HuntingRule02",
       "description": "test",
       "query": "SecurityEvent | where EventID == \"4688\" | where CommandLine contains \"-noni -ep bypass $\"",
