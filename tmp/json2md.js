@@ -5,7 +5,6 @@ console.log(json2md([
   , { blockquote: "A JSON to Markdown converter." }
   , { img: [
         { title: "Metsys", source: "https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg" }
-      , { title: "Microsoft Sentinel", source: "https://azure.microsoft.com/svghandler/azure-sentinel/?width=600&height=315" }
       ]
     }
   , { h2: "Features" }
