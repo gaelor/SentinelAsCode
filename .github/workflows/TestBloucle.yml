@@ -36,10 +36,10 @@ jobs:
         shell: bash
         id: list_files
         run: |
-          declare -a arrPics
+          declare -a arrFiles
           for file in *.jpg
           do
-            arrPics=("${Pics[@]}" "$file")
+            arrFiles=("${arrFiles[@]}" "$file")
           done
           echo "listfiles=${arrFiles[@]}"
 
