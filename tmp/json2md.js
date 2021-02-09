@@ -9,7 +9,7 @@ console.log(json2md([
     }
   , { h2: "Hunt Tags" }
   , { ul: [
-        {bold: 'ID:'} "T1105-WIN-001"
+        {bold: 'ID:'}
       , "You can programmatically generate Markdown content"
       , "..."
       ]
