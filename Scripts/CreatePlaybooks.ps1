@@ -29,7 +29,7 @@ Write-Host "Folder is: $($PlaybooksFolder)"
 Write-Host "Playbooks Parameter Files is: $($PlaybooksParams)"
 
 $Params = Get-Content -Path $PlaybooksParams
-$TmpParams = $Params.replace('<username>@<domain>',$Azure_ServiceAccount).replace('<jira_user>',$Jira_User).replace('<jira_pwd>',$Jira_Pwd).replace('<virustotal_key>',$Virustotal_Key)
+$TmpParams = $Params.replace('<azure_serviceaccount>',$Azure_ServiceAccount).replace('<jira_user>',$Jira_User).replace('<jira_pwd>',$Jira_Pwd).replace('<virustotal_key>',$Virustotal_Key)
 $TmpParamsFile = New-TemporaryFile
 $TmpParams | out-file -filepath $TmpParamsFile
 
