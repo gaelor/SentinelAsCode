@@ -67,7 +67,7 @@
             "name": "[parameters('AzureSentinelConnectionName')]",
             "location": "[resourceGroup().location]",
             "properties": {
-                "displayName": "[parameters('UserName')]",
+                "displayName": "[parameters('Azure_ServiceAccount')]",
                 "customParameterValues": {},
                 "api": {
                     "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
