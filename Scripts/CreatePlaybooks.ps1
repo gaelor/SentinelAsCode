@@ -26,7 +26,7 @@ $Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -
 Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscription $workspaces.subscription
 
 Write-Host "Folder is: $($PlaybooksFolder)"
-Write-Host "Playbooks Parameter Files is: $($PlaybooksParams)"
+Write-Host "Playbooks Parameter File is: $($PlaybooksParams)"
 
 $Params = Get-Content -Path $PlaybooksParams
 $TmpParams = $Params.replace('<azure_serviceaccount>',$Azure_ServiceAccount).replace('<jira_user>',$Jira_User).replace('<jira_pwd>',$Jira_Pwd).replace('<virustotal_key>',$Virustotal_Key)
