@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Open-jira-Ticket",
+            "defaultValue": "[concat('Open-jira-Ticket', '_', replace(parameters('Jira_Organization'), ' ', '_'))]",
             "type": "string"
         },
         "Azure_ServiceAccount": {
