@@ -36,7 +36,7 @@ $TmpParams | out-file -filepath $TmpParamsFile
 Write-Host "Processing resourcegroup $($workspaces.deployments[0].resourcegroup)"
 
 #Getting all playbooks from folder
-$armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter Open-jira*.json
+$armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter *.json
 Write-Host "Files are: " $armTemplateFiles
 foreach ($armTemplate in $armTemplateFiles) {
     try {
