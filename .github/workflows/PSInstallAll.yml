@@ -33,6 +33,7 @@ jobs:
               }
 
   PSCreateAnalyticsRules:
+    needs: PSInstallSentinel
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -52,6 +53,7 @@ jobs:
               }
 
   PSCreateHuntingRules:
+    needs: PSInstallSentinel
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -71,6 +73,7 @@ jobs:
               }
 
   PSCreateWorkbooks:
+    needs: PSInstallSentinel
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -90,6 +93,7 @@ jobs:
               }
 
   PSCreatePlaybooks:
+    needs: PSInstallSentinel
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
