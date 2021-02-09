@@ -2,11 +2,9 @@
 
 > A JSON to Markdown converter.
 
-![](https://example.com/some-image.png "Some image")
+![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")
 
-![](https://example.com/some-image1.png "Another image")
-
-![](https://example.com/some-image2.png "Yet another image")
+![](https://azure.microsoft.com/svghandler/azure-sentinel/?width=600&height=315 "Microsoft Sentinel")
 
 
 ## Features
@@ -18,7 +16,6 @@
 
 ## How to contribute
 
-master
 
  1. Fork the project
  2. Create your branch
