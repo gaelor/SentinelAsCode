@@ -34,7 +34,7 @@ jobs:
       - name: Generate Hunting Rules Readme
         shell: bash
         run: |
-          python Scripts/genmd_huntinrules.py > HuntingRules/readme.md
+          python Scripts/genmd_huntinrules.py > HuntingRules/README.md
 
       - name: Commit Readme
         run: |
