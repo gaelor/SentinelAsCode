@@ -12,8 +12,8 @@ on:
   repository_dispatch:
     types: [ psinstallall ]
 
-PSInstallSentinel:
-  build:
+jobs:
+  PSInstallSentinel:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -32,8 +32,7 @@ PSInstallSentinel:
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
 
-PSCreateAnalyticsRules:
-  build:
+  PSCreateAnalyticsRules:
     runs-on: windows-latest
     steps:
       - name: Create Analytics Rules on Client Tenant
@@ -51,8 +50,7 @@ PSCreateAnalyticsRules:
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
 
-PSCreateHuntingRules:
-  build:
+  PSCreateHuntingRules:
     runs-on: windows-latest
     steps:
       - name: Create Hunting Rules on Client Tenant
@@ -70,8 +68,7 @@ PSCreateHuntingRules:
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
 
-PSCreateWorkbooks:
-  build:
+  PSCreateWorkbooks:
     runs-on: windows-latest
     steps:
       - name: Create Workbooks on Client Tenant
@@ -89,8 +86,7 @@ PSCreateWorkbooks:
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
 
-PSCreatePlaybooks:
-  build:
+  PSCreatePlaybooks:
     runs-on: windows-latest
     steps:
       - name: Create Playbooks on Client Tenant
