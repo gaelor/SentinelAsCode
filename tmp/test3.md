@@ -1,8 +1,22 @@
 ![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")
 # Hunting Rules
 > HuntingRule01
-## Hunt Tagsvalue
+## Hunt Tags
 **Author:** [thomas couilleaux](https://www.metsys.fr/)
+**Reference:** [Link to medium post](https://medium.com/falconforce/falconfriday-detecting-certutil-and-suspicious-code-compilation-0xff02-cfe8fb5e159e?source=friends_link&sk=3c63b684a2f6a203d8627554cec9a628)
+## ATT&CK Tags
+Tactics: ['Persistence', 'LateralMovement', 'Collection']
+## Hunt details
+**Description:** test
+**Query:**
+```C#SecurityEvent | where EventID == "4687" | where CommandLine contains "-noni -ep bypass $"```
 > HuntingRule02
-## Hunt Tagsvalue
+## Hunt Tags
 **Author:** [thomas couilleaux](https://www.metsys.fr/)
+**Reference:** [Link to medium post](https://medium.com/falconforce/falconfriday-detecting-certutil-and-suspicious-code-compilation-0xff02-cfe8fb5e159e?source=friends_link&sk=3c63b684a2f6a203d8627554cec9a628)
+## ATT&CK Tags
+Tactics: ['Persistence', 'LateralMovement']
+## Hunt details
+**Description:** test
+**Query:**
+```C#SecurityEvent | where EventID == "4688" | where CommandLine contains "-noni -ep bypass $"```
