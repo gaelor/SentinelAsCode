@@ -18,6 +18,7 @@
 
 ## How to contribute
 
+master
 
  1. Fork the project
  2. Create your branch
