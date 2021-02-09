@@ -38,8 +38,8 @@ jobs:
 
       - name: Commit Hunting Rules Readme
         run: |
-          git config --global user.name 'gaelor'
-          git config --global user.email 'thomas.couilleaux@metsys.fr'
+          git config --global user.name ${{ secrets.GIT_USER }}
+          git config --global user.email ${{ secrets.GIT_EMAIL }}
           git add HuntingRules/README.md
           git commit -am "Automated Readme"
           git push
