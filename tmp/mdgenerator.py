@@ -9,6 +9,6 @@ for huntingrule in myjson:
             if key == 'displayName' or key == 'author':
                 print('![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")')
                 print('# Hunting Rules')
-                print('# ' + value)
+                print('> ' + value)
                 print('## Hunt Tagsvalue')
                 print('**Author:** [' + value + '](https://www.metsys.fr/)')
