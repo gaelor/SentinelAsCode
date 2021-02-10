@@ -36,4 +36,5 @@ foreach ($file in $Files){
 $HuntingRulesTemplate += "  ]`r`n"
 $HuntingRulesTemplate += "}`r`n"
 Out-File -Path HuntingRules\"MS_"$Date"_hunting-rules_.json" -InputObject $HuntingRulesTemplate
+Start-Sleep -s 5 
 Remove-Item -Path tmp/Azure-Sentinel –Recurse -Force
