@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
 
       # Runs a single command using the runners shell
-      - name: Generate Onboarding File
+      - name: Generate Onboarding Template
         shell: pwsh
         run: |
               Scripts/GenOnboarding.ps1 -OnboardingFolder .\Onboard\ -TenantID ${{ secrets.TENANTID }} -SubscriptionID ${{ secrets.SUBSCRIPTIONID }} -GIT_USER ${{ secrets.GIT_USER }} -GIT_EMAIL ${{ secrets.GIT_EMAIL }} -Azure_User ${{ secrets.AZURE_USER }} -Azure_Pwd '${{ secrets.AZURE_PWD }}' -Outvariable issues
@@ -36,3 +36,11 @@ jobs:
               } else {
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
+
+      - name: Commit Onboarding Template
+        run: |
+          git config --global user.name ${{ secrets.GIT_USER }}
+          git config --global user.email ${{ secrets.GIT_EMAIL }}
+          git add Onboard/*
+          git commit -am "Automated Onboarding Template"
+          git push
