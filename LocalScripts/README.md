@@ -61,3 +61,15 @@ Takes all the json files within a folder (specified as WorkbooksFolder) and depl
 ### Sample
 
 `.\LocalScripts\CreateWorkbooks.ps1 -OnboardingFile Onboard\onboarding.json -WorkbooksFolder Workbooks`
+
+## Generate Onboarding File (GenOnboarding.ps1)
+
+Generate a onboarding file with all workspaces from the tenant.
+
+### Syntax
+
+`GenOnboarding.ps1 -OnboardingFolder <String> -TenantID <String> -SubscriptionID <String> -GIT_USER <String> -GIT_EMAIL <String>`
+
+### Sample
+
+`.\LocalScripts\GenOnboarding.ps1 -OnboardingFolder Onboard -TenantID <String> -SubscriptionID <String> -GIT_USER <String> -GIT_EMAIL <String>`

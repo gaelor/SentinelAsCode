@@ -27,11 +27,8 @@ jobs:
       # Runs a single command using the runners shell
       - name: Create Workbooks on Client Tenant
         shell: pwsh
-        env:
-          AZURE_USER: ${{secrets.AZURE_USER}}
-          AZURE_PWD: ${{secrets.AZURE_PWD}}
         run: |
-              Scripts/CreateWorkbooks.ps1 -OnboardingFile Onboard\onboarding.json -WorkbooksFolder Workbooks -Azure_User ${{ env.AZURE_USER }} -Azure_Pwd '${{ env.AZURE_PWD }}' -Outvariable issues
+              Scripts/CreateWorkbooks.ps1 -OnboardingFile Onboard\onboarding.json -WorkbooksFolder Workbooks -Azure_User ${{ secrets.AZURE_USER }} -Azure_Pwd '${{ secrets.AZURE_PWD }}' -Outvariable issues
               $errors   = $issues.Where({$_.Severity -eq 'Error'})
               $warnings = $issues.Where({$_.Severity -eq 'Warning'})
               if ($errors) {
