@@ -28,7 +28,7 @@ $Onboarding += "    `"deployments`": [" + "`r`n"
 foreach ($item in $workspaces){
     if ($item -ne $workspaces[-1]){
         $Onboarding += "        {" + "`r`n"
-        $Onboarding += "            `"resourcegroup`": `"$item.ResourceGroupName`"," + "`r`n"
+        $Onboarding += "            `"resourcegroup`": `"" + $item.ResourceGroupName +"`"," + "`r`n"
         $Onboarding += "            `"workspace`": `"" + $item.Name + "`"," + "`r`n"
         $Onboarding += "        }," + "`r`n"
     }
