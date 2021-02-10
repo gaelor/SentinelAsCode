@@ -14,7 +14,7 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"displayName`": `"" + $huntingrules.name + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"" + $file + "`",`r`n"
         $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("`"","\`"").replace("`'","") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query + "`",`r`n"
+        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics.replace(" ","`",`"") + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    },`r`n"
     }
@@ -28,7 +28,7 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"displayName`": `"" + $huntingrules.name + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"" + $url + "`",`r`n"
         $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("`"","\`"").replace("`'","") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query + "`",`r`n"
+        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics.replace(" ","`",`"") + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    }`r`n"
     }
