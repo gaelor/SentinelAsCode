@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: AZCreatePlaybooks
+name: AZInstallAll
 
 # Controls when the action will run.
 # Allows you to run this workflow manually from the Actions tab and VS Code
@@ -10,7 +10,7 @@ on:
 
   # Allows you to run this workflow manually from VS Code
   repository_dispatch:
-    types: [ azcreateplaybooks ]
+    types: [ azinstallall ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
