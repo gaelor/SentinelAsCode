@@ -2,15 +2,15 @@
     "subscription": "c3a3408b-632a-4df4-9c92-deded42a7e48",
     "deployments": [
         {
-            "resourcegroup": "@{Name=vmWorkspace; ResourceGroupName=accordinvest-resources}.ResourceGroupName",
+            "resourcegroup": "accordinvest-resources",
             "workspace": "vmWorkspace",
         },
         {
-            "resourcegroup": "@{Name=AccorInvest; ResourceGroupName=accorinvest}.ResourceGroupName",
+            "resourcegroup": "accorinvest",
             "workspace": "AccorInvest",
         },
         {
-            "resourcegroup": "@{Name=log-store-powerbi; ResourceGroupName=powerbi}.ResourceGroupName",
+            "resourcegroup": "powerbi",
             "workspace": "log-store-powerbi",
         },
         {
