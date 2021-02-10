@@ -10,7 +10,6 @@ param(
 
 Install-Module Az.OperationalInsights -AllowClobber -Scope CurrentUser -Force
 Import-Module Az.OperationalInsights
-Clear-AzContext
 
 $AzurePwd = ConvertTo-SecureString -String $Azure_Pwd -AsPlainText -Force
 
