@@ -9,8 +9,8 @@ param(
     [Parameter(Mandatory=$true)]$Azure_Pwd
 )
 
-Install-Module Az.OperationalInsights -AllowClobber -Scope CurrentUser -Force
-Import-Module Az.OperationalInsights
+Install-Module Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
+Import-Module AzSentinel
 
 $AzurePwd = ConvertTo-SecureString -String $Azure_Pwd -AsPlainText -Force
 
