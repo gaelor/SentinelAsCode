@@ -15,7 +15,7 @@ $AzurePwd = ConvertTo-SecureString -String $Azure_Pwd -AsPlainText -Force
 
 $Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $Azure_User,$AzurePwd
 
-Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscription $workspaces.subscription
+Connect-AzAccount -Credential $Credential -Tenant $TenantID -Subscription $SubscriptionID
 
 #Getting all workspaces
 $workspaces = Get-AzOperationalInsightsWorkspace | Where-Object -Property Name -notmatch "Default" | Select-Object Name, ResourceGroupName
