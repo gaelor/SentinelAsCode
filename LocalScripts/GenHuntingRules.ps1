@@ -1,35 +1,39 @@
 git clone https://github.com/Azure/Azure-Sentinel.git tmp/Azure-Sentinel
-$Files = Get-ChildItem -Path '.\tmp\Azure-Sentinel\Hunting Queries\'  -Filter *.yaml -Recurse -File -Name
+$Date = Get-Date -Format "ddMMyyyy"
+$Files = Get-ChildItem -Path '.\tmp\Azure-Sentinel\'  -Filter *.yaml -Recurse -File -Name | Select-String -Pattern "Hunting Queries"
 $HuntingRulesTemplate = "{`r`n"
 $HuntingRulesTemplate += "  `"hunting`": [`r`n"
 foreach ($file in $Files){
     if ($file -ne $Files[-1]){
         $content = ''
-        foreach ($line in $file) { $content = $content + "`n" + $line }
+        $filecontent = Get-Content -Path tmp\Azure-Sentinel\$file
+        foreach ($line in $filecontent) { $content = $content + "`n" + $line }
         $huntingrules = ConvertFrom-YAML $content
         $HuntingRulesTemplate += "    {`r`n"
         $HuntingRulesTemplate += "      `"author`": `"microsoft`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $huntingrules.name + "`",`r`n"
-        $HuntingRulesTemplate += "      `"reference`": `"" + $url + "`",`r`n"
-        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description + "`",`r`n"
+        $HuntingRulesTemplate += "      `"reference`": `"" + $file + "`",`r`n"
+        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query + "`",`r`n"
-        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics + "`"`r`n      ]`r`n"
+        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics.replace(" ","`",`"") + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    },`r`n"
-        }
+    }
     else {
         $content = ''
-        foreach ($line in $file) { $content = $content + "`n" + $line }
+        $filecontent = Get-Content -Path tmp\Azure-Sentinel\$file
+        foreach ($line in $filecontent) { $content = $content + "`n" + $line }
         $huntingrules = ConvertFrom-YAML $content
         $HuntingRulesTemplate += "    {`r`n"
         $HuntingRulesTemplate += "      `"author`": `"microsoft`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $huntingrules.name + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"" + $url + "`",`r`n"
-        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description + "`",`r`n"
+        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query + "`",`r`n"
-        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics + "`"`r`n      ]`r`n"
+        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics.replace(" ","`",`"") + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    }`r`n"
-        }
     }
+}
 $HuntingRulesTemplate += "  ]`r`n"
 $HuntingRulesTemplate += "}`r`n"
-$HuntingRulesTemplate
+Out-File -Path HuntingRules\"MS_"$Date"_hunting-rules_.json" -InputObject $HuntingRulesTemplate
+Remove-Item -Path tmp/Azure-Sentinel –Recurse -Force

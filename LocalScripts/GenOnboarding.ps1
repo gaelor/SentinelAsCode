@@ -37,8 +37,3 @@ foreach ($item in $workspaces){
 $Onboarding += "    ]" + "`r`n"
 $Onboarding += "}" + "`r`n"
 Out-File -Path $OnboardingFolder\onboarding_$Date.json -InputObject $Onboarding
-git config --global user.name $GIT_USER
-git config --global user.email $GIT_EMAIL
-git add $OnboardingFolder\onboarding_$Date.json
-git commit -am "Automated Onboarding File"
-git push

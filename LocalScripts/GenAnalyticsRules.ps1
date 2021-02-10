@@ -18,9 +18,3 @@ $Date = Get-Date -Format "ddMMyyyy"
 Export-AzSentinel -WorkspaceName $Workspace -OutputFolder $AnalyticsRulesFolder$Workspace"_" -Kind Templates
 Remove-Item -r $AnalyticsRulesFolder$Workspace"_\"
 Move-Item -Path $AnalyticsRulesFolder$Workspace"_Templates_*"$Date".json" $AnalyticsRulesFolder$Workspace"_"$Date"_analytics-rules.json"
-
-git config --global user.name $GIT_USER
-git config --global user.email $GIT_EMAIL
-git add $AnalyticsRulesFolder$Workspace"_"$Date"_analytics-rules.json"
-git commit -am "Automated AnalyticsRules File"
-git push
