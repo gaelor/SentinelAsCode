@@ -23,6 +23,6 @@ Rename-Item -Path $AnalyticsRulesFolder + "accorinvest_*" + "_" + $Date + ".json
 
 git config --global user.name $GIT_USER
 git config --global user.email $GIT_EMAIL
-git add $OnboardingFolder\onboarding_$Date.json
-git commit -am "Automated OnboardFile"
+git add $AnalyticsRulesFolder + $Workspace + $Date + "_analytics-rules.json"
+git commit -am "Automated AnalyticsRules File"
 git push
