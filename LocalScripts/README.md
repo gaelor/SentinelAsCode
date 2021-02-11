@@ -88,7 +88,7 @@ Generate a MS AnalyticsRules Template with all rules templates available from a 
 
 ## Generate MS Huntinrules Template (GenMSHuntingRules.ps1)
 
-Generate a MS Huntinrules Template with all rules templates available from MS Sentinel github.
+Generate a MS Huntingrules Template with all rules templates available from MS Sentinel github.
 
 ### Syntax
 
@@ -97,3 +97,15 @@ Generate a MS Huntinrules Template with all rules templates available from MS Se
 ### Sample
 
 `.\LocalScripts\GenMSHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
+
+## Generate Wortell Huntinrules Template (GenWortellHuntingRules.ps1)
+
+Generate a Wortell Huntingrules Template with all rules templates available from Wortell KQL github.
+
+### Syntax
+
+`GenWortellHuntingRules.ps1 -HuntingRulesFolder <String>`
+
+### Sample
+
+`.\LocalScripts\GenWortellHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
