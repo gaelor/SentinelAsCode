@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory=$true)]$HuntingRulesFolder
 )
-Install-Module powershell-yaml
+Install-Module powershell-yaml -AllowClobber -Scope CurrentUser -Force
 Import-Module powershell-yaml
 git clone https://github.com/Azure/Azure-Sentinel.git tmp/Azure-Sentinel
 $Date = Get-Date -Format "ddMMyyyy"

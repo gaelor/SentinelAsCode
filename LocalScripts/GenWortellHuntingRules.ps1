@@ -1,9 +1,7 @@
 param(
     [Parameter(Mandatory=$true)]$HuntingRulesFolder
 )
-Install-Module powershell-yaml -AllowClobber -Scope CurrentUser -Force
-Import-Module powershell-yaml
-git clone https://github.com/Azure/Azure-Sentinel.git tmp/Azure-Sentinel
+git clone https://github.com/wortell/KQL.git tmp/Wortell_KQL
 $Date = Get-Date -Format "ddMMyyyy"
 $Files = Get-ChildItem -Path '.\tmp\Azure-Sentinel\'  -Filter *.yaml -Recurse -File -Name | Select-String -Pattern "Hunting Queries"
 $HuntingRulesTemplate = "{`r`n"
@@ -42,6 +40,6 @@ foreach ($file in $Files){
 }
 $HuntingRulesTemplate += "  ]`r`n"
 $HuntingRulesTemplate += "}`r`n"
-Out-File -Path $HuntingRulesFolder\"MS_"$Date"_hunting-rules.json" -InputObject $HuntingRulesTemplate
+Out-File -Path $HuntingRulesFolder\"Wortell_"$Date"_hunting-rules.json" -InputObject $HuntingRulesTemplate
 Start-Sleep -s 20
-Remove-Item -Path tmp/Azure-Sentinel –Recurse -Force
+Remove-Item -Path tmp/kql –Recurse -Force
