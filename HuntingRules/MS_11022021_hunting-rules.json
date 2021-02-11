@@ -1357,7 +1357,7 @@ DnsEvents
 This can potentially identify excessive traffic to a given location that could be indicative of data transfer out of your network to a group of systems based on the same second level domain.  
 For example, if one client is sending requests for test1.badguy.com and another client is sending requests for test2.badguy.com, you may not see a high enough count to be interesting. 
 However, a combination of the requests to badguy.com could have a high enough count to be interesting. 
-This is only Name lookups, so it would be recommended to review the Firewall\Webproxy logs in relation to the client IP address making the interesting requests.
+This is only Name lookups, so it would be recommended to review the Firewall\\Webproxy logs in relation to the client IP address making the interesting requests.
 ",
       "query": "
 let startTime = 8d;
@@ -1410,7 +1410,7 @@ on ClientIP, Domain, IPAddresses
       "reference": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Hunting%20Queries/DnsEvents/DNS_FullNameAnomalousLookupIncrease.yaml",
       "description": "Checking for a threefold increase or more of Full Name lookup per Client IP for the current day for today vs the daily average for the previous week.  
 This can potentially identify excessive traffic to a given location that could be indicative of data transfer out of your network.  
-This is only Name lookups, so it would be recommended to review the Firewall\Webproxy logs in relation to the ClientIP making the interesting requests.
+This is only Name lookups, so it would be recommended to review the Firewall\\Webproxy logs in relation to the ClientIP making the interesting requests.
 ",
       "query": "
 let startTime = 8d;
