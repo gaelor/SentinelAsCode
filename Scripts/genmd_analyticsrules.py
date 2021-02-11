@@ -9,10 +9,6 @@ print('# Analytics Rules')
 
 for analyticsrule in myjson:
     for item in myjson[analyticsrule]:
-        print('## Table of Contents\n')
-        for name in range(item["displayName"].encode('utf-8')):
-            print(name, ". [", item["displayName"].encode('utf-8')[name], "](#", item["displayName"].encode('utf-8')[name], ")")
-        print('\n')
         print('## ' + item["displayName"].encode('utf-8') + '\n')
         print('### Informations\n')
         try:

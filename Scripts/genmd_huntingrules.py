@@ -18,4 +18,4 @@ for huntingrule in myjson:
         print('### Hunt details\n')
         print('> Description: ' + item["description"] + '\n')
         print('> Query:\n')
-        print('```C#' + item["query"] + '```')
+        print('```' + item["query"] + '```')
