@@ -34,6 +34,6 @@ foreach ($file in $Files){
 }
 $HuntingRulesTemplate += "  ]`r`n"
 $HuntingRulesTemplate += "}`r`n"
-Out-File -Path $HuntingRulesFolder\"Wortell_hunting-rules_"$Date".json" -InputObject $HuntingRulesTemplate
+Out-File -Path $HuntingRulesFolder\"Wortell_hunting-rules_"$Date".json" -InputObject $HuntingRulesTemplate -Encoding ASCII
 Start-Sleep -s 20
 Remove-Item -Path tmp/Wortell_KQL –Recurse -Force
