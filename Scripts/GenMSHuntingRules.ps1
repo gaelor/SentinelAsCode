@@ -1,6 +1,8 @@
 param(
     [Parameter(Mandatory=$true)]$HuntingRulesFolder
 )
+Install-Module powershell-yaml
+Import-Module powershell-yaml
 git clone https://github.com/Azure/Azure-Sentinel.git tmp/Azure-Sentinel
 $Date = Get-Date -Format "ddMMyyyy"
 $Files = Get-ChildItem -Path '.\tmp\Azure-Sentinel\'  -Filter *.yaml -Recurse -File -Name | Select-String -Pattern "Hunting Queries"
