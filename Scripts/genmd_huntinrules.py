@@ -1,6 +1,7 @@
 import json
+import sys
 
-with open('HuntingRules/hunting-rules.json', 'r') as huntingrules:
+with open(sys.argv[1], 'r') as huntingrules:
     myjson = json.load(huntingrules)
 
 print('![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")')
@@ -8,8 +9,6 @@ print('# Hunting Rules')
 
 for huntingrule in myjson:
     for item in myjson[huntingrule]:
-#        for value in item.items():
-#            if key == 'displayName' or key == 'author':
         print('## ' + item["displayName"])
         print('### Hunt Tags\n')
         print('> Author: [' + item["author"] + '](https://www.metsys.fr/)' + '\n')

@@ -9,7 +9,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Persistence', u'LateralMovement', u'Collection']
+> Tactics: ['Persistence', 'LateralMovement', 'Collection']
 
 ### Hunt details
 
@@ -27,7 +27,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Persistence', u'LateralMovement']
+> Tactics: ['Persistence', 'LateralMovement']
 
 ### Hunt details
 

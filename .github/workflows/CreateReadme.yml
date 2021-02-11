@@ -14,9 +14,8 @@ on:
 
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    paths: 
+    - 'HuntingRules/**.json'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -34,12 +33,13 @@ jobs:
       - name: Generate Hunting Rules Readme
         shell: bash
         run: |
-          python Scripts/genmd_huntinrules.py > HuntingRules/README.md
+          python Scripts/genmd_huntinrules.py HuntingRules/hunting-rules.json > HuntingRules/README.md
+          find HuntingRules/ -name '*.json" | grep -v "hunting-rules.json" | xargs -I {} python Scripts/genmd_huntinrules.py {} > HuntingRules/{}.md
 
       - name: Commit Hunting Rules Readme
         run: |
           git config --global user.name ${{ secrets.GIT_USER }}
           git config --global user.email ${{ secrets.GIT_EMAIL }}
-          git add HuntingRules/README.md
+          git add HuntingRules/*.md
           git commit -am "Automated Readme"
           git push
