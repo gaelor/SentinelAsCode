@@ -9,12 +9,27 @@ print('# Analytics Rules')
 
 for analyticsrule in myjson:
     for item in myjson[analyticsrule]:
-        print('## ' + item["displayName"])
+        print('## ' + item["displayName"] + '\n')
         print('### Informations\n')
-        print('> productFilter: ' + item["productFilter"] + '\n')
-        print('> lastUpdatedDateUTC: ' + item["lastUpdatedDateUTC"] + '\n')
-        print('> createdDateUTC: ' + item["createdDateUTC"] + '\n')
+        try:
+            print('> productFilter: ' + item["productFilter"] + '\n')
+        except:
+            print('> productFilter: \n')
+        try:
+            print('> lastUpdatedDateUTC: ' + item["lastUpdatedDateUTC"] + '\n')
+        except:
+            print('> lastUpdatedDateUTC: \n')
+        try:
+            print('> createdDateUTC: ' + item["createdDateUTC"] + '\n')
+        except:
+            print('> createdDateUTC: \n')
         print('### Details\n')
-        print('> Requirements:\n')
-        print('```' + item["requiredDataConnectors"] + '```')
-        print('> Description: ' + item["description"] + '\n')
+        try:
+            print('> Requirements:\n')
+            print('```' + str(item["requiredDataConnectors"]) + '```\n')
+        except:
+            print('> Requirements: \n')
+        try:
+            print('> Description: ' + item["description"] + '\n')
+        except:
+            print('> Description: \n')
