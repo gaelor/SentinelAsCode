@@ -7,7 +7,7 @@ $Files = Get-ChildItem -Path '.\tmp\Wortell_KQL\'  -Filter *.txt -Recurse -File 
 $HuntingRulesTemplate = "{`r`n"
 $HuntingRulesTemplate += "  `"hunting`": [`r`n"
 foreach ($file in $Files){
-    if ($file -ne $Files[-1] -And $file -ne "KQL_win_sdbinst_shim_persistence.txt") {
+    if ($file -ne $Files[-1] -And $file -ne "KQL_win_sdbinst_shim_persistence.txt", "KQL_win_susp_calc", "KQL_win_susp_cli_escape") {
         $filecontent = Get-Content -Path tmp\Wortell_KQL\$file
         if ($null -ne $filecontent) {
         $HuntingRulesTemplate += "    {`r`n"
@@ -19,7 +19,7 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"Collection`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    },`r`n"}
     }
-    elseif ($file -eq $Files[-1] -And $file -ne "KQL_win_sdbinst_shim_persistence.txt") {
+    elseif ($file -eq $Files[-1] -And $file -ne "KQL_win_sdbinst_shim_persistence.txt", "KQL_win_susp_calc", "KQL_win_susp_cli_escape") {
         $filecontent = Get-Content -Path tmp\Wortell_KQL\$file
         if ($null -ne $filecontent) {
         $HuntingRulesTemplate += "    {`r`n"
