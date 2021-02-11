@@ -14,22 +14,25 @@ for analyticsrule in myjson:
         try:
             print('> productFilter: ' + item["productFilter"].encode('utf-8') + '\n')
         except:
-            print('> productFilter: \n')
+            None
         try:
             print('> lastUpdatedDateUTC: ' + item["lastUpdatedDateUTC"].encode('utf-8') + '\n')
         except:
-            print('> lastUpdatedDateUTC: \n')
+            None
         try:
             print('> createdDateUTC: ' + item["createdDateUTC"].encode('utf-8') + '\n')
         except:
-            print('> createdDateUTC: \n')
+            None
         print('### Details\n')
         try:
-            print('> Requirements:\n')
-            print('```' + str(item["requiredDataConnectors"].encode('utf-8')) + '```\n')
+            print('> Tactics: ' + item["tactics"].encode('utf-8') + '\n')
         except:
-            print('> Requirements: \n')
+            None
+        try:
+            print('> Requirements:\n```' + str(item["requiredDataConnectors"].encode('utf-8')) + '```\n')
+        except:
+            None
         try:
             print('> Description: ' + item["description"].encode('utf-8') + '\n')
         except:
-            print('> Description: \n')
+            None
