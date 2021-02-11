@@ -15,6 +15,6 @@ Connect-AzAccount -Tenant $TenantID -Subscription $SubscriptionID
 
 $Date = Get-Date -Format "ddMMyyyy"
 
-Export-AzSentinel -WorkspaceName $Workspace -OutputFolder $AnalyticsRulesFolder$Workspace"_" -Kind Templates
-Remove-Item -r $AnalyticsRulesFolder$Workspace"_\"
-Move-Item -Path $AnalyticsRulesFolder$Workspace"_Templates_*"$Date".json" $AnalyticsRulesFolder$Workspace"_"$Date"_analytics-rules.json"
+Export-AzSentinel -WorkspaceName $Workspace -OutputFolder $AnalyticsRulesFolder"_" -Kind Templates
+Remove-Item -r $AnalyticsRulesFolder"_\"
+Move-Item -Path $AnalyticsRulesFolder"_Templates_*"$Date".json" $AnalyticsRulesFolder"_"$Date"_analytics-rules.json"

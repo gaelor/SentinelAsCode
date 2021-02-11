@@ -4,7 +4,7 @@ $Files = Get-ChildItem -Path '.\tmp\Azure-Sentinel\'  -Filter *.yaml -Recurse -F
 $HuntingRulesTemplate = "{`r`n"
 $HuntingRulesTemplate += "  `"hunting`": [`r`n"
 foreach ($file in $Files){
-    if ($file -ne $Files[-1]){
+    if ($file -ne $Files[-1] -And $file -ne $Files[0]){
         $content = ''
         $filecontent = Get-Content -Path tmp\Azure-Sentinel\$file
         foreach ($line in $filecontent) { $content = $content + "`n" + $line }
@@ -12,13 +12,13 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "    {`r`n"
         $HuntingRulesTemplate += "      `"author`": `"microsoft`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $huntingrules.name + "`",`r`n"
-        $HuntingRulesTemplate += "      `"reference`": `"" + $file.replace("\","\\") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("`"","\`"").replace("`'","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/" + $file.tostring().replace("\", "/").replace(" ","%20") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("`"","\`"").replace("`'","").replace("\n","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.replace("`"","\`"").replace("`'","") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics.replace(" ","`",`"") + "`"`r`n      ]`r`n"
+        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics.tostring().replace(" ","`",`"") + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    },`r`n"
     }
-    else {
+    elseif ($file -ne $Files[0]){
         $content = ''
         $filecontent = Get-Content -Path tmp\Azure-Sentinel\$file
         foreach ($line in $filecontent) { $content = $content + "`n" + $line }
@@ -26,15 +26,16 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "    {`r`n"
         $HuntingRulesTemplate += "      `"author`": `"microsoft`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $huntingrules.name + "`",`r`n"
-        $HuntingRulesTemplate += "      `"reference`": `"" + $file.replace("\","\\") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("`"","\`"").replace("`'","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/" + $file.tostring().replace("\", "/").replace(" ","%20") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("`"","\`"").replace("`'","").replace("\n","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.replace("`"","\`"").replace("`'","") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics.replace(" ","`",`"") + "`"`r`n      ]`r`n"
+        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics.tostring().replace(" ","`",`"") + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    }`r`n"
     }
+    else {}
 }
 $HuntingRulesTemplate += "  ]`r`n"
 $HuntingRulesTemplate += "}`r`n"
 Out-File -Path HuntingRules\"MS_"$Date"_hunting-rules.json" -InputObject $HuntingRulesTemplate
-Start-Sleep -s 5 
+Start-Sleep -s 20
 Remove-Item -Path tmp/Azure-Sentinel –Recurse -Force
