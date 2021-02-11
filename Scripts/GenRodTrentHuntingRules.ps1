@@ -15,7 +15,7 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"displayName`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/rod-trent/SentinelKQL/master/" + $file.tostring() + "`",`r`n"
         $HuntingRulesTemplate += "      `"description`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"query`": `"" + $filecontent.replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"query`": `"" + $filecontent.replace("\","\\").replace("`"","\`"").replace("`'","").replace("`t","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"Collection`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    },`r`n"}
     }
@@ -27,7 +27,7 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"displayName`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/rod-trent/SentinelKQL/master/" + $file.tostring() + "`",`r`n"
         $HuntingRulesTemplate += "      `"description`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"query`": `"" + $filecontent.replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"query`": `"" + $filecontent.replace("\","\\").replace("`"","\`"").replace("`'","").replace("`t","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"Collection`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    }`r`n"}
     }
