@@ -34,12 +34,12 @@ jobs:
         shell: bash
         run: |
           python Scripts/genmd_huntinrules.py HuntingRules/hunting-rules.json > HuntingRules/README.md
-          find HuntingRules/ -name '*.json" | grep -v "hunting-rules.json" | xargs -I {} python Scripts/genmd_huntinrules.py {} > HuntingRules/{}.md
+          find HuntingRules/ -name '*.json' | grep -v "hunting-rules.json" | xargs -I {} python Scripts/genmd_huntinrules.py {} > HuntingRules/{}.md
 
       - name: Commit Hunting Rules Readme
         run: |
           git config --global user.name ${{ secrets.GIT_USER }}
           git config --global user.email ${{ secrets.GIT_EMAIL }}
           git add HuntingRules/*.md
-          git commit -am "Automated Readme"
+          git commit -am "Automated Hunting Rules Readme"
           git push
