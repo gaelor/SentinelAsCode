@@ -9,6 +9,7 @@ $HuntingRulesTemplate += "  `"hunting`": [`r`n"
 foreach ($file in $Files){
     if ($file -ne $Files[-1]) {
         $filecontent = Get-Content -Path tmp\Wortell_KQL\$file
+        if ($null -ne $filecontent) {
         $HuntingRulesTemplate += "    {`r`n"
         $HuntingRulesTemplate += "      `"author`": `"wortell`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
@@ -16,10 +17,11 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"description`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"query`": `"" + $filecontent.replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"Collection`"`r`n      ]`r`n"
-        $HuntingRulesTemplate += "    },`r`n"
+        $HuntingRulesTemplate += "    },`r`n"}
     }
     else {
         $filecontent = Get-Content -Path tmp\Wortell_KQL\$file
+        if ($null -ne $filecontent) {
         $HuntingRulesTemplate += "    {`r`n"
         $HuntingRulesTemplate += "      `"author`": `"wortell`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
@@ -27,7 +29,7 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"description`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"query`": `"" + $filecontent.replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"Collection`"`r`n      ]`r`n"
-        $HuntingRulesTemplate += "    }`r`n"
+        $HuntingRulesTemplate += "    }`r`n"}
     }
 }
 $HuntingRulesTemplate += "  ]`r`n"
