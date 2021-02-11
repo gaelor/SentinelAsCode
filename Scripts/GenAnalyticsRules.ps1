@@ -22,4 +22,4 @@ $Date = Get-Date -Format "ddMMyyyy"
 
 Export-AzSentinel -WorkspaceName $Workspace -OutputFolder $AnalyticsRulesFolder"_" -Kind Templates
 Remove-Item -r $AnalyticsRulesFolder"_\"
-Move-Item -Path $AnalyticsRulesFolder"_Templates_*"$Date".json" $AnalyticsRulesFolder"_"$Date"_analytics-rules.json"
+Move-Item -Path $AnalyticsRulesFolder"_Templates_*"$Date".json" $AnalyticsRulesFolder"analytics-rules_"$Date".json"

@@ -2,6 +2,81 @@
   "hunting": [
     {
       "author": "microsoft",
+      "displayName": "Consent to Application discovery",
+      "reference": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Hunting%20Queries/AuditLogs/ConsentToApplicationDiscovery.yaml",
+      "description": "This query looks at the last 14 days for any \"Consent to application\" operation
+occurs by a user or app. This could indicate that permissions to access the listed AzureApp
+was provided to a malicious actor. Consent to appliction, Add service principal and 
+Add OAuth2PermissionGrant events should be rare. If available, additional context is added 
+from the AuditLogs based on CorrleationId from the same account that performed \"Consent to 
+application\".
+For further information on AuditLogs please see 
+https://docs.microsoft.com/azure/active-directory/reports-monitoring/reference-audit-activities
+This may help detect the Oauth2 attack that can be initiated by this publicly available tool
+https://github.com/fireeye/PwnAuth
+",
+      "query": "
+let auditLookback = 14d;
+// Setting threshold to 3 as a default, change as needed.  Any operation that has been initiated by a user or app more than 3 times in the past 30 days will be exluded
+let threshold = 3;
+// Helper function to extract relevant fields from AuditLog events
+let auditLogEvents = view (startTimeSpan:timespan)  {
+    AuditLogs | where TimeGenerated >= ago(auditLookback)
+    | extend ModProps = TargetResources.[0].modifiedProperties
+    | extend IpAddress = iff(isnotempty(tostring(parse_json(tostring(InitiatedBy.user)).ipAddress)), 
+    tostring(parse_json(tostring(InitiatedBy.user)).ipAddress), tostring(parse_json(tostring(InitiatedBy.app)).ipAddress))
+    | extend InitiatedBy = iff(isnotempty(tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName)), 
+    tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName), tostring(parse_json(tostring(InitiatedBy.app)).displayName))
+    | extend TargetResourceName = tolower(tostring(TargetResources.[0].displayName))
+    | mvexpand ModProps
+    | extend PropertyName = tostring(ModProps.displayName), newValue = replace(\\\",\"\",tostring(ModProps.newValue));
+};
+// Get just the InitiatedBy and CorrleationId so we can look at associated audit activity
+// 2 other operations that can be part of malicious activity in this situation are 
+// \"Add OAuth2PermissionGrant\" and \"Add service principal\", replace the below if you are interested in those as starting points for OperationName
+let HistoricalConsent = auditLogEvents(auditLookback)  
+| where OperationName == \"Consent to application\"
+| summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), OperationCount = count() 
+by Type, InitiatedBy, IpAddress, TargetResourceName, Category, OperationName, PropertyName, newValue, CorrelationId, Id
+// Remove comment below to only include operations initiated by a user or app that is above the threshold for the last 30 days
+//| where OperationCount > threshold
+;
+let Correlate = HistoricalConsent 
+| summarize by InitiatedBy, CorrelationId;
+// 2 other operations that can be part of malicious activity in this situation are 
+// \"Add OAuth2PermissionGrant\" and \"Add service principal\", replace the below if you changed the starting OperationName above
+let allOtherEvents = auditLogEvents(auditLookback) 
+| where OperationName != \"Consent to application\";
+// Gather associated activity based on audit activity for \"Consent to application\" and InitiatedBy and CorrleationId
+let CorrelatedEvents = Correlate 
+| join allOtherEvents on InitiatedBy, CorrelationId
+| summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated) 
+by Type, InitiatedBy, IpAddress, TargetResourceName, Category, OperationName, PropertyName, newValue, CorrelationId, Id
+;
+// Union the results
+let Results = union isfuzzy=true HistoricalConsent,CorrelatedEvents;
+// newValues that are simple semi-colon separated, make those dynamic for easy viewing and Aggregate into the PropertyUpdate set based on CorrelationId and Id(DirectoryId)
+Results
+| extend newValue = split(newValue, \";\")
+| extend PropertyUpdate = pack(PropertyName, newValue, \"Id\", Id)
+// Extract scope requested
+| extend perms = tostring(parse_json(tostring(PropertyUpdate.[\"ConsentAction.Permissions\"]))[0])
+| extend scope = extract(Scope:\\\\s*([^,\\\\]]*),1, perms)
+// Filter out some common openid, and low privilege request scopes - uncomment line below to filter out where no scope is requested
+//| where isnotempty(scope)
+| where scope !contains openid and scope !in (user_impersonation,User.Read)
+| summarize StartTimeUtc = min(StartTimeUtc), EndTimeUtc = max(EndTimeUtc), PropertyUpdateSet = make_bag(PropertyUpdate) , make_set(scope)
+  by InitiatedBy, IpAddress, TargetResourceName, OperationName, CorrelationId
+| extend timestamp = StartTimeUtc, AccountCustomEntity = InitiatedBy, HostCustomEntity = TargetResourceName, IPCustomEntity = IpAddress
+//summarize by app for easier hunting
+| summarize make_set(InitiatedBy), make_set(IpAddress), make_set(PropertyUpdateSet) by TargetResourceName, tostring(set_scope)
+",
+      "tactics": [
+        "Persistence"
+      ]
+    },
+    {
+      "author": "microsoft",
       "displayName": "Rare Audit activity initiated by App",
       "reference": "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Hunting%20Queries/AuditLogs/RareAuditActivityByApp.yaml",
       "description": "Compares the current day to the last 14 days of audits to identify new audit activities by 
@@ -52,7 +127,7 @@ RareAudits
 | extend timestamp = StartTime, AccountCustomEntity = TargetUserPrincipalName, HostCustomEntity = iff(set_PropertyName has_any (DeviceOSType, CloudDeviceOSType), TargetResourceName, ), IPCustomEntity = InitiatedByIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","LateralMovement"
       ]
     },
     {
@@ -102,7 +177,7 @@ RareAudits
 | extend timestamp = StartTime, AccountCustomEntity = InitiatedByUser, HostCustomEntity = iff(set_PropertyName has_any (DeviceOSType, CloudDeviceOSType), TargetResourceName, ), IPCustomEntity = InitiatedByIPAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","LateralMovement"
       ]
     },
     {
@@ -142,7 +217,7 @@ AuditLogs
 | extend timestamp = TimeGenerated, AccountCustomEntity = InitiatingUserOrApp, IPCustomEntity = InitiatingIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -205,7 +280,7 @@ by InitiatedBy, IpAddress, TargetUserName, TargetResourceName, OperationName, Co
 | extend timestamp = StartTimeUtc, AccountCustomEntity = InitiatedBy, HostCustomEntity = TargetResourceName, IPCustomEntity = IpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation","Impact"
       ]
     },
     {
@@ -260,7 +335,7 @@ IpAddress, FirstTargetResourceName, SecondTargetResourceName, FirstOperationName
 | extend timestamp = FirstAddTimeUtc, AccountCustomEntity = FirstInitiatedBy, HostCustomEntity = FirstTargetResourceName, IPCustomEntity = IpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation"
       ]
     },
     {
@@ -284,7 +359,7 @@ UserIdentityUserName, SessionMfaAuthenticated, SourceIpAddress, AWSRegion, Event
 | extend timestamp = TimeGenerated, IPCustomEntity = SourceIpAddress, AccountCustomEntity = UserIdentityAccountId
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "PrivilegeEscalation","DefenseEvasion"
       ]
     },
     {
@@ -326,7 +401,7 @@ SourceIpAddress, AWSRegion, EventSource, RoleRemovedCount, RoleAddedCount
 | extend timestamp = iff(TimeAdded > TimeRemoved,TimeAdded, TimeRemoved), IPCustomEntity = SourceIpAddress, AccountCustomEntity = UserIdentityUserName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "PrivilegeEscalation"
       ]
     },
     {
@@ -361,7 +436,7 @@ AWSCloudTrail
 | extend timestamp = StartTimeUtc, IPCustomEntity = SourceIpAddress, AccountCustomEntity = RoleName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "PrivilegeEscalation"
       ]
     },
     {
@@ -395,7 +470,7 @@ AWSCloudTrail
 | extend timestamp = StartTimeUtc, IPCustomEntity = SourceIpAddress, AccountCustomEntity = tostring(split(RoleArn, \"/\")[1])
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess","DefenseEvasion"
       ]
     },
     {
@@ -433,7 +508,7 @@ EventInfo_Unseen
 | extend timestamp = StartTime , AccountCustomEntity = UserIdentityUserName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "DefenseEvasion"
       ]
     },
     {
@@ -479,7 +554,7 @@ TimeSeriesAlerts
 | extend timestamp = AnomalyTime, AccountCustomEntity = SessionUserName , HostCustomEntity = Host, IPCustomEntity = SourceIPAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Exfiltration"
       ]
     },
     {
@@ -514,7 +589,7 @@ AwsBucketAPILogs_CL
 | extend timestamp = StartTimeUtc, HostCustomEntity = Host, AccountCustomEntity = SessionUserName, IPCustomEntity = SourceIPAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection"
       ]
     },
     {
@@ -537,7 +612,7 @@ AzureActivity
 | extend IPCustomEntity = CallerIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -572,7 +647,7 @@ AzureActivity
 | extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Discovery"
       ]
     },
     {
@@ -598,7 +673,7 @@ AzureActivity
    | extend timestamp = timekey, AccountCustomEntity = Caller
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -621,7 +696,7 @@ AzureActivity
 | extend IPCustomEntity = CallerIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -644,7 +719,7 @@ AzureActivity
 | extend IPCustomEntity = CallerIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -667,7 +742,7 @@ AzureActivity
 | extend IPCustomEntity = CallerIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -690,7 +765,7 @@ AzureActivity
 | extend IPCustomEntity = CallerIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -711,7 +786,7 @@ AzureActivity
 | evaluate basket()
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -732,7 +807,7 @@ AzureActivity
 | render timechart 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -753,7 +828,7 @@ AzureActivity
 | extend AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation"
       ]
     },
     {
@@ -785,7 +860,7 @@ ActivityStatus, ActivitySubstatus, SubscriptionId, access, description, destinat
 | extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl","Impact"
       ]
     },
     {
@@ -836,7 +911,7 @@ nonEmptyIP | union IpJoin
 | extend timestamp = StartTime, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -854,7 +929,7 @@ AzureDevOpsAuditing
 | extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","DefenseEvasion"
       ]
     },
     {
@@ -873,7 +948,7 @@ AzureDevOpsAuditing
 | extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","DefenseEvasion"
       ]
     },
     {
@@ -892,7 +967,7 @@ AzureDevOpsAuditing
 | extend timestamp = StartTime, AccountCustomEntity = ActorUPN
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","DefenseEvasion"
       ]
     },
     {
@@ -909,7 +984,7 @@ AzureDevOpsAuditing
 | extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -927,7 +1002,7 @@ AzureDevOpsAuditing
 | extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","DefenseEvasion"
       ]
     },
     {
@@ -946,7 +1021,7 @@ AzureDevOpsAuditing
 | extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection"
       ]
     },
     {
@@ -963,7 +1038,7 @@ AzureDevOpsAuditing
 | extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","DefenseEvasion"
       ]
     },
     {
@@ -981,7 +1056,7 @@ AzureDevOpsAuditing
 | extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","DefenseEvasion"
       ]
     },
     {
@@ -1024,7 +1099,7 @@ AzureDiagnostics
  direction_s, priority_d, type_s, conditions_destinationIP_s, conditions_destinationPortRange_s, conditions_sourceIP_s, conditions_sourcePortRange_s, ResourceId
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -1058,7 +1133,7 @@ UserName = iff(UserName has \"#EXT#\",replace(\"_\",\"@\",tostring(split(UserPri
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, [\"TargetUser\"]=Target,RoleName,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -1083,7 +1158,7 @@ UserName = iff(UserName has \"#EXT#\",replace(\"_\",\"@\",tostring(split(UserPri
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, [\"TargetUser\"]=Target,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -1101,7 +1176,7 @@ BehaviorAnalytics
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "PrivilegeEscalation"
       ]
     },
     {
@@ -1117,7 +1192,7 @@ BehaviorAnalytics
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -1133,7 +1208,7 @@ BehaviorAnalytics
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection"
       ]
     },
     {
@@ -1149,7 +1224,7 @@ BehaviorAnalytics
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "DefenseEvasion"
       ]
     },
     {
@@ -1170,7 +1245,7 @@ UserName = iff(UserName contains \"#EXT#\",replace(\"_\",\"@\",tostring(split(Us
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,[\"Evidence\"]=ActivityInsights, ResourceDisplayName,AppDisplayName ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -1191,7 +1266,7 @@ UserName = iff(UserName contains \"#EXT#\",replace(\"_\",\"@\",tostring(split(Us
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,[\"Evidence\"]=ActivityInsights, ResourceDisplayName,AppDisplayName ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -1210,7 +1285,7 @@ BehaviorAnalytics
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "PrivilegeEscalation"
       ]
     },
     {
@@ -1234,7 +1309,7 @@ UserName = iff(UserName has \"#EXT#\",replace(\"_\",\"@\",tostring(split(UserPri
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, [\"TargetUser\"]=Target,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -1251,7 +1326,7 @@ BehaviorAnalytics
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "LateralMovement"
       ]
     },
     {
@@ -1268,7 +1343,7 @@ BehaviorAnalytics
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "LateralMovement"
       ]
     },
     {
@@ -1295,7 +1370,7 @@ AuditLogs
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, [\"TargetUser\"]=Target,RoleName,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -1320,7 +1395,7 @@ UserName = iff(UserName has \"#EXT#\",replace(\"_\",\"@\",tostring(split(UserPri
 | project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,[\"Evidence\"]=ActivityInsights, ResourceDisplayName,AppDisplayName,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -1346,7 +1421,7 @@ DnsEvents
 | extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl","Exfiltration"
       ]
     },
     {
@@ -1401,7 +1476,7 @@ on ClientIP, Domain, IPAddresses
 | extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl","Exfiltration"
       ]
     },
     {
@@ -1452,7 +1527,7 @@ on ClientIP, FullNameLookup, IPAddresses
 | extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl","Exfiltration"
       ]
     },
     {
@@ -1538,7 +1613,7 @@ FilterOnIPThreshold_MainTable
 | extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl"
       ]
     },
     {
@@ -1558,7 +1633,7 @@ DnsEvents
 | extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Discovery"
       ]
     },
     {
@@ -1613,7 +1688,7 @@ DomainLookups
 | extend timestamp = TimeGenerated, IPCustomEntity = ClientIP, HostCustomEntity = Computer
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl","Exfiltration"
       ]
     },
     {
@@ -1639,7 +1714,7 @@ DnsEvents
 | extend timestamp = StartTimeUtc, HostCustomEntity = Computer, IPCustomEntity = ClientIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution","Impact"
       ]
     },
     {
@@ -1671,7 +1746,7 @@ DnsEvents
 | order by count_ asc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl"
       ]
     },
     {
@@ -1728,7 +1803,7 @@ DnsEvents
 | where match > -1
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl"
       ]
     },
     {
@@ -1755,7 +1830,7 @@ GitHubOrgMemberLogs
 ) on Actor
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -1801,7 +1876,7 @@ let GitHubNewUser = ( GitHubUser
 union GitHubNewActorLogin, GitHubNewUser
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -1837,7 +1912,7 @@ GitHubRepositoryDestroyEvents
 | where CountInRunTime > LearningThreshold
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -1854,7 +1929,7 @@ GitHubAudit
 | project TimeGenerated, Action, Actor, Country
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","DefenseEvasion"
       ]
     },
     {
@@ -1869,7 +1944,7 @@ GitHubAudit
 | project TimeGenerated, Action, Actor, Country, Repository, PreviousPermission, CurrentPermission
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","DefenseEvasion"
       ]
     },
     {
@@ -1888,7 +1963,7 @@ GitHubAudit
 | project TimeGenerated, Action, Actor, Country, Repository, Visibility
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection"
       ]
     },
     {
@@ -1921,7 +1996,7 @@ GitHubRepo
 | where ContributedToRepos !contains Repository
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Exfiltration"
       ]
     },
     {
@@ -1943,7 +2018,7 @@ GitHubRepo
 | render timechart 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection"
       ]
     },
     {
@@ -1970,7 +2045,7 @@ GitHubRepositoryDestroyEvents
 ) on Actor
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -1995,7 +2070,7 @@ GitHubAudit
 | where secondEventTime between (firstEventTime .. (firstEventTime + 1h))
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation"
       ]
     },
     {
@@ -2031,7 +2106,7 @@ LAQueryLogs
 //| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection","Exfiltration"
       ]
     },
     {
@@ -2058,7 +2133,7 @@ on AADEmail
 | extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Exfiltration"
       ]
     },
     {
@@ -2081,7 +2156,7 @@ on RequestClientApp
 | extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection","Exfiltration"
       ]
     },
     {
@@ -2106,7 +2181,7 @@ on AADClientId
 | extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection","Exfiltration"
       ]
     },
     {
@@ -2128,7 +2203,7 @@ on AADEmail
 | extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection"
       ]
     },
     {
@@ -2154,7 +2229,7 @@ on TimeGenerated
 | extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Exfiltration"
       ]
     },
     {
@@ -2185,7 +2260,7 @@ LAQueryLogs
 on CorrelationId
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection"
       ]
     },
     {
@@ -2220,7 +2295,7 @@ LAQueryLogs
 | summarize total_rows = sum(ResponseRowCount), NoQueries = count(), AvgQuerySize = sum(ResponseRowCount)/count() by AADEmail
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Exfiltration"
       ]
     },
     {
@@ -2246,7 +2321,7 @@ on AADEmail, TimeGenerated
 | extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Exfiltration"
       ]
     },
     {
@@ -2317,7 +2392,7 @@ ActivityCount = count() by NSG = NSG_s, SubNet = Subnetwork_s, Subscription = Su
 | extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -2415,7 +2490,7 @@ let NetworkAnalytics =
   | extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -2447,7 +2522,7 @@ let badNames = dynamic([\"aaa.stage.\", \"post.1\"]);
 | extend timestamp = StartTimeUtc, HostCustomEntity = Computer, IPCustomEntity = RemoteIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl"
       ]
     },
     {
@@ -2515,7 +2590,7 @@ Activity
 | extend timestamp = StartTimeUtc, AccountCustomEntity = UserPrincipalName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -2625,7 +2700,7 @@ on $left.DestinationHostName == $right.DestinationHostName
 | where DomainCount <= domainCountThreshold
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl"
       ]
     },
     {
@@ -2694,7 +2769,7 @@ Unknown), Account = UserPrincipalName
 | order by EventCount desc 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -2803,7 +2878,7 @@ FailedLogonCountForLast = fl_CountForLast
 | extend timestamp = TimeGenerated
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -2866,7 +2941,7 @@ or (InitiatingProcessCommandLine has_any(\"start\") and InitiatingProcessCommand
 | extend timestamp = TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "DefenseEvasion"
       ]
     },
     {
@@ -2972,7 +3047,7 @@ DataMovement
 | extend timestamp = LookupStartTime, IPCustomEntity = DestinationIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl","Exfiltration"
       ]
     },
     {
@@ -3065,7 +3140,7 @@ Results | project TimeGenerated, Type, RareDomain, UserPrincipalName, OperationN
 | extend timestamp = TimeGenerated, AccountCustomEntity = UserPrincipalName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess","Discovery","Collection"
       ]
     },
     {
@@ -3105,7 +3180,7 @@ Event
 ) 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -3135,7 +3210,7 @@ let STRONTIUM_IPS = dynamic([\"82.118.242.171\" , \"167.114.153.55\" , \"94.237.
 | extend timestamp = TimeGenerated
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl"
       ]
     },
     {
@@ -3188,7 +3263,7 @@ RecordType)
 | extend timestamp = StartTimeUtc, AccountCustomEntity = UserId, IPCustomEntity = IPAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess","CredentialAccess"
       ]
     },
     {
@@ -3348,7 +3423,7 @@ RelatedActivityServiceOrSystemCount = rel_ServiceOrSystemCount, RelatedActivityS
 | extend timestamp = RareActivtyStartTimeUtc, AccountCustomEntity = AccountName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "PrivilegeEscalation","Discovery"
       ]
     },
     {
@@ -3396,7 +3471,7 @@ AWSCloudTrail
 | extend timestamp = min_TimeGenerated, IPCustomEntity = SourceIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess","CommandAndControl","Execution"
       ]
     },
     {
@@ -3463,7 +3538,7 @@ UserAddWithResource
 | extend timestamp = StartTimeUtc, AccountCustomEntity = TargetUserName, IPCustomEntity = IpAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation","Impact"
       ]
     },
     {
@@ -3506,7 +3581,7 @@ OfficeActivity
 | project-reorder UserId, user_count, folder_count, set_MailboxOwnerUPN, set_ClientIP, set_ClientInfoString, set_folders
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection"
       ]
     },
     {
@@ -3539,7 +3614,7 @@ OfficeActivity
 | extend timestamp = UploadTime, AccountCustomEntity = Uploader
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "DefenseEvasion"
       ]
     },
     {
@@ -3573,7 +3648,7 @@ OfficeActivity
 | extend timestamp = TimeAdded, AccountCustomEntity = UPN
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -3616,7 +3691,7 @@ OfficeActivity
 | extend timestamp = TimeGenerated, AccountCustomEntity = UserId, IPCustomEntity = ClientIP 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection","Exfiltration"
       ]
     },
     {
@@ -3651,7 +3726,7 @@ OfficeActivity
 | extend timestamp = TimeGenerated, AccountCustomEntity = Member
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "PrivilegeEscalation"
       ]
     },
     {
@@ -3687,7 +3762,7 @@ on UserId
 | extend timestamp = min_TimeGenerated, AccountCustomEntity = UserId
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "PrivilegeEscalation","Collection"
       ]
     },
     {
@@ -3718,7 +3793,7 @@ recentActivity | join kind= leftanti (
 | extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Exfiltration"
       ]
     },
     {
@@ -3749,7 +3824,7 @@ recentActivity | join kind = leftanti (
 | extend timestamp = StartTimeUtc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Exfiltration"
       ]
     },
     {
@@ -3798,7 +3873,7 @@ by OfficeWorkload, RecordType, UserType, UserKey, UserId, ClientIP, Site_Url, So
 // Use mvexpand on any list items and you can expand out the exact time and other metadata about the hit
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl"
       ]
     },
     {
@@ -3824,7 +3899,7 @@ OfficeActivity
 | extend timestamp = TimeGenerated, AccountCustomEntity = UserId
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","Collection"
       ]
     },
     {
@@ -3859,7 +3934,7 @@ OfficeActivity
 | extend timestamp = TimeGenerated, AccountCustomEntity = UPN
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -3881,7 +3956,7 @@ OfficeActivity
 | extend timestamp = min_TimeGenerated, AccountCustomEntity = UserId
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection","Exfiltration"
       ]
     },
     {
@@ -3917,7 +3992,7 @@ ClientIP
 | extend timestamp = TimeGenerated, AccountCustomEntity = UserId, IPCustomEntity = ClientIPAddress, HostCustomEntity =  OriginatingServer 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection","Exfiltration"
       ]
     },
     {
@@ -3940,7 +4015,7 @@ OfficeActivity
 | extend timestamp = min_TimeGenerated, AccountCustomEntity = UserId
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution","Persistence","Collection"
       ]
     },
     {
@@ -3971,7 +4046,7 @@ recentUA | join kind=leftanti (
 | extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Exfiltration"
       ]
     },
     {
@@ -4000,7 +4075,7 @@ OfficeActivity
 | project timestamp=TimeGenerated, AccountCustomEntity=UserId, FileLocation=OfficeObjectId, FileName=SourceFileName, AccessedBy=bag_userBag, NumberOfUsersAccessed=NumberUsers
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess","Exfiltration"
       ]
     },
     {
@@ -4032,7 +4107,7 @@ by OfficeWorkload, RecordType, UserType, UserKey, UserId, ClientIP, Site_Url, So
 // Use mvexpand on any list items and you can expand out the exact time and other metadata about the hit
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl"
       ]
     },
     {
@@ -4069,7 +4144,7 @@ OfficeActivity
 //| extend timestamp = TimeAdded, AccountCustomEntity = UPN
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -4100,7 +4175,7 @@ OfficeActivity
 | extend timestamp=UploadTime, AccountCustomEntity=Uploader 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -4132,7 +4207,7 @@ OfficeActivity
 //| extend timestamp = TimeGenerated, AccountCustomEntity = UserId
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -4159,7 +4234,7 @@ OfficeActivity
   | project Start, End, Teams, CountOfTeams
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","Collection"
       ]
     },
     {
@@ -4196,7 +4271,7 @@ OfficeActivity
 //| extend timestamp = TimeGenerated, AccountCustomEntity = Member
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "PrivilegeEscalation"
       ]
     },
     {
@@ -4234,7 +4309,7 @@ OfficeActivity
 //| extend timestamp = TimeGenerated, AccountCustomEntity = UPN
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -4267,7 +4342,7 @@ OfficeActivity
 | extend timestamp=TimeGenerated, AccountCustomEntity = UploaderID 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -4300,7 +4375,7 @@ SecurityAlert
 GetAllAlertsWithIp(datetime(2019-02-05T10:02:51.000), (\"<ipaddress>\"))
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","Discovery","LateralMovement","Collection"
       ]
     },
     {
@@ -4332,7 +4407,7 @@ SecurityAlert
 GetAllAlertsForUser(datetime(2019-01-20T10:02:51.000), toupper(\"<username>\"))
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","Discovery","LateralMovement","Collection"
       ]
     },
     {
@@ -4361,7 +4436,7 @@ SecurityAlert
 GetAllAlertsOnHost(datetime(2019-01-20T10:02:51.000), toupper(\"<hostname>\"))
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","Discovery","LateralMovement","Collection"
       ]
     },
     {
@@ -4386,7 +4461,7 @@ SecurityAlert
 GetAllAlertsWithFile(datetime(2019-01-18T10:36:07Z), \"<filename>\")
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","Discovery","LateralMovement","Collection"
       ]
     },
     {
@@ -4422,7 +4497,7 @@ SecurityAlert
 GetAllAlertsWithProcess(datetime(2019-01-18T10:36:07Z), \"<processname>\")
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","Discovery","LateralMovement","Collection"
       ]
     },
     {
@@ -4493,7 +4568,7 @@ W3CIISLog
 | join kind=inner (baseline) on $left.ShellLocation == $right.PageAccessed
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "PrivilegeEscalation","Persistence"
       ]
     },
     {
@@ -4527,7 +4602,7 @@ W3CIISLog
 | extend timestamp = StartTime, IPCustomEntity = AttackerIP  
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "PrivilegeEscalation","Persistence"
       ]
     },
     {
@@ -4544,7 +4619,7 @@ SecurityEvent
 | extend timestamp = StartTime, AccountCustomEntity = Account, HostCustomEntity = TargetDomainName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -4585,7 +4660,7 @@ extract(@\"([:\\\\a-zA-Z_\\-0-9\\.()]+)(\"\"?)\", 0, CommandLine)), CommandLine
 | extend timestamp = min_EventTime, HostCustomEntity = ComputerName, AccountCustomEntity = AccountName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -4668,7 +4743,7 @@ SubStatus =~ \"0xC0000389\", \"STATUS_SMARTCARD_CERT_REVOKED\",
 | extend timestamp = StartTimeUtc, AccountCustomEntity = Account
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -4699,7 +4774,7 @@ ProcessCreationEvents
 | extend timestamp = minTimeGenerated, AccountCustomEntity = AccountName, HostCustomEntity = ComputerName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Discovery"
       ]
     },
     {
@@ -4733,7 +4808,7 @@ strcat(Unknown reason substatus: , SubStatus))
 | extend timestamp = StartTimeUtc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess","LateralMovement"
       ]
     },
     {
@@ -4780,7 +4855,7 @@ GroupAddition
 | extend timestamp = GroupCreateTime, AccountCustomEntity = Account, HostCustomEntity = Computer
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation"
       ]
     },
     {
@@ -4812,7 +4887,7 @@ SecurityEvent
 | extend HostCustomEntity = Computer, AccountCustomEntity = SubjectUserName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Collection"
       ]
     },
     {
@@ -4850,7 +4925,7 @@ LogonEvents
 | extend timestamp = StartTimeUtc, AccountCustomEntity = AccountName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess","LateralMovement"
       ]
     },
     {
@@ -4880,7 +4955,7 @@ SecurityEvent
 | extend timestamp = StartTimeUtc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -4907,7 +4982,7 @@ SecurityEvent
 | extend timestamp = StartTimeUtc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -4936,7 +5011,7 @@ SecurityEvent
 | extend timestamp = StartTimeUtc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -4962,7 +5037,7 @@ SecurityEvent
 | extend timestamp = minTimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -5012,7 +5087,7 @@ TargetMachines = make_set(TargetInfoMachine), TargetProtocols = dcount(TargetInf
   
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Discovery","LateralMovement"
       ]
     },
     {
@@ -5044,7 +5119,7 @@ ProcessCreationEvents
 | extend timestamp = StartTimeUtc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -5077,7 +5152,7 @@ SecurityEvent
 | extend timestamp = StartTimeUtc, AccountCustomEntity = CreatedUser
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess","LateralMovement"
       ]
     },
     {
@@ -5109,7 +5184,7 @@ ProcessCreationEvents
 | extend timestamp = TimeGenerated, HostCustomEntity = ComputerName, AccountCustomEntity = AccountName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution","CommandAndControl"
       ]
     },
     {
@@ -5151,7 +5226,7 @@ encodedPSScripts
 | extend timestamp = StartTimeUtc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution","CommandAndControl"
       ]
     },
     {
@@ -5279,7 +5354,7 @@ Process, NewProcessName, CommandLine, ParentProcessName, AllHostsProcessCount, P
 | extend timestamp = TimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -5349,7 +5424,7 @@ Accounts
 | extend AccountCustomEntity = AccountName 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -5380,7 +5455,7 @@ basic_avg
   | extend HostCustomEntity=Computer
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution","Persistence","Discovery","LateralMovement","Collection"
       ]
     },
     {
@@ -5446,7 +5521,7 @@ freqs
 | project StartTimeUtc, EndTimeUtc, frequency, Process, NormalizedProcessPath, tostring(ProcessPath), tostring(Computer), tostring(Account)
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -5479,7 +5554,7 @@ basic_avg
   | extend HostCustomEntity=Computer
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution","Persistence","Discovery","LateralMovement","Collection"
       ]
     },
     {
@@ -5509,7 +5584,7 @@ SecurityEvent
 | where Count > threshold
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution","Discovery","Collection"
       ]
     },
     {
@@ -5614,7 +5689,7 @@ on TargetUserName
 | extend timestamp = StartTime, AccountCustomEntity = TargetUserName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess","LateralMovement"
       ]
     },
     {
@@ -5662,7 +5737,7 @@ freqs
 | extend timestamp = LastSeen 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution"
       ]
     },
     {
@@ -5682,7 +5757,7 @@ SecurityEvent
 | extend timestamp = StartTimeUtc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess","LateralMovement"
       ]
     },
     {
@@ -5711,7 +5786,7 @@ SecurityEvent
 | extend timestamp = StartTimeUtc, HostCustomEntity = Computer, AccountCustomEntity = UserPrincipalName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation"
       ]
     },
     {
@@ -5749,7 +5824,7 @@ deletionTime, DeleteEventID, AccountUsedToDelete
 | extend timestamp = creationTime, HostCustomEntity = Computer, AccountCustomEntity = UserPrincipalName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation"
       ]
     },
     {
@@ -5773,7 +5848,7 @@ SecurityEvent
 | extend timestamp = TimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation"
       ]
     },
     {
@@ -5798,7 +5873,7 @@ SecurityEvent
 | extend timestamp = TimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation"
       ]
     },
     {
@@ -5823,7 +5898,7 @@ SecurityEvent
 | extend timestamp = StartTimeUtc, AccountCustomEntity = Account
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -5841,7 +5916,7 @@ SecurityEvent
 | extend timestamp = StartTime, HostCustomEntity = Computer, AccountCustomEntity = SubjectAccount
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "DefenseEvasion"
       ]
     },
     {
@@ -5881,7 +5956,7 @@ tostring(LocationDetails[\"city\"]), \";\" , tostring(LocationDetails[\"geoCoord
 | order by AppDisplayName, TimeGenerated desc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -5913,7 +5988,7 @@ by UserPrincipalName, AppDisplayName
 | render timechart
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -5956,7 +6031,7 @@ timerange=bin(TimeGenerated, 3d)) on AppDisplayName, UserPrincipalName
 | extend timestamp = timerange, AccountCustomEntity = UserPrincipalName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -5976,7 +6051,7 @@ SigninLogs
 | order by count_ desc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -5998,7 +6073,7 @@ numberLoginAttempts = count() by IPAddress
 | order by numberLoginAttempts desc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -6039,7 +6114,7 @@ SigninLogs
 | extend timestamp = StartTimeUtc, AccountCustomEntity = UserPrincipalName
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -6082,7 +6157,7 @@ by UserPrincipalName, ClientAppUsed, AppDisplayName, IPAddress, isLegacyAuth, to
 | extend timestamp = StartTimeUtc, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess","Persistence"
       ]
     },
     {
@@ -6141,7 +6216,7 @@ SigninLogs
 | where FailureRate >= failureThreshold and PercentageChange >= percentageChangeThreshold
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -6184,7 +6259,7 @@ u_MFABlocked
 | extend timestamp = StartTime, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -6219,7 +6294,7 @@ on locationString
 | extend timestamp = StartTimeUtc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -6267,7 +6342,7 @@ signIns
 | order by Identity
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -6294,7 +6369,7 @@ Location, State, City
 | sort by Date 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -6319,7 +6394,7 @@ SigninLogs
 | project IPCustomEntity, AccountCustomEntity, timestamp, max_TimeGenerated
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -6361,7 +6436,7 @@ successfulAccountSigninCount, successfulAccountSigninSet
 | extend AccountCustomEntity = tostring(successfulAccountSigninSet), timestamp = StartTime, IPCustomEntity = IPAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess","Persistence"
       ]
     },
     {
@@ -6407,7 +6482,7 @@ InitialHits | join (
 | extend timestamp = SuccessLogonTime, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Discovery","LateralMovement"
       ]
     },
     {
@@ -6434,7 +6509,7 @@ by UserDisplayName, UserPrincipalName, AppDisplayName, ResultType, ResultDescrip
 | sort by AttemptCount
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -6498,7 +6573,7 @@ SigninLogs
 | where AnomalousIP !in(excludeKnownVPN) and OtherLoginIP !in(excludeKnownVPN)
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -6519,7 +6594,7 @@ SQLEvent
 | extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -6547,7 +6622,7 @@ SQLEvent
 | extend timestamp = StartTime, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -6575,7 +6650,7 @@ SQLEvent
 | extend timestamp = StartTime, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -6600,7 +6675,7 @@ SQLEvent
 | extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -6625,7 +6700,7 @@ SQLEvent
 | extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation"
       ]
     },
     {
@@ -6650,7 +6725,7 @@ SQLEvent
 | extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP  
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation","Impact"
       ]
     },
     {
@@ -6675,7 +6750,7 @@ SQLEvent
 | extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP  
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation","Impact"
       ]
     },
     {
@@ -6699,7 +6774,7 @@ SQLEvent
 | extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP  
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation","Impact"
       ]
     },
     {
@@ -6723,7 +6798,7 @@ SQLEvent
 | extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP  
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation"
       ]
     },
     {
@@ -6750,7 +6825,7 @@ Syslog
 | sort by TimeGenerated desc
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","Execution"
       ]
     },
     {
@@ -6790,7 +6865,7 @@ proxyEvents
 | extend timestamp = TimeGenerated, AccountCustomEntity = UserPrincipalName, URLCustomEntity = URL
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -6825,7 +6900,7 @@ basic_avg
   | extend HostCustomEntity=Computer
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Execution","Persistence"
       ]
     },
     {
@@ -6876,7 +6951,7 @@ FinalSummary
 | extend timestamp = StartTimeUtc, AccountCustomEntity = user
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","Execution"
       ]
     },
     {
@@ -6906,7 +6981,7 @@ Syslog
 | extend timestamp = EventTime10MinInterval, AccountCustomEntity = user, HostCustomEntity = Computer
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","Execution"
       ]
     },
     {
@@ -6937,7 +7012,7 @@ Syslog
 | extend timestamp = StartTimeUtc, AccountCustomEntity = User, URLCustomEntity = URL
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl"
       ]
     },
     {
@@ -6970,7 +7045,7 @@ Syslog
 | extend timestamp = StartTimeUtc, AccountCustomEntity = User, IPCustomEntity = SourceIP, URLCustomEntity = URL
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Discovery"
       ]
     },
     {
@@ -7007,7 +7082,7 @@ TimeSeriesData
 | render timechart with (title=\"Squid Time Series anomalies\")
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl","Exfiltration"
       ]
     },
     {
@@ -7036,7 +7111,7 @@ OfficeActivity_TimeGenerated, FileName, UserId, ClientIP, OfficeObjectId
 | extend timestamp = OfficeActivity_TimeGenerated, AccountCustomEntity = UserId, IPCustomEntity = ClientIP, URLCustomEntity = Url
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -7066,7 +7141,7 @@ SecurityEvent_TimeGenerated, FileName, Computer, IpAddress, Account, Event, Acti
 | extend timestamp = SecurityEvent_TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer, IPCustomEntity = IpAddress, URLCustomEntity = Url
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -7096,7 +7171,7 @@ Syslog_TimeGenerated, FileName, Computer, HostIP, SyslogMessage
 | extend timestamp = Syslog_TimeGenerated, HostCustomEntity = Computer, IPCustomEntity = HostIP, URLCustomEntity = Url
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -7126,7 +7201,7 @@ VMConnection_TimeGenerated, FileName, Computer, Direction, SourceIp, Destination
 | extend timestamp = VMConnection_TimeGenerated, IPCustomEntity = RemoteIp, HostCustomEntity = Computer, URLCustomEntity = Url
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -7156,7 +7231,7 @@ WireData_TimeGenerated, FileName, Computer, Direction, LocalIP, RemoteIP, LocalP
 | extend timestamp = WireData_TimeGenerated, HostCustomEntity = Computer, IPCustomEntity = RemoteIP, URLCustomEntity = Url
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -7177,7 +7252,7 @@ by Computer, ClientIP, ThreatIntel_Related_Domain = Name, Url
 | extend timestamp = StartTimeUtc, HostCustomEntity = Computer, IPCustomEntity = ClientIP, URLCustomEntity = Url
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Impact"
       ]
     },
     {
@@ -7202,7 +7277,7 @@ by Computer, sSiteName, sIP, sPort, cIP, csMethod
 | extend timestamp = StartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = Computer
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -7275,7 +7350,7 @@ W3CIISLog
 | extend timestamp = FailStartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = Computer
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CredentialAccess"
       ]
     },
     {
@@ -7341,7 +7416,7 @@ cIP_MethodHighCount, codeInjectAtt
 | extend timestamp = StartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = csHost, AccountCustomEntity = csUserName, URLCustomEntity = csUriQuery
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -7368,7 +7443,7 @@ by Computer, sSiteName, sIP, cIP, csUserName, csUriQuery, csMethod, scStatus, sc
 | extend timestamp = StartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = Computer, AccountCustomEntity = csUserName 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence","PrivilegeEscalation"
       ]
     },
     {
@@ -7395,7 +7470,7 @@ data
 | where csUserAgent startswith \"Mozilla\"
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -7427,7 +7502,7 @@ scStatus, scSubStatus, scWin32Status, csHost
 | extend timestamp = TimeGenerated, IPCustomEntity = cIP, HostCustomEntity = csHost, AccountCustomEntity = csUserName 
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -7461,7 +7536,7 @@ W3CIISLog
 | where Access <= 2 and dcount_cIP == 1
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Exfiltration"
       ]
     },
     {
@@ -7504,7 +7579,7 @@ WireData
 | extend timestamp = TimeGenerated, IPCustomEntity = RemoteIP
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "CommandAndControl"
       ]
     },
     {
@@ -7527,7 +7602,7 @@ ZoomLogs
 //| render timechart
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "DefenseEvasion","Persistence"
       ]
     },
     {
@@ -7561,7 +7636,7 @@ ZoomLogs
 | extend timestamp = TimeGenerated, AccountCustomEntity = RegisteringUser
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     },
     {
@@ -7581,7 +7656,7 @@ ZoomLogs
 | extend timestamp = TimeGenerated, AccountCustomEntity = User
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "Persistence"
       ]
     },
     {
@@ -7608,7 +7683,7 @@ ZoomLogs
 | extend timestamp = TimeGenerated, AccountCustomEntity = User
 ",
       "tactics": [
-        "System.Collections.Generic.List`1[System.Object]"
+        "InitialAccess"
       ]
     }
   ]
