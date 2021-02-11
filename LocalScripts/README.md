@@ -62,14 +62,38 @@ Takes all the json files within a folder (specified as WorkbooksFolder) and depl
 
 `.\LocalScripts\CreateWorkbooks.ps1 -OnboardingFile Onboard\onboarding.json -WorkbooksFolder Workbooks`
 
-## Generate Onboarding File (GenOnboarding.ps1)
+## Generate Onboarding Template (GenOnboarding.ps1)
 
-Generate a onboarding file with all workspaces from the tenant.
+Generate a onboarding template with all workspaces from the tenant.
 
 ### Syntax
 
-`GenOnboarding.ps1 -OnboardingFolder <String> -TenantID <String> -SubscriptionID <String> -GIT_USER <String> -GIT_EMAIL <String>`
+`GenOnboarding.ps1 -OnboardingFolder <String> -TenantID <String> -SubscriptionID <String>`
 
 ### Sample
 
-`.\LocalScripts\GenOnboarding.ps1 -OnboardingFolder Onboard -TenantID <String> -SubscriptionID <String> -GIT_USER <String> -GIT_EMAIL <String>`
+`.\LocalScripts\GenOnboarding.ps1 -OnboardingFolder Onboard -TenantID <String> -SubscriptionID <String>`
+
+## Generate MS AnalyticsRules Template (GenAnalyticsRules.ps1)
+
+Generate a MS AnalyticsRules Template with all rules templates available from a workspace.
+
+### Syntax
+
+`GenAnalyticsRules.ps1 -AnalyticsRulesFolder <String> -TenantID <String> -SubscriptionID <String> -Workspace <String>`
+
+### Sample
+
+`.\LocalScripts\GenAnalyticsRules.ps1 -AnalyticsRulesFolder AnalyticsRules -TenantID <String> -SubscriptionID <String> -Workspace <String>`
+
+## Generate MS Huntinrules Template (GenMSHuntingRules.ps1)
+
+Generate a MS Huntinrules Template with all rules templates available from MS Sentinel github.
+
+### Syntax
+
+`GenMSHuntingRules.ps1 -HuntingRulesFolder <String>`
+
+### Sample
+
+`.\LocalScripts\GenMSHuntingRules.ps1 -HuntingRulesFolder HuntingRules`

@@ -28,7 +28,7 @@ jobs:
       - name: Generate AnalyticsRules Template
         shell: pwsh
         run: |
-              Scripts/GenAnalyticsRules.ps1 -AnalyticsRulesFolder .\AnalyticsRules\ -TenantID ${{ secrets.TENANTID }} -SubscriptionID ${{ secrets.SUBSCRIPTIONID }} -Workspace ${{ secrets.WORKSPACE }} -GIT_USER ${{ secrets.GIT_USER }} -GIT_EMAIL ${{ secrets.GIT_EMAIL }} -Azure_User ${{ secrets.AZURE_USER }} -Azure_Pwd '${{ secrets.AZURE_PWD }}' -Outvariable issues
+              Scripts/GenAnalyticsRules.ps1 -AnalyticsRulesFolder .\AnalyticsRules\ -TenantID ${{ secrets.TENANTID }} -SubscriptionID ${{ secrets.SUBSCRIPTIONID }} -Workspace ${{ secrets.WORKSPACE }} -Azure_User ${{ secrets.AZURE_USER }} -Azure_Pwd '${{ secrets.AZURE_PWD }}' -Outvariable issues
               $errors   = $issues.Where({$_.Severity -eq 'Error'})
               $warnings = $issues.Where({$_.Severity -eq 'Warning'})
               if ($errors) {

@@ -1,9 +1,7 @@
 param(
     [Parameter(Mandatory=$true)]$OnboardingFolder,
     [Parameter(Mandatory=$true)]$TenantID,
-    [Parameter(Mandatory=$true)]$SubscriptionID,
-    [Parameter(Mandatory=$true)]$GIT_USER,
-    [Parameter(Mandatory=$true)]$GIT_EMAIL
+    [Parameter(Mandatory=$true)]$SubscriptionID
 )
 
 Install-Module Az.OperationalInsights -AllowClobber -Scope CurrentUser -Force

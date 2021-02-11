@@ -1,3 +1,6 @@
+param(
+    [Parameter(Mandatory=$true)]$HuntingRulesFolder
+)
 git clone https://github.com/Azure/Azure-Sentinel.git tmp/Azure-Sentinel
 $Date = Get-Date -Format "ddMMyyyy"
 $Files = Get-ChildItem -Path '.\tmp\Azure-Sentinel\'  -Filter *.yaml -Recurse -File -Name | Select-String -Pattern "Hunting Queries"
@@ -37,6 +40,6 @@ foreach ($file in $Files){
 }
 $HuntingRulesTemplate += "  ]`r`n"
 $HuntingRulesTemplate += "}`r`n"
-Out-File -Path HuntingRules\"MS_"$Date"_hunting-rules.json" -InputObject $HuntingRulesTemplate
+Out-File -Path $HuntingRulesFolder\"MS_"$Date"_hunting-rules.json" -InputObject $HuntingRulesTemplate
 Start-Sleep -s 20
 Remove-Item -Path tmp/Azure-Sentinel –Recurse -Force

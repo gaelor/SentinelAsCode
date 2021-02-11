@@ -3,8 +3,6 @@ param(
     [Parameter(Mandatory=$true)]$TenantID,
     [Parameter(Mandatory=$true)]$SubscriptionID,
     [Parameter(Mandatory=$true)]$Workspace,
-    [Parameter(Mandatory=$true)]$GIT_USER,
-    [Parameter(Mandatory=$true)]$GIT_EMAIL,
     [Parameter(Mandatory=$true)]$Azure_User,
     [Parameter(Mandatory=$true)]$Azure_Pwd
 )

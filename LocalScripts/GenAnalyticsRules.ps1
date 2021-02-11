@@ -2,9 +2,7 @@ param(
     [Parameter(Mandatory=$true)]$AnalyticsRulesFolder,
     [Parameter(Mandatory=$true)]$TenantID,
     [Parameter(Mandatory=$true)]$SubscriptionID,
-    [Parameter(Mandatory=$true)]$Workspace,
-    [Parameter(Mandatory=$true)]$GIT_USER,
-    [Parameter(Mandatory=$true)]$GIT_EMAIL
+    [Parameter(Mandatory=$true)]$Workspace
 )
 
 Install-Module Az.OperationalInsights -AllowClobber -Scope CurrentUser -Force
