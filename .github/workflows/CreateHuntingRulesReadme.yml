@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           python Scripts/genmd_huntinrules.py HuntingRules/hunting-rules.json > HuntingRules/README.md
-          find HuntingRules/ -name '*.json' | grep -v "hunting-rules.json" | xargs -I {} python Scripts/genmd_huntinrules.py {} > HuntingRules/{}.md
+          find HuntingRules/ -name '*.json' | grep -v "hunting-rules.json\|MS" | xargs -I {} python Scripts/genmd_huntinrules.py {} > HuntingRules/{}.md
 
       - name: Commit Hunting Rules Readme
         run: |
