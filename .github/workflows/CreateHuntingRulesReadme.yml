@@ -17,7 +17,7 @@ on:
     paths: 
     - 'HuntingRules/**'
 
-  pull:
+  pull_request:
     paths: 
     - 'HuntingRules/**'
 
