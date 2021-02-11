@@ -14,7 +14,7 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"displayName`": `"" + $huntingrules.name + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/" + $file.tostring().replace("\", "/").replace(" ","%20") + "`",`r`n"
         $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("`"","\`"").replace("`'","") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.replace("`"","\`"").replace("`'","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics.tostring().replace(" ","`",`"") + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    },`r`n"
     }
@@ -28,7 +28,7 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"displayName`": `"" + $huntingrules.name + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/" + $file.tostring().replace("\", "/").replace(" ","%20") + "`",`r`n"
         $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("`"","\`"").replace("`'","") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.replace("`"","\`"").replace("`'","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $huntingrules.tactics.tostring().replace(" ","`",`"") + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    }`r`n"
     }
