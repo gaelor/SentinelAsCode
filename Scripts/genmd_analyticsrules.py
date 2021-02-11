@@ -9,27 +9,27 @@ print('# Analytics Rules')
 
 for analyticsrule in myjson:
     for item in myjson[analyticsrule]:
-        print('## ' + item["displayName"] + '\n')
+        print('## ' + item["displayName"].encode('ascii') + '\n')
         print('### Informations\n')
         try:
-            print('> productFilter: ' + item["productFilter"] + '\n')
+            print('> productFilter: ' + item["productFilter"].encode('ascii') + '\n')
         except:
             print('> productFilter: \n')
         try:
-            print('> lastUpdatedDateUTC: ' + item["lastUpdatedDateUTC"] + '\n')
+            print('> lastUpdatedDateUTC: ' + item["lastUpdatedDateUTC"].encode('ascii') + '\n')
         except:
             print('> lastUpdatedDateUTC: \n')
         try:
-            print('> createdDateUTC: ' + item["createdDateUTC"] + '\n')
+            print('> createdDateUTC: ' + item["createdDateUTC"].encode('ascii') + '\n')
         except:
             print('> createdDateUTC: \n')
         print('### Details\n')
         try:
             print('> Requirements:\n')
-            print('```' + str(item["requiredDataConnectors"]) + '```\n')
+            print('```' + str(item["requiredDataConnectors"].encode('ascii')) + '```\n')
         except:
             print('> Requirements: \n')
         try:
-            print('> Description: ' + item["description"] + '\n')
+            print('> Description: ' + item["description"].encode('ascii') + '\n')
         except:
             print('> Description: \n')
