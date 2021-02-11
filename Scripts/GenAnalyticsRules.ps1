@@ -18,6 +18,6 @@ Connect-AzAccount -Credential $Credential -Tenant $TenantID -Subscription $Subsc
 
 $Date = Get-Date -Format "ddMMyyyy"
 
-Export-AzSentinel -WorkspaceName $Workspace -OutputFolder $AnalyticsRulesFolder"_" -Kind Templates
+Export-AzSentinel -WorkspaceName $Workspace -OutputFolder $AnalyticsRulesFolder"_" -Kind Templates -Encoding ASCII
 Remove-Item -r $AnalyticsRulesFolder"_\"
 Move-Item -Path $AnalyticsRulesFolder"_Templates_*"$Date".json" $AnalyticsRulesFolder"analytics-rules_"$Date".json"
