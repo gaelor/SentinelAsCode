@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
 
       # Runs a single command using the runners shell
-      - name: Generate WortellHuntingRules Template
+      - name: Generate Wortell HuntingRules Template
         shell: pwsh
         run: |
               Scripts/GenWortellHuntingRules.ps1 -HuntingRulesFolder .\HuntingRules\ -Outvariable issues
@@ -37,10 +37,10 @@ jobs:
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
 
-      - name: Commit WortellHuntingRules Template
+      - name: Commit Wortell HuntingRules Template
         run: |
           git config --global user.name ${{ secrets.GIT_USER }}
           git config --global user.email ${{ secrets.GIT_EMAIL }}
           git add HuntingRules/*
-          git commit -am "Automated WortellHuntingRules Template"
+          git commit -am "Automated Wortell HuntingRules Template"
           git push
