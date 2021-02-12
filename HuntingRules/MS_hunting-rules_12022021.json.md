@@ -52,7 +52,6 @@ Results
   by InitiatedBy, IpAddress, TargetResourceName, OperationName, CorrelationId
 | extend timestamp = StartTimeUtc, AccountCustomEntity = InitiatedBy, HostCustomEntity = TargetResourceName, IPCustomEntity = IpAddress
 | summarize make_set(InitiatedBy), make_set(IpAddress), make_set(PropertyUpdateSet) by TargetResourceName, tostring(set_scope)```
-
 ## Rare Audit activity initiated by App
 ### Hunt Tags
 
