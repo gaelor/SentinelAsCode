@@ -2,7 +2,7 @@ import json
 import sys
 
 with open(sys.argv[1], 'r') as huntingrules:
-    myjson = json.load(huntingrules, encoding='ascii')
+    myjson = json.load(huntingrules, unicode=False)
 
 print('![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")')
 print('# Hunting Rules')
