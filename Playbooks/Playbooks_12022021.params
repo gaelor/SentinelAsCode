@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "Azure_ServiceAccount": {
-            "value": "<azure_serviceaccount>"
+            "value": "svc_azuresentinel_reader@metsys.fr"
         },
         "AzureSentinelConnectionName": {
             "value": "azuresentinel"
@@ -12,25 +12,25 @@
             "value": "wdatp"
         },
         "integrationAccount": {
-            "value": "<integrationAccount>"
+            "value": "Sentinel"
         },
         "integrationAccount_resourceGroup": {
-            "value": "<integrationAccount_resourceGroup>"
+            "value": "AZUR-RG-SENTINEL"
         },
         "CA_LocationName": {
-            "value": "<ca_locationname>"
+            "value": "AccorInvest Blocked IP List"
         },
         "NSG_Group": {
-            "value": "<nsg_group>"
+            "value": "NSG_Sentinel"
         },
         "NSG_ResourceGroup": {
-            "value": "<nsg_resourcegroup>"
+            "value": "AZUR-RG-SENTINEL"
         },
         "TriClient": {
-            "value": "<triclient>"
+            "value": "acc"
         },
         "Jira_Organization": {
-            "value": "<jira_organization>"
+            "value": "AccordInvest"
         },
         "Jira_User": {
             "value": "<jira_user>"

@@ -3,19 +3,19 @@
     "deployments": [
         {
             "resourcegroup": "azur-rg-hub-infra",
-            "workspace": "AZUR-PC-WORKSPACE",
+            "workspace": "AZUR-PC-WORKSPACE"
         },
         {
             "resourcegroup": "azur-rg-nonprod-common",
-            "workspace": "AZUR-NONPRD-WORKSPACE",
+            "workspace": "AZUR-NONPRD-WORKSPACE"
         },
         {
             "resourcegroup": "azur-rg-prod-common",
-            "workspace": "AZUR-PROD-WORKSPACE",
+            "workspace": "AZUR-PROD-WORKSPACE"
         },
         {
             "resourcegroup": "azur-sr-rg-interco-vm",
-            "workspace": "Azur-OMS-WORKSPACE",
+            "workspace": "Azur-OMS-WORKSPACE"
         },
         {
             "resourcegroup": "azur-rg-audit",
