@@ -17,41 +17,63 @@
 
 > Query:
 
+```t
 ```let auditLookback = 14d;
+// Setting threshold to 3 as a default, change as needed.  Any operation that has been initiated by a user or app more than 3 times in the past 30 days will be exluded
+let threshold = 3;
+// Helper function to extract relevant fields from AuditLog events
 let auditLogEvents = view (startTimeSpan:timespan)  {
-AuditLogs | where TimeGenerated >= ago(auditLookback)
-| extend ModProps = TargetResources.[0].modifiedProperties
-| extend IpAddress = iff(isnotempty(tostring(parse_json(tostring(InitiatedBy.user)).ipAddress)), 
-tostring(parse_json(tostring(InitiatedBy.user)).ipAddress), tostring(parse_json(tostring(InitiatedBy.app)).ipAddress))
-| extend InitiatedBy = iff(isnotempty(tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName)), 
-tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName), tostring(parse_json(tostring(InitiatedBy.app)).displayName))
-| extend TargetResourceName = tolower(tostring(TargetResources.[0].displayName))
-| mvexpand ModProps
-| extend PropertyName = tostring(ModProps.displayName), newValue = replace(\","",tostring(ModProps.newValue));
+    AuditLogs | where TimeGenerated >= ago(auditLookback)
+    | extend ModProps = TargetResources.[0].modifiedProperties
+    | extend IpAddress = iff(isnotempty(tostring(parse_json(tostring(InitiatedBy.user)).ipAddress)), 
+    tostring(parse_json(tostring(InitiatedBy.user)).ipAddress), tostring(parse_json(tostring(InitiatedBy.app)).ipAddress))
+    | extend InitiatedBy = iff(isnotempty(tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName)), 
+    tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName), tostring(parse_json(tostring(InitiatedBy.app)).displayName))
+    | extend TargetResourceName = tolower(tostring(TargetResources.[0].displayName))
+    | mvexpand ModProps
+    | extend PropertyName = tostring(ModProps.displayName), newValue = replace(\","",tostring(ModProps.newValue));
 };
+// Get just the InitiatedBy and CorrleationId so we can look at associated audit activity
+// 2 other operations that can be part of malicious activity in this situation are 
+// "Add OAuth2PermissionGrant" and "Add service principal", replace the below if you are interested in those as starting points for OperationName
 let HistoricalConsent = auditLogEvents(auditLookback)  
 | where OperationName == "Consent to application"
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), OperationCount = count() 
-by Type, InitiatedBy, IpAddress, TargetResourceName, Category, OperationName, PropertyName, newValue, CorrelationId, Id;
+by Type, InitiatedBy, IpAddress, TargetResourceName, Category, OperationName, PropertyName, newValue, CorrelationId, Id
+// Remove comment below to only include operations initiated by a user or app that is above the threshold for the last 30 days
+//| where OperationCount > threshold
+;
 let Correlate = HistoricalConsent 
 | summarize by InitiatedBy, CorrelationId;
+// 2 other operations that can be part of malicious activity in this situation are 
+// "Add OAuth2PermissionGrant" and "Add service principal", replace the below if you changed the starting OperationName above
 let allOtherEvents = auditLogEvents(auditLookback) 
 | where OperationName != "Consent to application";
+// Gather associated activity based on audit activity for "Consent to application" and InitiatedBy and CorrleationId
 let CorrelatedEvents = Correlate 
 | join allOtherEvents on InitiatedBy, CorrelationId
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated) 
-by Type, InitiatedBy, IpAddress, TargetResourceName, Category, OperationName, PropertyName, newValue, CorrelationId, Id;
+by Type, InitiatedBy, IpAddress, TargetResourceName, Category, OperationName, PropertyName, newValue, CorrelationId, Id
+;
+// Union the results
 let Results = union isfuzzy=true HistoricalConsent,CorrelatedEvents;
+// newValues that are simple semi-colon separated, make those dynamic for easy viewing and Aggregate into the PropertyUpdate set based on CorrelationId and Id(DirectoryId)
 Results
 | extend newValue = split(newValue, ";")
 | extend PropertyUpdate = pack(PropertyName, newValue, "Id", Id)
+// Extract scope requested
 | extend perms = tostring(parse_json(tostring(PropertyUpdate.["ConsentAction.Permissions"]))[0])
 | extend scope = extract(Scope:\\s*([^,\\]]*),1, perms)
+// Filter out some common openid, and low privilege request scopes - uncomment line below to filter out where no scope is requested
+//| where isnotempty(scope)
 | where scope !contains openid and scope !in (user_impersonation,User.Read)
 | summarize StartTimeUtc = min(StartTimeUtc), EndTimeUtc = max(EndTimeUtc), PropertyUpdateSet = make_bag(PropertyUpdate) , make_set(scope)
   by InitiatedBy, IpAddress, TargetResourceName, OperationName, CorrelationId
 | extend timestamp = StartTimeUtc, AccountCustomEntity = InitiatedBy, HostCustomEntity = TargetResourceName, IPCustomEntity = IpAddress
-| summarize make_set(InitiatedBy), make_set(IpAddress), make_set(PropertyUpdateSet) by TargetResourceName, tostring(set_scope)```
+//summarize by app for easier hunting
+| summarize make_set(InitiatedBy), make_set(IpAddress), make_set(PropertyUpdateSet) by TargetResourceName, tostring(set_scope)
+```
+
 ## Rare Audit activity initiated by App
 ### Hunt Tags
 
@@ -69,6 +91,7 @@ Results
 
 > Query:
 
+```t
 ```let current = 1d;
 let auditLookback = 14d;
 let propertyIgnoreList = dynamic(["TargetId.UserType", "StsRefreshTokensValidFrom", "LastDirSyncTime", "DeviceOSVersion", "CloudDeviceOSVersion", "DeviceObjectVersion"]);
@@ -108,7 +131,9 @@ let RareAudits = AccountMods | join kind= leftanti (
 RareAudits
 | summarize StartTime = min(StartTimeUtc), EndTime = max(EndTimeUtc), make_set(Activity), make_set(PropertyName) by InitiatedByApp, OperationName, TargetUserPrincipalName, InitiatedByIpAddress, TargetResourceName
 | order by TargetUserPrincipalName asc, StartTime asc
-| extend timestamp = StartTime, AccountCustomEntity = TargetUserPrincipalName, HostCustomEntity = iff(set_PropertyName has_any (DeviceOSType, CloudDeviceOSType), TargetResourceName, ), IPCustomEntity = InitiatedByIpAddress```
+| extend timestamp = StartTime, AccountCustomEntity = TargetUserPrincipalName, HostCustomEntity = iff(set_PropertyName has_any (DeviceOSType, CloudDeviceOSType), TargetResourceName, ), IPCustomEntity = InitiatedByIpAddress
+```
+
 ## Rare Audit activity initiated by User
 ### Hunt Tags
 
@@ -126,6 +151,7 @@ RareAudits
 
 > Query:
 
+```t
 ```let current = 1d;
 let auditLookback = 14d;
 let propertyIgnoreList = dynamic(["TargetId.UserType", "StsRefreshTokensValidFrom", "LastDirSyncTime", "DeviceOSVersion", "CloudDeviceOSVersion", "DeviceObjectVersion"]);
@@ -160,7 +186,9 @@ let RareAudits = AccountMods | join kind= leftanti (
 RareAudits 
 | summarize StartTime = min(StartTimeUtc), EndTime = max(EndTimeUtc), make_set(Activity), make_set(PropertyName) by Type, InitiatedByUser, InitiatedByIPAddress, OperationName, TargetUserPrincipalName, TargetResourceName
 | order by InitiatedByUser asc, StartTime asc
-| extend timestamp = StartTime, AccountCustomEntity = InitiatedByUser, HostCustomEntity = iff(set_PropertyName has_any (DeviceOSType, CloudDeviceOSType), TargetResourceName, ), IPCustomEntity = InitiatedByIPAddress```
+| extend timestamp = StartTime, AccountCustomEntity = InitiatedByUser, HostCustomEntity = iff(set_PropertyName has_any (DeviceOSType, CloudDeviceOSType), TargetResourceName, ), IPCustomEntity = InitiatedByIPAddress
+```
+
 ## Interactive STS refresh token modifications
 ### Hunt Tags
 
@@ -178,6 +206,7 @@ RareAudits
 
 > Query:
 
+```t
 ```let auditLookback = 1d;
 // Include your additions to the allow list below as needed
 let AllowedUserList = dynamic(["Microsoft Cloud App Security","ADConnectSyncAccount1","SyncAccount2"]);
@@ -199,7 +228,9 @@ AuditLogs
 | extend tokenMinutesRemaining = datetime_diff(minute,TimeGenerated,newStsRefreshValidFrom)
 | project-reorder Result, AADOperationType
 | extend InitiatingIpAddress = iff(isnotempty(InitiatedBy.user.ipAddress), tostring(InitiatedBy.user.ipAddress), tostring(InitiatedBy.app.ipAddress))
-| extend timestamp = TimeGenerated, AccountCustomEntity = InitiatingUserOrApp, IPCustomEntity = InitiatingIpAddress```
+| extend timestamp = TimeGenerated, AccountCustomEntity = InitiatingUserOrApp, IPCustomEntity = InitiatingIpAddress
+```
+
 ## User Granted Access and associated audit activity
 ### Hunt Tags
 
@@ -217,6 +248,7 @@ AuditLogs
 
 > Query:
 
+```t
 ```let auditLookback = 14d;
 let opName = dynamic(["Add user", "Invite external user"]);
 // Setting threshold to 3 as a default, change as needed.  Any operation that has been initiated by a user or app more than 3 times in the past 14 days will be excluded
@@ -268,7 +300,9 @@ Results
 | extend PropertyUpdate = pack(PropertyName, newValue, "Id", Id)
 | summarize StartTimeUtc = min(StartTimeUtc), EndTimeUtc = max(EndTimeUtc), PropertyUpdateSet = make_bag(PropertyUpdate) 
 by InitiatedBy, IpAddress, TargetUserName, TargetResourceName, OperationName, CorrelationId
-| extend timestamp = StartTimeUtc, AccountCustomEntity = InitiatedBy, HostCustomEntity = TargetResourceName, IPCustomEntity = IpAddress```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = InitiatedBy, HostCustomEntity = TargetResourceName, IPCustomEntity = IpAddress
+```
+
 ## User Granted Access and Grants others Access
 ### Hunt Tags
 
@@ -286,6 +320,7 @@ by InitiatedBy, IpAddress, TargetUserName, TargetResourceName, OperationName, Co
 
 > Query:
 
+```t
 ```let auditLookback = 14d;
 let opName = dynamic(["Add user", "Invite external user"]);
 // Helper function to extract relevant fields from AuditLog events
@@ -329,7 +364,9 @@ NewUserAddsUser
 | extend PropertyUpdate = pack(FirstPropertyName, FirstnewValue, SecondPropertyName, SecondnewValue, "FirstCorrelationId", FirstCorrelationId, "FirstId", FirstId, "SecondCorrelationId", SecondCorrelationId, "SecondId", SecondId)
 | summarize PropertyUpdateSet = make_bag(PropertyUpdate) by FirstAddTimeUtc, FirstInitiatedBy, FirstTargetUserName, SecondAddTimeUtc, SecondInitiatedBy, SecondTargetUserName, 
 IpAddress, FirstTargetResourceName, SecondTargetResourceName, FirstOperationName, SecondOperationName
-| extend timestamp = FirstAddTimeUtc, AccountCustomEntity = FirstInitiatedBy, HostCustomEntity = FirstTargetResourceName, IPCustomEntity = IpAddress```
+| extend timestamp = FirstAddTimeUtc, AccountCustomEntity = FirstInitiatedBy, HostCustomEntity = FirstTargetResourceName, IPCustomEntity = IpAddress
+```
+
 ## Changes made to AWS IAM policy
 ### Hunt Tags
 
@@ -347,6 +384,7 @@ IpAddress, FirstTargetResourceName, SecondTargetResourceName, FirstOperationName
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AWSCloudTrail
 | where TimeGenerated >= ago(timeframe)
@@ -355,7 +393,9 @@ AWSCloudTrail
 "PutUserPolicy", "PutGroupPolicy", "CreatePolicyVersion", "DeletePolicyVersion", "DetachRolePolicy", "CreatePolicy")
 | project TimeGenerated, EventName, EventTypeName, UserIdentityAccountId, UserIdentityPrincipalid, UserAgent, 
 UserIdentityUserName, SessionMfaAuthenticated, SourceIpAddress, AWSRegion, EventSource, AdditionalEventData, ResponseElements
-| extend timestamp = TimeGenerated, IPCustomEntity = SourceIpAddress, AccountCustomEntity = UserIdentityAccountId```
+| extend timestamp = TimeGenerated, IPCustomEntity = SourceIpAddress, AccountCustomEntity = UserIdentityAccountId
+```
+
 ## IAM Privilege Escalation by Instance Profile attachment
 ### Hunt Tags
 
@@ -373,6 +413,7 @@ UserIdentityUserName, SessionMfaAuthenticated, SourceIpAddress, AWSRegion, Event
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 // Creating separate table for RemoveRoleToInstanceProfile
 let RemoveRole=AWSCloudTrail
@@ -398,7 +439,9 @@ RemoveRole
 | where TimeAdded  > TimeRemoved // Checking if RoleAdd operation was performed after removal
 | summarize TotalCount=count() by TimeAdded, TimeRemoved, RoleAdded, RoleRemoved, UserIdentityUserName, UserIdentityAccountId, UserIdentityPrincipalid, UserAgent,
 SourceIpAddress, AWSRegion, EventSource, RoleRemovedCount, RoleAddedCount
-| extend timestamp = iff(TimeAdded > TimeRemoved,TimeAdded, TimeRemoved), IPCustomEntity = SourceIpAddress, AccountCustomEntity = UserIdentityUserName```
+| extend timestamp = iff(TimeAdded > TimeRemoved,TimeAdded, TimeRemoved), IPCustomEntity = SourceIpAddress, AccountCustomEntity = UserIdentityUserName
+```
+
 ## Privileged role attached to Instance
 ### Hunt Tags
 
@@ -416,6 +459,7 @@ SourceIpAddress, AWSRegion, EventSource, RoleRemovedCount, RoleAddedCount
 
 > Query:
 
+```t
 ```let EventNameList = dynamic(["AttachUserPolicy","AttachRolePolicy","AttachGroupPolicy"]);
 let PolicyArnList = dynamic(["arn:aws:iam::aws:policy/AdministratorAccess","arn:aws:iam::aws:policy/DatabaseAdministrator","arn:aws:iam::aws:policy/NetworkAdministrator","arn:aws:iam::aws:policy/SystemAdministrator","arn:aws:iam::aws:policy/AmazonS3FullAccess"]);
 let timeframe = 1d;
@@ -436,7 +480,9 @@ AWSCloudTrail
 | extend InstanceProfileName = tostring(parse_json(RequestParameters).InstanceProfileName), RoleName = tostring(parse_json(RequestParameters).roleName)
 | summarize EventCount=count(), StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated) by EventSource, EventName, UserIdentityType , UserIdentityArn , UserIdentityUserName, SourceIpAddress, RoleName
 ) on RoleName 
-| extend timestamp = StartTimeUtc, IPCustomEntity = SourceIpAddress, AccountCustomEntity = RoleName```
+| extend timestamp = StartTimeUtc, IPCustomEntity = SourceIpAddress, AccountCustomEntity = RoleName
+```
+
 ## Suspicious credential token access of valid IAM Roles
 ### Hunt Tags
 
@@ -454,6 +500,7 @@ AWSCloudTrail
 
 > Query:
 
+```t
 ```let starttime = 14d;
 let midtime = 2d;
 let endtime = 1d;
@@ -471,7 +518,9 @@ AWSCloudTrail
   | project TimeGenerated, EventSource, EventName, UserIdentityType, UserIdentityInvokedBy , SourceIpAddress, RoleArn
 ) on RoleArn, UserIdentityInvokedBy
 | summarize EventCount = count(), StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated) by RoleArn, EventSource, EventName, UserIdentityType, UserIdentityInvokedBy, SourceIpAddress
-| extend timestamp = StartTimeUtc, IPCustomEntity = SourceIpAddress, AccountCustomEntity = tostring(split(RoleArn, "/")[1])```
+| extend timestamp = StartTimeUtc, IPCustomEntity = SourceIpAddress, AccountCustomEntity = tostring(split(RoleArn, "/")[1])
+```
+
 ## Unused or Unsupported Cloud Regions
 ### Hunt Tags
 
@@ -489,6 +538,7 @@ AWSCloudTrail
 
 > Query:
 
+```t
 ```let starttime = 14d;
 let midtime = 2d;
 let endtime = 1d;
@@ -512,7 +562,9 @@ EventInfo_Unseen
 | extend UnusedRegion = AWSRegion
 | extend UserIdentityUserName = iff(isnotempty(UserIdentityUserName), UserIdentityUserName, tostring(split(UserIdentityArn,/)[-1]))
 | summarize EventCount = count(), StartTime = min(TimeGenerated), EndTime = max(TimeGenerated), EventNameList=make_set(EventName), IPList=make_set(SourceIpAddress) by UserIdentityAccountId, UnusedRegion, UserIdentityUserName
-| extend timestamp = StartTime , AccountCustomEntity = UserIdentityUserName```
+| extend timestamp = StartTime , AccountCustomEntity = UserIdentityUserName
+```
+
 ## S3 Bucket outbound Data transfer anomaly
 ### Hunt Tags
 
@@ -530,6 +582,7 @@ EventInfo_Unseen
 
 > Query:
 
+```t
 ```let starttime = 14d;
 let endtime = 1d;
 let timeframe = 1h;
@@ -556,7 +609,9 @@ TimeSeriesAlerts
   | summarize Total = sum(BytesTransferredOut), Files= makeset(Key) , max(EventTime) by bin(EventTime, 1h), EventSource,EventName, SourceIPAddress, UserIdentityType, UserIdentityArn, UserIdentityUserName, BucketName, Host, AuthenticationMethod, SessionMfaAuthenticated, SessionUserName
 ) on EventTime
 | project AnomalyTime = max_EventTime, SourceIPAddress, UserIdentityType,UserIdentityUserName,SessionUserName, BucketName, Host, AuthenticationMethod, Files, Total, baseline, anomalies, score 
-| extend timestamp = AnomalyTime, AccountCustomEntity = SessionUserName , HostCustomEntity = Host, IPCustomEntity = SourceIPAddress```
+| extend timestamp = AnomalyTime, AccountCustomEntity = SessionUserName , HostCustomEntity = Host, IPCustomEntity = SourceIPAddress
+```
+
 ## Suspicious Data Access to S3 Bucket from Unknown IP
 ### Hunt Tags
 
@@ -574,6 +629,7 @@ TimeSeriesAlerts
 
 > Query:
 
+```t
 ```let EventNameList = dynamic(["ListBucket","ListObjects","GetObject"]);
 let starttime = 14d;
 let midtime = 2d;
@@ -590,7 +646,9 @@ AwsBucketAPILogs_CL
 ) on SourceIPAddress
 | summarize EventCount=count(), StartTimeUtc = min(EventTime), EndTimeUtc = max(EventTime), Files= makeset(Key), EventNames = makeset(EventName) by EventSource, SourceIPAddress, UserIdentityType, UserIdentityArn, UserIdentityUserName, BucketName, Host, AuthenticationMethod, SessionMfaAuthenticated, SessionUserName
 | project StartTimeUtc, EndTimeUtc, EventSource, Host, SourceIPAddress, UserIdentityType, BucketName, EventNames, Files, AuthenticationMethod, SessionMfaAuthenticated, SessionUserName, EventCount
-| extend timestamp = StartTimeUtc, HostCustomEntity = Host, AccountCustomEntity = SessionUserName, IPCustomEntity = SourceIPAddress```
+| extend timestamp = StartTimeUtc, HostCustomEntity = Host, AccountCustomEntity = SessionUserName, IPCustomEntity = SourceIPAddress
+```
+
 ## Azure Sentinel Analytics Rules Administrative Operations
 ### Hunt Tags
 
@@ -608,6 +666,7 @@ AwsBucketAPILogs_CL
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let opValues = dynamic(["Microsoft.SecurityInsights/alertRules/write", "Microsoft.SecurityInsights/alertRules/delete"]);
 // Azure Sentinel Analytics - Rule Create / Update / Delete
@@ -618,7 +677,9 @@ AzureActivity
 | where ActivitySubstatusValue in ("Created", "OK")
 | sort by TimeGenerated desc
 | extend AccountCustomEntity = Caller
-| extend IPCustomEntity = CallerIpAddress```
+| extend IPCustomEntity = CallerIpAddress
+```
+
 ## Azure storage key enumeration
 ### Hunt Tags
 
@@ -636,6 +697,7 @@ AzureActivity
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureActivity
 | where TimeGenerated >= ago(timeframe)
@@ -651,7 +713,9 @@ AzureActivity
 ) on Caller 
 | where CallerIpAddress != ExpectedIpAddress
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), ResourceIds = makeset(ResourceId), ResourceIdCount = dcount(ResourceId) by OperationName, Caller, CallerIpAddress
-| extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
+```
+
 ## Azure CloudShell Usage
 ### Hunt Tags
 
@@ -669,6 +733,7 @@ AzureActivity
 
 > Query:
 
+```t
 ```AzureActivity
    | where ActivityStatusValue == "Succeeded"
    | where ResourceGroup contains "cloud-shell-storage"
@@ -680,7 +745,9 @@ AzureActivity
    | where isnotempty(OperationName)
     // Change the timekey scope below to get activity for a longer window 
    | summarize make_set(OperationName) by Caller, timekey=bin(TimeGenerated, 1h)) on Caller, timekey
-   | extend timestamp = timekey, AccountCustomEntity = Caller```
+   | extend timestamp = timekey, AccountCustomEntity = Caller
+```
+
 ## Azure Network Security Group NSG Administrative Operations
 ### Hunt Tags
 
@@ -698,6 +765,7 @@ AzureActivity
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let opValues = dynamic(["Microsoft.Network/networkSecurityGroups/write", "Microsoft.Network/networkSecurityGroups/delete"]);
 // Azure NSG Create / Update / Delete
@@ -708,7 +776,9 @@ AzureActivity
 | where ActivitySubstatusValue in ("Created", "OK")
 | sort by TimeGenerated desc
 | extend AccountCustomEntity = Caller
-| extend IPCustomEntity = CallerIpAddress```
+| extend IPCustomEntity = CallerIpAddress
+```
+
 ## Azure Sentinel Connectors Administrative Operations
 ### Hunt Tags
 
@@ -726,6 +796,7 @@ AzureActivity
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let opValues = dynamic(["Microsoft.SecurityInsights/dataConnectors/write", "Microsoft.SecurityInsights/dataConnectors/delete"]);
 // Azure Sentinel Data Connectors Update / Delete
@@ -736,7 +807,9 @@ AzureActivity
 | where ActivitySubstatusValue in ("Created", "OK")
 | sort by TimeGenerated desc
 | extend AccountCustomEntity = Caller
-| extend IPCustomEntity = CallerIpAddress```
+| extend IPCustomEntity = CallerIpAddress
+```
+
 ## Azure Sentinel Workbooks Administrative Operations
 ### Hunt Tags
 
@@ -754,6 +827,7 @@ AzureActivity
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let opValues = dynamic(["microsoft.insights/workbooks/write", "microsoft.insights/workbooks/delete"]);
 // Azure Sentinel Workbook Create / Update / Delete
@@ -764,7 +838,9 @@ AzureActivity
 | where ActivitySubstatusValue in ("Created", "OK")
 | sort by TimeGenerated desc
 | extend AccountCustomEntity = Caller
-| extend IPCustomEntity = CallerIpAddress```
+| extend IPCustomEntity = CallerIpAddress
+```
+
 ## Azure Virtual Network Subnets Administrative Operations
 ### Hunt Tags
 
@@ -782,6 +858,7 @@ AzureActivity
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let opValues = dynamic(["Microsoft.Network/virtualNetworks/subnets/write"]);
 // Creating Virtual Network Subnets
@@ -792,7 +869,9 @@ AzureActivity
 | where ActivitySubstatusValue == "Created"
 | sort by TimeGenerated desc
 | extend AccountCustomEntity = Caller
-| extend IPCustomEntity = CallerIpAddress```
+| extend IPCustomEntity = CallerIpAddress
+```
+
 ## Common deployed resources
 ### Hunt Tags
 
@@ -810,13 +889,16 @@ AzureActivity
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureActivity
 | where TimeGenerated >= ago(timeframe)
 | where OperationName == "Create or Update Virtual Machine" or OperationName == "Create Deployment" 
 | where ActivityStatus == "Succeeded" 
 | project Resource, ResourceGroup 
-| evaluate basket()```
+| evaluate basket()
+```
+
 ## Creation of an anomalous number of resources
 ### Hunt Tags
 
@@ -834,6 +916,7 @@ AzureActivity
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureActivity
 | where TimeGenerated >= ago(timeframe)
@@ -841,7 +924,9 @@ AzureActivity
 | where ActivityStatus == "Succeeded" 
 | make-series dcount(ResourceId)  default=0 on EventSubmissionTimestamp in range(ago(7d), now(), 1d) by Caller
 | extend AccountCustomEntity = Caller
-| render timechart```
+| render timechart
+```
+
 ## Granting permissions to account
 ### Hunt Tags
 
@@ -859,6 +944,7 @@ AzureActivity
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureActivity
 | where TimeGenerated >= ago(timeframe)
@@ -866,7 +952,9 @@ AzureActivity
 | where ActivityStatus == "Succeeded" 
 | project Caller, CallerIpAddress
 | evaluate basket()
-| extend AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress```
+| extend AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
+```
+
 ## Port opened for an Azure Resource
 ### Hunt Tags
 
@@ -884,6 +972,7 @@ AzureActivity
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureActivity
 | where TimeGenerated >= ago(timeframe)
@@ -903,7 +992,9 @@ AzureActivity
 | extend sourcePortRange = tostring(parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties)).sourcePortRange) 
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), ResourceIds = makeset(ResourceId) by Caller, CallerIpAddress, Resource, ResourceGroup, 
 ActivityStatus, ActivitySubstatus, SubscriptionId, access, description, destinationPortRange, direction, protocol, sourcePortRange  
-| extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
+```
+
 ## Rare Custom Script Extension
 ### Hunt Tags
 
@@ -921,6 +1012,7 @@ ActivityStatus, ActivitySubstatus, SubscriptionId, access, description, destinat
 
 > Query:
 
+```t
 ```let current = 1d;
 let Lookback = 14d;
 let CustomScriptExecution = AzureActivity 
@@ -958,7 +1050,9 @@ let nonEmptyIP = FullDetails | where isnotempty(CallerIpAddress);
 nonEmptyIP | union IpJoin
 // summarize all activities with a given CorrelationId and Caller together so we can provide a singular result
 | summarize StartTime = min(TimeGenerated), EndTime = max(TimeGenerated), ActivityStatusSet = makeset(ActivityStatus), OperationIds = makeset(OperationIds), FailureMessages = makeset(FailureMessage) by CorrelationId, ResourceId, CallerIpAddress, Caller, Resource, ResourceGroup, FileURI, commandToExecute
-| extend timestamp = StartTime, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress```
+| extend timestamp = StartTime, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
+```
+
 ## Azure DevOps- AAD Conditional Access Disabled
 ### Hunt Tags
 
@@ -976,13 +1070,16 @@ nonEmptyIP | union IpJoin
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureDevOpsAuditing
 | where TimeGenerated >= ago(timeframe)
 | where OperationName =="OrganizationPolicy.PolicyValueUpdated"
 | where Data.PolicyName == "Policy.EnforceAADConditionalAccess"
 | where Data.PolicyValue == "OFF"
-| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress```
+| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
+```
+
 ## Azure DevOps- Addtional Org Admin added
 ### Hunt Tags
 
@@ -1000,6 +1097,7 @@ AzureDevOpsAuditing
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureDevOpsAuditing
 | where TimeGenerated >= ago(timeframe)
@@ -1007,7 +1105,9 @@ AzureDevOpsAuditing
 | where Category == "Modify"
 | where Area == "Group"
 | where Details contains ("Project Collection Administrators")
-| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress```
+| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
+```
+
 ## Azure DevOps Display Name Changes
 ### Hunt Tags
 
@@ -1025,13 +1125,16 @@ AzureDevOpsAuditing
 
 > Query:
 
+```t
 ```let timeframe = 14d;
 AzureDevOpsAuditing
 | where TimeGenerated > ago(timeframe)
 | where ActorCUID != 00000000-0000-0000-0000-000000000000 and ActorDisplayName != "Azure DevOps User"
 | summarize StartTime = min(TimeGenerated), EndTime = max(TimeGenerated), DisplayNameCount = dcount(ActorDisplayName), ActorDisplayNames = make_set(ActorDisplayName), make_set(IpAddress), make_set(ProjectName) by ActorCUID, ActorUPN
 | where DisplayNameCount > 1
-| extend timestamp = StartTime, AccountCustomEntity = ActorUPN```
+| extend timestamp = StartTime, AccountCustomEntity = ActorUPN
+```
+
 ## Azure DevOps Pull Request Policy Bypassing
 ### Hunt Tags
 
@@ -1049,11 +1152,14 @@ AzureDevOpsAuditing
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureDevOpsAuditing
 | where TimeGenerated >= ago(timeframe)
 | where OperationName == Git.RefUpdatePoliciesBypassed
-| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress```
+| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
+```
+
 ## Azure DevOps- Guest users access enabled
 ### Hunt Tags
 
@@ -1071,13 +1177,16 @@ AzureDevOpsAuditing
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureDevOpsAuditing
 | where TimeGenerated >= ago(timeframe)
 | where OperationName =="OrganizationPolicy.PolicyValueUpdated"
 | where Data.PolicyName == "Policy.DisallowAadGuestUserAccess"
 | where Data.PolicyValue == "OFF"
-| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress```
+| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
+```
+
 ## Azure DevOps- Project visibility changed to public
 ### Hunt Tags
 
@@ -1095,6 +1204,7 @@ AzureDevOpsAuditing
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureDevOpsAuditing
 | where TimeGenerated >= ago(timeframe)
@@ -1102,7 +1212,9 @@ AzureDevOpsAuditing
 | where OperationName == "Project.UpdateVisibilityCompleted"
 | where Data.PreviousProjectVisibility == "private"
 | where Data.ProjectVisibility == "public"
-| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress```
+| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
+```
+
 ## Azure DevOps- Public project created
 ### Hunt Tags
 
@@ -1120,12 +1232,15 @@ AzureDevOpsAuditing
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureDevOpsAuditing
 | where TimeGenerated >= ago(timeframe)
 | where Data.ProjectVisibility == "Public"
 | where OperationName == "Project.CreateCompleted"
-| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress```
+| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
+```
+
 ## Azure DevOps- Public project enabled by admin
 ### Hunt Tags
 
@@ -1143,13 +1258,16 @@ AzureDevOpsAuditing
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureDevOpsAuditing
 | where TimeGenerated >= ago(timeframe)
 | where OperationName == "OrganizationPolicy.PolicyValueUpdated"
 | where Data.PolicyName == "Policy.AllowAnonymousAccess"
 | where Data.PolicyValue == "ON"
-| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress```
+| extend timestamp = TimeGenerated, AccountCustomEntity = ActorUPN, IPCustomEntity = IpAddress
+```
+
 ## Check critical ports opened to the entire internet
 ### Hunt Tags
 
@@ -1167,6 +1285,7 @@ AzureDevOpsAuditing
 
 > Query:
 
+```t
 ```//Check critical ports opened to the entire internet
 AzureDiagnostics
 | where Category == "NetworkSecurityGroupEvent" 
@@ -1197,7 +1316,9 @@ AzureDiagnostics
 | where type_s !~ "block"
 | order by TimeGenerated desc
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), count() by OperationName, systemId_g, vnetResourceGuid_g, subnetPrefix_s, macAddress_s, primaryIPv4Address_s, ruleName_s,
- direction_s, priority_d, type_s, conditions_destinationIP_s, conditions_destinationPortRange_s, conditions_sourceIP_s, conditions_sourcePortRange_s, ResourceId```
+ direction_s, priority_d, type_s, conditions_destinationIP_s, conditions_destinationPortRange_s, conditions_sourceIP_s, conditions_sourcePortRange_s, ResourceId
+```
+
 ## Anomalous AAD Account Manipulation
 ### Hunt Tags
 
@@ -1215,6 +1336,7 @@ AzureDiagnostics
 
 > Query:
 
+```t
 ```//Critical Roles: can impersonate  any user or app, can update passwords for users or service principals (if the role can let a user update passwords for privileged users, if an attacker compromises this user then attacker can update passwords for privileged users hence gaining more privileges so users with this role are equally critical)
 //High Roles: Administrators that can manage all aspects or permissions of important products but cant update credentials and impersonate another user/app
 let critical = dynamic([9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3,c4e39bd9-1100-46d3-8c65-fb160da0071f,158c047a-c907-4556-b7ef-446551a6b5f7,62e90394-69f5-4237-9190-012177145e10,d29b2b05-8046-44ba-8758-1e26182fcf32,729827e3-9c14-49f7-bb1b-9608f156bbb8,966707d0-3269-4727-9be2-8c3a10f19b9d,194ae4cb-b126-40b2-bd5b-6091b380977d,fe930be7-5e62-47db-91af-98c3a49a38b1]);
@@ -1236,7 +1358,9 @@ AuditLogs
 | where UsersInsights.BlastRadius == "High" or ActivityInsights has "True"
 |  extend UserPrincipalName = iff(UserPrincipalName has "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserPrincipalName),
 UserName = iff(UserName has "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserName) 
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, ["TargetUser"]=Target,RoleName,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, ["TargetUser"]=Target,RoleName,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous AAD Account Creation
 ### Hunt Tags
 
@@ -1254,6 +1378,7 @@ UserName = iff(UserName has "#EXT#",replace("_","@",tostring(split(UserPrincipal
 
 > Query:
 
+```t
 ```BehaviorAnalytics
 | where ActionType == "Add user"
 | where ActivityInsights has "True"
@@ -1266,7 +1391,9 @@ AuditLogs
 UserPrincipalName = iff(UserPrincipalName has "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserPrincipalName),
 UserName = iff(UserName has "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserName)
 | sort by TimeGenerated desc	
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, ["TargetUser"]=Target,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, ["TargetUser"]=Target,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous Activity Role Assignment
 ### Hunt Tags
 
@@ -1284,11 +1411,14 @@ UserName = iff(UserName has "#EXT#",replace("_","@",tostring(split(UserPrincipal
 
 > Query:
 
+```t
 ```let operations = dynamic([Create role assignment]);
 BehaviorAnalytics
 | where ActionType in(operations)
 | where ActivityInsights contains "True"
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous Code Execution
 ### Hunt Tags
 
@@ -1306,11 +1436,14 @@ BehaviorAnalytics
 
 > Query:
 
+```t
 ```let operations = dynamic([Run Command on Virtual Machine]);
 BehaviorAnalytics
 | where ActionType in(operations)
 | where ActivityInsights has "True"
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous Data Access
 ### Hunt Tags
 
@@ -1328,11 +1461,14 @@ BehaviorAnalytics
 
 > Query:
 
+```t
 ```let operations = dynamic([Export an existing database]);
 BehaviorAnalytics
 | where ActionType in(operations)
 | where ActivityInsights has "True"
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous Defensive Mechanism Modification
 ### Hunt Tags
 
@@ -1350,11 +1486,14 @@ BehaviorAnalytics
 
 > Query:
 
+```t
 ```let operations = dynamic([Remove database vulnerability assessment rule baseline]);
 BehaviorAnalytics
 | where ActionType in(operations)
 | where ActivityInsights has "True"
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous Failed Logon
 ### Hunt Tags
 
@@ -1372,6 +1511,7 @@ BehaviorAnalytics
 
 > Query:
 
+```t
 ```BehaviorAnalytics
 | where ActivityType == "LogOn"
 | where UsersInsights.BlastRadius == "High"
@@ -1380,7 +1520,9 @@ SigninLogs  | where Status.errorCode == 50126
 ) on $left.SourceRecordId == $right._ItemId
 | extend UserPrincipalName = iff(UserPrincipalName contains "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserPrincipalName),
 UserName = iff(UserName contains "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserName)
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,["Evidence"]=ActivityInsights, ResourceDisplayName,AppDisplayName ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,["Evidence"]=ActivityInsights, ResourceDisplayName,AppDisplayName ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous Geo Location Logon
 ### Hunt Tags
 
@@ -1398,6 +1540,7 @@ UserName = iff(UserName contains "#EXT#",replace("_","@",tostring(split(UserPrin
 
 > Query:
 
+```t
 ```BehaviorAnalytics
 | where ActionType == "Sign-in"
 | where ActivityInsights.FirstTimeConnectionFromCountryObservedInTenant == True and ActivityInsights.CountryUncommonlyConnectedFromAmongPeers == True
@@ -1406,7 +1549,9 @@ SigninLogs
 ) on $left.SourceRecordId == $right._ItemId
 | extend UserPrincipalName = iff(UserPrincipalName contains "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserPrincipalName),
 UserName = iff(UserName contains "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserName)
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,["Evidence"]=ActivityInsights, ResourceDisplayName,AppDisplayName ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,["Evidence"]=ActivityInsights, ResourceDisplayName,AppDisplayName ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous Login to Devices
 ### Hunt Tags
 
@@ -1424,13 +1569,16 @@ UserName = iff(UserName contains "#EXT#",replace("_","@",tostring(split(UserPrin
 
 > Query:
 
+```t
 ```BehaviorAnalytics
 | where UsersInsights.IsDormantAccount == true
 | where DevicesInsights.IsLocalAdmin == true
 | where ActivityType == "LogOn"
 | where ActionType == "InteractiveLogon"
 | where ActivityInsights contains "True"
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous Password Reset
 ### Hunt Tags
 
@@ -1448,6 +1596,7 @@ UserName = iff(UserName contains "#EXT#",replace("_","@",tostring(split(UserPrin
 
 > Query:
 
+```t
 ```BehaviorAnalytics
 | where ActionType == "Reset user password"
 | where ActivityInsights has "True"
@@ -1459,7 +1608,9 @@ AuditLogs
 | extend UserPrincipalName = iff(UserPrincipalName has "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserPrincipalName),
 UserName = iff(UserName has "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserName)
 | sort by TimeGenerated desc
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, ["TargetUser"]=Target,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, ["TargetUser"]=Target,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous RDP Activity
 ### Hunt Tags
 
@@ -1477,11 +1628,14 @@ UserName = iff(UserName has "#EXT#",replace("_","@",tostring(split(UserPrincipal
 
 > Query:
 
+```t
 ```BehaviorAnalytics
 | where ActivityType == "LogOn"
 | where ActionType == "RemoteInteractiveLogon"
 | where ActivityInsights has "True"
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous Resource Access
 ### Hunt Tags
 
@@ -1499,11 +1653,14 @@ UserName = iff(UserName has "#EXT#",replace("_","@",tostring(split(UserPrincipal
 
 > Query:
 
+```t
 ```BehaviorAnalytics
 | where ActivityType == "LogOn"
 | where ActionType == "ResourceAccess"
 | where ActivityInsights has "True"
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous Role Assignment
 ### Hunt Tags
 
@@ -1521,6 +1678,7 @@ UserName = iff(UserName has "#EXT#",replace("_","@",tostring(split(UserPrincipal
 
 > Query:
 
+```t
 ```let critical = dynamic([9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3,c4e39bd9-1100-46d3-8c65-fb160da0071f,158c047a-c907-4556-b7ef-446551a6b5f7,62e90394-69f5-4237-9190-012177145e10,d29b2b05-8046-44ba-8758-1e26182fcf32,729827e3-9c14-49f7-bb1b-9608f156bbb8,966707d0-3269-4727-9be2-8c3a10f19b9d,194ae4cb-b126-40b2-bd5b-6091b380977d,fe930be7-5e62-47db-91af-98c3a49a38b1]);
 let high = dynamic([cf1c38e5-3621-4004-a7cb-879624dced7c,7495fdc4-34c4-4d15-a289-98788ce399fd,aaf43236-0c0d-4d5f-883a-6955382ac081,3edaf663-341e-4475-9f94-5c398ef6c070,7698a772-787b-4ac8-901f-60d6b08affd2,b1be1c3e-b65d-4f19-8427-f6fa0d97feb9,9f06204d-73c1-4d4c-880a-6edb90606fd8,29232cdf-9323-42fd-ade2-1d097af3e4de,be2f45a1-457d-42af-a067-6ec1fa63bc45,7be44c8a-adaf-4e2a-84d6-ab2649e08a13,e8611ab8-c189-46e8-94e1-60213ab1f814]);
 AuditLogs
@@ -1535,7 +1693,9 @@ AuditLogs
 | join kind=inner ( BehaviorAnalytics
 ) on $left._ItemId == $right.SourceRecordId
 | where UsersInsights.BlasrRadius == "High" or ActivityInsights has "True"
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, ["TargetUser"]=Target,RoleName,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType, ["TargetUser"]=Target,RoleName,ActivityInsights ,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## Anomalous Sign-in Activity
 ### Hunt Tags
 
@@ -1553,6 +1713,7 @@ AuditLogs
 
 > Query:
 
+```t
 ```BehaviorAnalytics
 | where ActionType == "Sign-in"
 | where UsersInsights.IsNewAccount == True or UsersInsights.IsDormantAccount == True or ActivityInsights has "True"
@@ -1561,7 +1722,9 @@ SigninLogs | where Status.errorCode == 0 or Status.errorCode == 0 and RiskDetail
 ) on $left.SourceRecordId == $right._ItemId
 | extend UserPrincipalName = iff(UserPrincipalName has "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserPrincipalName),
 UserName = iff(UserName has "#EXT#",replace("_","@",tostring(split(UserPrincipalName, "#")[0])),UserName)
-| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,["Evidence"]=ActivityInsights, ResourceDisplayName,AppDisplayName,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights```
+| project TimeGenerated, UserName, UserPrincipalName, UsersInsights, ActivityType, ActionType,["Evidence"]=ActivityInsights, ResourceDisplayName,AppDisplayName,SourceIPAddress, SourceIPLocation, SourceDevice, DevicesInsights
+```
+
 ## DNS lookups for commonly abused TLDs
 ### Hunt Tags
 
@@ -1579,6 +1742,7 @@ UserName = iff(UserName has "#EXT#",replace("_","@",tostring(split(UserPrincipal
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 // Add additional TLDs to this list are reuqired.
 let abusedTLD = dynamic(["click", "club", "download",  "xxx", "xyz"]);
@@ -1589,7 +1753,9 @@ DnsEvents
 | where tld in~ (abusedTLD)
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), NameCount = count() by Name, ClientIP, tld
 | order by NameCount desc
-| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP```
+| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
+```
+
 ## DNS - domain anomalous lookup increase
 ### Hunt Tags
 
@@ -1607,6 +1773,7 @@ DnsEvents
 
 > Query:
 
+```t
 ```let startTime = 8d;
 let endTime = 1d;
 //example of excluding Saturday and Sunday in Average as those are potentially low volume and decrease the average, feel free to change
@@ -1645,7 +1812,9 @@ on ClientIP, Domain, IPAddresses
 | where LookupCountToday > ( DailyAvgLookupCountOverLastWeek * avglookupThreshold) and LookupCountToday > lookupThreshold 
 | project StartTimeUtc, EndTimeUtc, ClientIP, SecondLevelDomain = Domain , LookupCountToday , DailyAvgLookupCountOverLastWeek, IPAddresses 
 | order by LookupCountToday desc nulls last 
-| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP```
+| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
+```
+
 ## DNS Full Name anomalous lookup increase
 ### Hunt Tags
 
@@ -1663,6 +1832,7 @@ on ClientIP, Domain, IPAddresses
 
 > Query:
 
+```t
 ```let startTime = 8d;
 let endTime = 1d;
 //example of excluding Saturday and Sunday in Average as those are potentially low volume and decrease the average, feel free to change
@@ -1699,7 +1869,9 @@ on ClientIP, FullNameLookup, IPAddresses
 | where LookupCountToday > (DailyAvgLookupCountOverLastWeek * avglookupThreshold) and LookupCountToday >= lookupThreshold 
 | project StartTimeUtc, EndTimeUtc, ClientIP, LookupCountToday, DailyAvgLookupCountOverLastWeek, FullNameLookup, IPAddresses
 | order by LookupCountToday desc nulls last 
-| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP```
+| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
+```
+
 ## Potential DGA detected
 ### Hunt Tags
 
@@ -1717,6 +1889,7 @@ on ClientIP, FullNameLookup, IPAddresses
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let excludeTLD = dynamic(["arris","ati","virtusa","unknowndomain","onion","corp","domain","local","localdomain","host","home","gateway","lan",
 "services","hub","domain.name","WirelessAP","Digicom-ADSL","OpenDNS","dlinkrouter","Dlink","ASUS","device","router","Belkin","DHCP","Cisco"]);
@@ -1789,7 +1962,9 @@ nxDomainDnsEvents
 FilterOnIPThreshold_MainTable
 | join FilterOnGlobalThreshold_MainTable on ClientIP
 | project StartTimeUtc, EndTimeUtc, ClientIP, TotalNXLookups, IPthreshold, GlobalThreshold, SLDs_DistinctLookups, UniqueSLDsCount
-| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP```
+| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
+```
+
 ## High reverse DNS count by host
 ### Hunt Tags
 
@@ -1807,6 +1982,7 @@ FilterOnIPThreshold_MainTable
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let threshold = 10;
 DnsEvents 
@@ -1814,7 +1990,9 @@ DnsEvents
 | where Name contains "in-addr.arpa" 
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), NameCount = dcount(Name), Names = make_set(Name), ClientIPCount = count() by ClientIP
 | where NameCount > threshold
-| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP```
+| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
+```
+
 ## Abnormally long DNS URI queries
 ### Hunt Tags
 
@@ -1832,6 +2010,7 @@ DnsEvents
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 // Setting URI length threshold count, shorter URIs may cause noise, change as needed
 let uriThreshold = 150;
@@ -1870,7 +2049,9 @@ DomainLookups
     LocalDomains
 ) on SubDomain 
 | summarize by TimeGenerated, Computer, ClientIP , Name, Urilength
-| extend timestamp = TimeGenerated, IPCustomEntity = ClientIP, HostCustomEntity = Computer```
+| extend timestamp = TimeGenerated, IPCustomEntity = ClientIP, HostCustomEntity = Computer
+```
+
 ## DNS Domains linked to WannaCry ransomware campaign
 ### Hunt Tags
 
@@ -1888,6 +2069,7 @@ DomainLookups
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let badDomains = dynamic(["agrdwrtj.us", "bctxawdt.us", "cokfqwjmferc.us", "cxbenjiikmhjcerbj.us", "depuisgef.us", "edoknehyvbl.us", 
 "enyeikruptiukjorq.com", "frullndjtkojlu.us", "gcidpiuvamynj.us", "gxrytjoclpvv.us", "hanoluexjqcf.us", "iarirjjrnuornts.us", 
@@ -1899,7 +2081,9 @@ DnsEvents
 | where TimeGenerated >= ago(timeframe) 
 | where Name in~ (badDomains)
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), count() by Computer, ClientIP, WannaCrypt_Related_Domain = Name
-| extend timestamp = StartTimeUtc, HostCustomEntity = Computer, IPCustomEntity = ClientIP```
+| extend timestamp = StartTimeUtc, HostCustomEntity = Computer, IPCustomEntity = ClientIP
+```
+
 ## Solorigate DNS Pattern
 ### Hunt Tags
 
@@ -1917,6 +2101,7 @@ DnsEvents
 
 > Query:
 
+```t
 ```let cloudApiTerms = dynamic(["api", "east", "west"]);
 DnsEvents
 | where IPAddresses != "" and IPAddresses != "127.0.0.1"
@@ -1936,7 +2121,9 @@ DnsEvents
 | extend percentage_numerical = toreal(subdomain_no) / toreal(strlen(sub_domain)) * 100
 | where percentage_numerical < 50 and percentage_numerical > 5
 | summarize count(), make_set(Name), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated) by Name
-| order by count_ asc```
+| order by count_ asc
+```
+
 ## Solorigate Encoded Domain in URL
 ### Hunt Tags
 
@@ -1954,6 +2141,7 @@ DnsEvents
 
 > Query:
 
+```t
 ```let dictionary = dynamic(["r","q","3","g","s","a","l","t","6","u","1","i","y","f","z","o","p","5","7","2","d","4","9","b","n","x","8","c","v","m","k","e","w","h","j"]);
 let regex_bad_domains = SigninLogs
 //Collect domains from tenant from signin logs
@@ -1997,7 +2185,9 @@ DnsEvents
 | mv-expand set_target_encoded
 //IndexOf allows us to fuzzy match on the substring
 | extend match = indexof(Name, set_target_encoded)
-| where match > -1```
+| where match > -1
+```
+
 ## GitHub First Time Invite Member and Add Member to Repo
 ### Hunt Tags
 
@@ -2015,6 +2205,7 @@ DnsEvents
 
 > Query:
 
+```t
 ```let LearningPeriod = 7d;
 let RunTime = 1h;
 let StartTime = 1h;
@@ -2029,7 +2220,9 @@ GitHubOrgMemberLogs
   GitHubOrgMemberLogs
   | where TimeGenerated between (ago(StartTime) .. ago(EndRunTime))
   | distinct Actor
-) on Actor```
+) on Actor
+```
+
 ## GitHub Inactive or New Account Access or Usage
 ### Hunt Tags
 
@@ -2047,6 +2240,7 @@ GitHubOrgMemberLogs
 
 > Query:
 
+```t
 ```let LearningPeriod = 7d;
 let RunTime = 1h;
 let StartTime = 1h;
@@ -2080,7 +2274,9 @@ let GitHubNewUser = ( GitHubUser
 ) on Dummy
 | project-away Dummy
 | where set_ImpactedUser !contains ImpactedUser);
-union GitHubNewActorLogin, GitHubNewUser```
+union GitHubNewActorLogin, GitHubNewUser
+```
+
 ## GitHub Mass Deletion of repos or projects
 ### Hunt Tags
 
@@ -2098,6 +2294,7 @@ union GitHubNewActorLogin, GitHubNewUser```
 
 > Query:
 
+```t
 ```let LearningPeriod = 7d;
 let BinTime = 1h;
 let RunTime = 1h;
@@ -2121,7 +2318,9 @@ GitHubRepositoryDestroyEvents
   | extend Dummy = 1
 ) on Dummy
 | project-away Dummy
-| where CountInRunTime > LearningThreshold```
+| where CountInRunTime > LearningThreshold
+```
+
 ## GitHub OAuth App Restrictions Disabled
 ### Hunt Tags
 
@@ -2139,11 +2338,14 @@ GitHubRepositoryDestroyEvents
 
 > Query:
 
+```t
 ```let timeframe = 14d;
 GitHubAudit
 | where TimeGenerated > ago(timeframe)
 | where Action == "org.disable_oauth_app_restrictions"
-| project TimeGenerated, Action, Actor, Country```
+| project TimeGenerated, Action, Actor, Country
+```
+
 ## GitHub Update Permissions
 ### Hunt Tags
 
@@ -2161,9 +2363,12 @@ GitHubAudit
 
 > Query:
 
+```t
 ```GitHubAudit
 | where Action == "org.update_default_repository_permission"
-| project TimeGenerated, Action, Actor, Country, Repository, PreviousPermission, CurrentPermission```
+| project TimeGenerated, Action, Actor, Country, Repository, PreviousPermission, CurrentPermission
+```
+
 ## GitHub Repo switched from private to public
 ### Hunt Tags
 
@@ -2181,13 +2386,16 @@ GitHubAudit
 
 > Query:
 
+```t
 ```let timeframe = 14d;
 GitHubAudit
 | where TimeGenerated > ago(timeframe)
 | where Action == "repo.access"
 | where OperationType == "MODIFY"
 | where Visibility == "PUBLIC" 
-| project TimeGenerated, Action, Actor, Country, Repository, Visibility```
+| project TimeGenerated, Action, Actor, Country, Repository, Visibility
+```
+
 ## GitHub OAuth App Restrictions Disabled
 ### Hunt Tags
 
@@ -2205,6 +2413,7 @@ GitHubAudit
 
 > Query:
 
+```t
 ```let RunTime = 1h; 
 let CollaboratorsUserToRepoMapping = (
 GitHubRepo
@@ -2225,7 +2434,9 @@ GitHubRepo
 | distinct Repository , Actor, Organization
 ) on Actor, Organization
 | project-away Actor1, Organization1
-| where ContributedToRepos !contains Repository```
+| where ContributedToRepos !contains Repository
+```
+
 ## GitHub Repo Clone - Time Series Anomly
 ### Hunt Tags
 
@@ -2243,6 +2454,7 @@ GitHubRepo
 
 > Query:
 
+```t
 ```let min_t = toscalar(GitHubRepo
 | summarize min(timestamp_t));
 let max_t = toscalar(GitHubRepo
@@ -2252,7 +2464,9 @@ GitHubRepo
 | distinct TimeGenerated, Repository, Count
 | make-series num=sum(tolong(Count)) default=0 on TimeGenerated in range(min_t, max_t, 1h) by Repository 
 | extend (anomalies, score, baseline) = series_decompose_anomalies(num, 1.5, -1, linefit)
-| render timechart```
+| render timechart
+```
+
 ## GitHub First Time Repo Delete
 ### Hunt Tags
 
@@ -2270,6 +2484,7 @@ GitHubRepo
 
 > Query:
 
+```t
 ```let LearningPeriod = 7d;
 let RunTime = 1h;
 let StartTime = 1h;
@@ -2284,7 +2499,9 @@ GitHubRepositoryDestroyEvents
   GitHubRepositoryDestroyEvents
   | where TimeGenerated between (ago(StartTime) .. ago(EndRunTime))
   | distinct Actor
-) on Actor```
+) on Actor
+```
+
 ## GitHub User Grants Access and Other User Grants Access
 ### Hunt Tags
 
@@ -2302,6 +2519,7 @@ GitHubRepositoryDestroyEvents
 
 > Query:
 
+```t
 ```GitHubAudit
 | where ImpactedUser != ""
 | where Action == "org.invite_member" or Action == "org.add_member" or Action == "team.add_member" or Action == "repo.add_member"
@@ -2314,7 +2532,9 @@ GitHubRepositoryDestroyEvents
   | distinct ImpactedUser, TimeGenerated, Actor
   | project-rename secondUserAdded = ImpactedUser, secondEventTime = TimeGenerated, secondAdderUser = Actor
 ) on $right.secondAdderUser == $left.firstUserAdded
-| where secondEventTime between (firstEventTime .. (firstEventTime + 1h))```
+| where secondEventTime between (firstEventTime .. (firstEventTime + 1h))
+```
+
 ## Cross workspace query anomolies
 ### Hunt Tags
 
@@ -2332,6 +2552,7 @@ GitHubRepositoryDestroyEvents
 
 > Query:
 
+```t
 ```let lookback = 30d;
 let timeframe = 1d;
 let threshold = 0;
@@ -2355,7 +2576,9 @@ LAQueryLogs
 //LAQueryLogs
 //| where TimeGenerated > ago(timeframe))
 //on AADEmail
-//| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail```
+//| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
+```
+
 ## Multiple large queries made by user
 ### Hunt Tags
 
@@ -2373,6 +2596,7 @@ LAQueryLogs
 
 > Query:
 
+```t
 ```let UI_apps = dynamic([ASI_Portal,AzureMonitorLogsConnector,AppAnalytics]);
 let threshold = 3;
 let timeframe = 1d;
@@ -2386,7 +2610,9 @@ LAQueryLogs
 | where TimeGenerated > ago(timeframe)
 | where (ResponseRowCount == 10001 and RequestClientApp in(UI_apps)) or (ResponseRowCount > 10001 and RequestClientApp !in(UI_apps)))
 on AADEmail
-| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail```
+| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
+```
+
 ## New client running queries
 ### Hunt Tags
 
@@ -2404,6 +2630,7 @@ on AADEmail
 
 > Query:
 
+```t
 ```let lookback = 7d;
 let timeframe = 1d;
 LAQueryLogs
@@ -2414,7 +2641,9 @@ LAQueryLogs
 | where TimeGenerated > ago(timeframe)
 )
 on RequestClientApp
-| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail```
+| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
+```
+
 ## New ServicePrincipal running queries
 ### Hunt Tags
 
@@ -2432,6 +2661,7 @@ on RequestClientApp
 
 > Query:
 
+```t
 ```let lookback = 7d;
 let timeframe = 1d;
 LAQueryLogs
@@ -2444,7 +2674,9 @@ LAQueryLogs
 | where ResponseCode == 200 and RequestClientApp != "AppAnalytics" and AADEmail !contains "@"
 )
 on AADClientId
-| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail```
+| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
+```
+
 ## New users running queries
 ### Hunt Tags
 
@@ -2462,6 +2694,7 @@ on AADClientId
 
 > Query:
 
+```t
 ```let lookback = 7d;
 let timeframe = 1d;
 LAQueryLogs
@@ -2471,7 +2704,9 @@ LAQueryLogs
 | where TimeGenerated > ago(timeframe))
 on AADEmail
 | project TimeGenerated, AADEmail, QueryText, RequestClientApp, RequestTarget
-| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail```
+| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
+```
+
 ## Query data volume anomolies
 ### Hunt Tags
 
@@ -2489,6 +2724,7 @@ on AADEmail
 
 > Query:
 
+```t
 ```let lookback = 7d;
 let threshold = 0;
 LAQueryLogs
@@ -2502,7 +2738,9 @@ LAQueryLogs
 | summarize make_set(QueryText) by AADEmail, RequestTarget, TimeGenerated = bin(TimeGenerated, 1h))
 on TimeGenerated
 | project TimeGenerated, AADEmail, RequestTarget, set_QueryText
-| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail```
+| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
+```
+
 ## Query looking for secrets
 ### Hunt Tags
 
@@ -2520,6 +2758,7 @@ on TimeGenerated
 
 > Query:
 
+```t
 ```// Extend this list with items to search for
 let keywords = dynamic(["password", "pwd", "creds", "credentials", "secret"]);
 // To exclude key phrases or tables to exclude add to these lists
@@ -2538,7 +2777,9 @@ LAQueryLogs
 | where RequestClientApp != Sentinel-General
 | extend querytext_lower = tolower(QueryText)
 | where QueryText has_any(table_exclusions) or querytext_lower has_any(keyword_exclusion))
-on CorrelationId```
+on CorrelationId
+```
+
 ## User returning more data than daily average
 ### Hunt Tags
 
@@ -2556,6 +2797,7 @@ on CorrelationId```
 
 > Query:
 
+```t
 ```let threshold = 10;
 let lookback = 7d;
 let timeframe = 1d;
@@ -2578,7 +2820,9 @@ LAQueryLogs
 | where AADEmail in(anomolous_users)
 | extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
 // Comment out the line below to see the queries run by users.
-| summarize total_rows = sum(ResponseRowCount), NoQueries = count(), AvgQuerySize = sum(ResponseRowCount)/count() by AADEmail```
+| summarize total_rows = sum(ResponseRowCount), NoQueries = count(), AvgQuerySize = sum(ResponseRowCount)/count() by AADEmail
+```
+
 ## User running multiple queries that fail
 ### Hunt Tags
 
@@ -2596,6 +2840,7 @@ LAQueryLogs
 
 > Query:
 
+```t
 ```let lookback = 7d;
 let timeframe = 1h;
 let threshold = 10;
@@ -2609,7 +2854,9 @@ LAQueryLogs
 | where TimeGenerated > ago(lookback)
 | summarize make_set(QueryText) by AADEmail, bin(TimeGenerated, timeframe))
 on AADEmail, TimeGenerated
-| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail```
+| extend timestamp = TimeGenerated, AccountCustomEntity = AADEmail
+```
+
 ## Azure Resources assigned Public IP Addresses
 ### Hunt Tags
 
@@ -2627,6 +2874,7 @@ on AADEmail, TimeGenerated
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 AzureActivity
 | where TimeGenerated >= ago(timeframe)
@@ -2682,7 +2930,9 @@ ActivityCount = count() by NSG = NSG_s, SubNet = Subnetwork_s, Subscription = Su
 )
 | project StartTimeUtc, EndTimeUtc, FirstProcessedTimeUTC, LastProcessedTimeUtc, PublicIPs, NSG, NSG_Name, SrcIP, DestPort, SubNet, Name, VMs, MACAddresses, ActivityCount, Regions, AzureRegions, Subscription, Tags_s, SchemaVersion
 ) on $left.Resource == $right.NSG_Name
-| extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
+```
+
 ## Anomalous Resource Creation and related Network Activity
 ### Hunt Tags
 
@@ -2700,6 +2950,7 @@ ActivityCount = count() by NSG = NSG_s, SubNet = Subnetwork_s, Subscription = Su
 
 > Query:
 
+```t
 ```let starttime = 7d;
 let endtime = 1d;
 let Activity = AzureActivity
@@ -2776,7 +3027,9 @@ let NetworkAnalytics =
   ;
   Activity | join kind= leftouter (NetworkAnalytics
   ) on $left.Resource == $right.NSG_Name
-  | extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress```
+  | extend timestamp = StartTimeUtc, AccountCustomEntity = Caller, IPCustomEntity = CallerIpAddress
+```
+
 ## Cobalt Strike DNS Beaconing
 ### Hunt Tags
 
@@ -2794,6 +3047,7 @@ let NetworkAnalytics =
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let badNames = dynamic(["aaa.stage.", "post.1"]);
 (union isfuzzy=true
@@ -2811,7 +3065,9 @@ let badNames = dynamic(["aaa.stage.", "post.1"]);
 | extend Domain = DNSName, RemoteIP = RemoteIp
 ))
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated) by Domain, SourceIp, RemoteIP, Computer
-| extend timestamp = StartTimeUtc, HostCustomEntity = Computer, IPCustomEntity = RemoteIP```
+| extend timestamp = StartTimeUtc, HostCustomEntity = Computer, IPCustomEntity = RemoteIP
+```
+
 ## Failed service logon attempt by user account with available AuditData
 ### Hunt Tags
 
@@ -2829,6 +3085,7 @@ let badNames = dynamic(["aaa.stage.", "post.1"]);
 
 > Query:
 
+```t
 ```let current = 1d;
 let failLimit = 10;
 let ipLimit = 3;
@@ -2879,7 +3136,9 @@ SigninsWithAudit, AuditMods)
 Activity
 | project StartTimeUtc, EndTimeUtc, DataType = Type, Category, OperationName, UserPrincipalName, InitiatedBy, Activity, FailedLogonCount, DistinctIPAddressCount, DistinctResultCount, CorrelationId, Id
 | order by UserPrincipalName, StartTimeUtc
-| extend timestamp = StartTimeUtc, AccountCustomEntity = UserPrincipalName```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = UserPrincipalName
+```
+
 ## FireEye stolen red teaming tools communications
 ### Hunt Tags
 
@@ -2897,6 +3156,7 @@ Activity
 
 > Query:
 
+```t
 ```let lookback = 7d;
 let domainLookback = 7d;
 let domainCountThreshold = 100; //Maxiumum number of times a domain ahs been visited
@@ -2992,7 +3252,9 @@ Results
   | summarize DomainCount=count() by DestinationHostName)
 on $left.DestinationHostName == $right.DestinationHostName
 | project TimeGenerated, Quality, DeviceVendor, DeviceProduct, TenantId, SourceIP, DestinationIP, DestinationHostName, RequestMethod, RequestURL, DomainCount
-| where DomainCount <= domainCountThreshold```
+| where DomainCount <= domainCountThreshold
+```
+
 ## Failed Login Attempt by Expired account
 ### Hunt Tags
 
@@ -3010,6 +3272,7 @@ on $left.DestinationHostName == $right.DestinationHostName
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 (union isfuzzy=true
 (SecurityEvent
@@ -3065,7 +3328,9 @@ Unknown), Account = UserPrincipalName
 ) )
 | summarize StartTimeUtc = min(TimeGenerated), EndTImeUtc = max(TimeGenerated), EventCount = count() by Computer, Account, Reason
 | extend timestamp = StartTimeUtc, AccountCustomEntity = Account, HostCustomEntity = Computer
-| order by EventCount desc```
+| order by EventCount desc
+```
+
 ## Permutations on logon attempts by UserPrincipalNames indicating potential brute force
 ### Hunt Tags
 
@@ -3083,6 +3348,7 @@ Unknown), Account = UserPrincipalName
 
 > Query:
 
+```t
 ```let lookback = 1d;
 let fl_Min = 3;
 let un_MatchMin = 2;
@@ -3176,7 +3442,9 @@ let char8 = First8charList | join Last8charList on CharSet and TimeGenerated
 FailedLogonCountForFirst = fl_CountForFirst, UserNameMatchOnLast = un_MatchOnLast, UserNameMatchOnLastCount = un_MatchOnLastCount,
 FailedLogonCountForLast = fl_CountForLast
 | sort by UserNameMatchOnFirstCount desc, UserNameMatchOnLastCount desc
-| extend timestamp = TimeGenerated```
+| extend timestamp = TimeGenerated
+```
+
 ## Potential Microsoft security services tampering
 ### Hunt Tags
 
@@ -3194,6 +3462,7 @@ FailedLogonCountForLast = fl_CountForLast
 
 > Query:
 
+```t
 ```let includeProc = dynamic(["sc.exe","net1.exe","net.exe", "taskkill.exe", "cmd.exe", "powershell.exe"]);
 let action = dynamic(["stop","disable", "delete"]);
 let service1 = dynamic([sense, windefend, mssecflt]);
@@ -3244,7 +3513,9 @@ or (InitiatingProcessCommandLine has_any("start") and InitiatingProcessCommandLi
 | project TimeGenerated, Computer, Account, AccountDomain, ProcessName = InitiatingProcessFileName, ProcessNameFullPath = FolderPath, Activity = ActionType, CommandLine = InitiatingProcessCommandLine, Type, InitiatingProcessParentFileName
 )
 )
-| extend timestamp = TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer```
+| extend timestamp = TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer
+```
+
 ## RareDNSLookupWithDataTransfer
 ### Hunt Tags
 
@@ -3262,6 +3533,7 @@ or (InitiatingProcessCommandLine has_any("start") and InitiatingProcessCommandLi
 
 > Query:
 
+```t
 ```let lookbackint = 7;
 let lookupThreshold = lookbackint*3;
 let lookbackstring = strcat(tostring(lookbackint),".00:00:00");
@@ -3353,7 +3625,9 @@ DataMovement
 // The below condition can be removed to see all DNS results.
 // This is used here as the goal of the query is to connect rare DNS lookups to a data type that can show byte transfers to that given DestinationIP
 | where isnotempty(DataType)
-| extend timestamp = LookupStartTime, IPCustomEntity = DestinationIP```
+| extend timestamp = LookupStartTime, IPCustomEntity = DestinationIP
+```
+
 ## Rare domains seen in Cloud Logs
 ### Hunt Tags
 
@@ -3371,6 +3645,7 @@ DataMovement
 
 > Query:
 
+```t
 ```// Provide customLimit value with default above domainLimit value so it will not block unless changed
 let customLimit = 11;
 let domainLimit = 10;
@@ -3446,7 +3721,9 @@ let Results = union isfuzzy=true
 AuditLogsRef,OfficeActivityRef,SigninLogsRef;
 Results | project TimeGenerated, Type, RareDomain, UserPrincipalName, OperationName, Category, Result, UPNRefCount 
 | order by TimeGenerated asc 
-| extend timestamp = TimeGenerated, AccountCustomEntity = UserPrincipalName```
+| extend timestamp = TimeGenerated, AccountCustomEntity = UserPrincipalName
+```
+
 ## SolarWinds Inventory
 ### Hunt Tags
 
@@ -3464,6 +3741,7 @@ Results | project TimeGenerated, Type, RareDomain, UserPrincipalName, OperationN
 
 > Query:
 
+```t
 ```let timeframe = 30d; 
 (union isfuzzy=true 
 ( 
@@ -3491,7 +3769,9 @@ Event
 | extend MachineName = Computer , Process = Image, Account = UserName
 | summarize StartTime = min(TimeGenerated), EndTime = max(TimeGenerated), MachineCount = dcount(MachineName), AccountCount = dcount(Account), MachineNames = make_set(MachineName), Accounts = make_set(Account)  by Process, Type
 ) 
-)```
+)
+```
+
 ## Retrospective hunt for STRONTIUM IP IOCs
 ### Hunt Tags
 
@@ -3509,6 +3789,7 @@ Event
 
 > Query:
 
+```t
 ```let STRONTIUM_IPS = dynamic(["82.118.242.171" , "167.114.153.55" , "94.237.37.28", "31.220.61.251" , "128.199.199.187" ]);
 (union isfuzzy=true
 (CommonSecurityLog
@@ -3524,7 +3805,9 @@ Event
 | extend IPCustomEntity = RemoteAddress
 ) 
 )
-| extend timestamp = TimeGenerated```
+| extend timestamp = TimeGenerated
+```
+
 ## Tracking Password Changes
 ### Hunt Tags
 
@@ -3542,6 +3825,7 @@ Event
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 let action = dynamic(["change ", "changed ", "reset "]);
 let pWord = dynamic(["password ", "credentials "]);
@@ -3580,7 +3864,9 @@ RecordType)
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), ResultDescriptions = makeset(ResultDescription), CorrelationIds = makeset(CorrelationId), ActionCount = count() by Resource, OperationName = strcat(OperationName, " - ", ResultType), IPAddress, UserId = UserPrincipalName, Type
 )
 )
-| extend timestamp = StartTimeUtc, AccountCustomEntity = UserId, IPCustomEntity = IPAddress```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = UserId, IPCustomEntity = IPAddress
+```
+
 ## Tracking Privileged Account Rare Activity
 ### Hunt Tags
 
@@ -3598,6 +3884,7 @@ RecordType)
 
 > Query:
 
+```t
 ```let LocalSID = "S-1-5-32-5[0-9][0-9]$";
 let GroupSID = "S-1-5-21-[0-9]*-[0-9]*-[0-9]*-5[0-9][0-9]$|S-1-5-21-[0-9]*-[0-9]*-[0-9]*-1102$|S-1-5-21-[0-9]*-[0-9]*-[0-9]*-1103$";
 let timeframe = 8d;
@@ -3738,7 +4025,9 @@ a_Related
 AccountName, WinSecEventDomain, EventType, RareServiceOrSystem, RelatedActivityStartTimeUtc = rel_StartTime,
 RelatedActivityEndTimeUtc = rel_EndTime, RelatedActivityEventType = rel_EventType, RelatedActivityClientIPSet = rel_ClientIPSet,
 RelatedActivityServiceOrSystemCount = rel_ServiceOrSystemCount, RelatedActivityServiceOrSystemSet = rel_ServiceOrSystemSet, RelatedActivityCount = rel_Count
-| extend timestamp = RareActivtyStartTimeUtc, AccountCustomEntity = AccountName```
+| extend timestamp = RareActivtyStartTimeUtc, AccountCustomEntity = AccountName
+```
+
 ## Exploit and Pentest Framework User Agent
 ### Hunt Tags
 
@@ -3756,6 +4045,7 @@ RelatedActivityServiceOrSystemCount = rel_ServiceOrSystemCount, RelatedActivityS
 
 > Query:
 
+```t
 ```let timeframe = 14d;
 let UserAgentList = "Internet Explorer |Mozilla/4\\.0 \\(compatible; MSIE 6\\.0; Windows NT 5\\.1; SV1; InfoPath\\.2\\)|Mozilla/5\\.0 \\(Windows NT 10\\.0; Win32; x32; rv:60\\.0\\)|Mozilla/4\\.0 \\(compatible; Metasploit RSPEC\\)|Mozilla/4\\.0 \\(compatible; MSIE 6\\.1; Windows NT\\)|Mozilla/4\\.0 \\(compatible; MSIE 6\\.0; Windows NT 5\\.1\\)|Mozilla/4\\.0 \\(compatible; MSIE 8\\.0; Windows NT 6\\.0; Trident/4\\.0\\)|Mozilla/4\\.0 \\(compatible; MSIE 7\\.0; Windows NT 6\\.0; Trident/4\\.0; SIMBAR={7DB0F6DE-8DE7-4841-9084-28FA914B0F2E}; SLCC1; \\.N|Mozilla/5\\.0 \\(Windows; U; Windows NT 5\\.1; en-US\\) AppleWebKit/525\\.13 \\(KHTML, like Gecko\\) Chrome/4\\.0\\.221\\.6 Safari/525\\.13|Mozilla/5\\.0 \\(compatible; MSIE 9\\.0; Windows NT 6\\.1; WOW64; Trident/5\\.0; MAAU\\)|Mozilla/5\\.0[^\\s]|Mozilla/4\\.0 \\(compatible; SPIPE/1\\.0|Mozilla/5\\.0 \\(Windows NT 6\\.3; rv:39\\.0\\) Gecko/20100101 Firefox/35\\.0|Sametime Community Agent|X-FORWARDED-FOR|DotDotPwn v2\\.1|SIPDROID|wordpress hash grabber|exploit|okhttp/";
 // Excluding for IIS, as the main malicious usage for okhttp that we have seen was in the OfficeActivity logs and this can create noise for IIS.
@@ -3787,7 +4077,9 @@ AWSCloudTrail
 | project TimeGenerated, Type, UserAgent, SourceIP
 ))
 | summarize min(TimeGenerated), max(TimeGenerated), count() by Type, UserAgent, SourceIP
-| extend timestamp = min_TimeGenerated, IPCustomEntity = SourceIP```
+| extend timestamp = min_TimeGenerated, IPCustomEntity = SourceIP
+```
+
 ## User Granted Access and created resources
 ### Hunt Tags
 
@@ -3805,6 +4097,7 @@ AWSCloudTrail
 
 > Query:
 
+```t
 ```let auditLookback = 14d;
 let opName = dynamic(["Add user", "Invite external user"]);
 // Helper function to extract relevant fields from AuditLog events
@@ -3859,7 +4152,9 @@ UserAddWithResource
 | extend PropertySet = pack("Value", Value, "PropertyName_ResourceId", PropertyName_ResourceId) 
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), makeset(PropertySet)  by Action, Type, TargetUserName, InitiatedBy_Caller, IpAddress, OperationName
 | order by StartTimeUtc asc 
-| extend timestamp = StartTimeUtc, AccountCustomEntity = TargetUserName, IPCustomEntity = IpAddress```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = TargetUserName, IPCustomEntity = IpAddress
+```
+
 ## Anomalous access to other user's mailboxes
 ### Hunt Tags
 
@@ -3877,6 +4172,7 @@ UserAddWithResource
 
 > Query:
 
+```t
 ```//Adjust this value to exclude historical activity as known good
 let lookback = 30d;
 //Adjust this value to change hunting timeframe
@@ -3907,7 +4203,9 @@ OfficeActivity
 | where user_count > user_threshold or folder_count > folder_threshold
 | extend Reason = case(user_count > user_threshold and folder_count > folder_threshold, "Both User and Folder Threshold Exceeded", folder_count > folder_threshold and user_count < user_threshold, "Folder Count Threshold Exceeded","User Threshold Exceeded")
 | sort by user_count desc
-| project-reorder UserId, user_count, folder_count, set_MailboxOwnerUPN, set_ClientIP, set_ClientInfoString, set_folders```
+| project-reorder UserId, user_count, folder_count, set_MailboxOwnerUPN, set_ClientIP, set_ClientInfoString, set_folders
+```
+
 ## Exes with double file extension and access summary
 ### Hunt Tags
 
@@ -3925,6 +4223,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```let timeframe = 14d;
 let known_ext = dynamic(["lnk","log","option","config", "manifest", "partial"]);
 let excluded_users = dynamic(["app@sharepoint"]);
@@ -3944,7 +4243,9 @@ OfficeActivity
 | summarize makeset(UserId1), make_bag(userBag), Start=max(TimeGenerated), End=min(TimeGenerated) by UserId, OfficeObjectId, SourceFileName, Extension 
 | extend NumberOfUsers = array_length(bag_keys(bag_userBag))
 | project UploadTime=Start, Uploader=UserId, FileLocation=OfficeObjectId, FileName=SourceFileName, AccessedBy=bag_userBag, Extension, NumberOfUsers
-| extend timestamp = UploadTime, AccountCustomEntity = Uploader```
+| extend timestamp = UploadTime, AccountCustomEntity = Uploader
+```
+
 ## External user added and removed in short timeframe
 ### Hunt Tags
 
@@ -3962,6 +4263,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```// If you want to look at user added further than 7 days ago adjust this value
 let time_ago = 7d;
 // If you want to change the timeframe of how quickly accounts need to be added and removed change this value
@@ -3983,7 +4285,9 @@ OfficeActivity
 | project TimeDeleted=TimeGenerated, Operation, UPN, UserWhoDeleted = UserId, TeamName, TeamGuid) on UPN, TeamGuid
 | where TimeDeleted < (TimeAdded + time_delta)
 | project TimeAdded, TimeDeleted, UPN, UserWhoAdded, UserWhoDeleted, TeamName, TeamGuid
-| extend timestamp = TimeAdded, AccountCustomEntity = UPN```
+| extend timestamp = TimeAdded, AccountCustomEntity = UPN
+```
+
 ## Mail redirect via ExO transport rule
 ### Hunt Tags
 
@@ -4001,6 +4305,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```let timeframe = 14d;
 OfficeActivity
 | where TimeGenerated >= ago(timeframe)
@@ -4030,7 +4335,9 @@ OfficeActivity
   )
 | extend ClientIP = ClientIPOnly
 | project TimeGenerated, RedirectTo, ClientIP, Port, UserId, Operation, RuleName
-| extend timestamp = TimeGenerated, AccountCustomEntity = UserId, IPCustomEntity = ClientIP```
+| extend timestamp = TimeGenerated, AccountCustomEntity = UserId, IPCustomEntity = ClientIP
+```
+
 ## User made Owner of multiple teams
 ### Hunt Tags
 
@@ -4048,6 +4355,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```// Adjust this value to change how many teams a user is made owner of before detecting
 let max_owner_count = 3;
 // Change this value to adjust how larger timeframe the query is run over.
@@ -4070,7 +4378,9 @@ OfficeActivity
 | extend NewRole = toint(parse_json(Members)[0].Role) 
 | where NewRole == 2
 | where Member in (high_owner_count)
-| extend timestamp = TimeGenerated, AccountCustomEntity = Member```
+| extend timestamp = TimeGenerated, AccountCustomEntity = Member
+```
+
 ## New Admin account activity seen which was not seen historically
 ### Hunt Tags
 
@@ -4088,6 +4398,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```let starttime = 14d;
 let endtime = 1d;
 let historicalActivity=
@@ -4110,7 +4421,9 @@ recentActivity | join kind = leftanti (
 | where RecordType == "ExchangeAdmin" | where UserType in ("Admin","DcAdmin")) 
 on UserId
 | summarize count(), min(TimeGenerated), max(TimeGenerated) by RecordType, Operation, UserType, UserId, OriginatingServer, ResultStatus
-| extend timestamp = min_TimeGenerated, AccountCustomEntity = UserId```
+| extend timestamp = min_TimeGenerated, AccountCustomEntity = UserId
+```
+
 ## SharePointFileOperation via previously unseen IPs
 ### Hunt Tags
 
@@ -4128,6 +4441,7 @@ on UserId
 
 > Query:
 
+```t
 ```let starttime = 14d;
 let endtime = 1d;
 let historicalActivity=
@@ -4144,7 +4458,9 @@ let recentActivity = OfficeActivity
 recentActivity | join kind= leftanti (
    historicalActivity 
 ) on ClientIP 
-| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP```
+| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
+```
+
 ## SharePointFileOperation via devices with previously unseen user agents
 ### Hunt Tags
 
@@ -4162,6 +4478,7 @@ recentActivity | join kind= leftanti (
 
 > Query:
 
+```t
 ```let starttime = 14d;
 let endtime = 1d;
 let historicalActivity=
@@ -4179,7 +4496,9 @@ recentActivity | join kind = leftanti (
    historicalActivity 
 ) on UserAgent, RecordType
 | order by recentCount asc, UserAgent
-| extend timestamp = StartTimeUtc```
+| extend timestamp = StartTimeUtc
+```
+
 ## New Windows Reserved Filenames staged on Office file services
 ### Hunt Tags
 
@@ -4197,6 +4516,7 @@ recentActivity | join kind = leftanti (
 
 > Query:
 
+```t
 ```// a threshold can be enabled, see commented line below for PrevSeenCount
 let threshold = 1;
 // Reserved FileNames/Extension for Windows
@@ -4228,7 +4548,9 @@ OfficeActivity | where TimeGenerated between (ago(starttime) .. ago(endtime))
 | summarize TimeGenerated = make_list(TimeGenerated), StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), Operations = make_list(Operation), UserAgents = make_list(UserAgent), 
 OfficeIds = make_list(OfficeId), SourceRelativeUrls = make_list(SourceRelativeUrl), FileNames = make_list(SourceFileName)
 by OfficeWorkload, RecordType, UserType, UserKey, UserId, ClientIP, Site_Url, SourceFileExtension, SiteUrlUserFolder, UserIdUserFolderFormat, UserIdDiffThanUserFolder
-// Use mvexpand on any list items and you can expand out the exact time and other metadata about the hit```
+// Use mvexpand on any list items and you can expand out the exact time and other metadata about the hit
+```
+
 ## Previously unseen bot or applicaiton added to Teams
 ### Hunt Tags
 
@@ -4246,6 +4568,7 @@ by OfficeWorkload, RecordType, UserType, UserKey, UserId, ClientIP, Site_Url, So
 
 > Query:
 
+```t
 ```// If you have more than 14 days worth of Teams data change this value
 let data_date = 14d;
 let historical_bots = (
@@ -4259,7 +4582,9 @@ OfficeActivity
 | where OfficeWorkload =~ "MicrosoftTeams"
 // Look for add-ins we have never seen before
 | where AddonName in (historical_bots)
-| extend timestamp = TimeGenerated, AccountCustomEntity = UserId```
+| extend timestamp = TimeGenerated, AccountCustomEntity = UserId
+```
+
 ## External user from a new organisation added
 ### Hunt Tags
 
@@ -4277,6 +4602,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```// If you have more than 14 days worth of Teams data change this value
 let data_date = 14d;
 // If you want to look at users further back than the last day change this value
@@ -4299,7 +4625,9 @@ OfficeActivity
 | extend Organization = tostring(split(split(UPN, "_")[1], "#")[0])
 | where isnotempty(Organization)
 | where Organization !in (known_orgs)
-| extend timestamp = TimeGenerated, AccountCustomEntity = UPN```
+| extend timestamp = TimeGenerated, AccountCustomEntity = UPN
+```
+
 ## Non-owner mailbox login activity
 ### Hunt Tags
 
@@ -4317,12 +4645,15 @@ OfficeActivity
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 OfficeActivity
 | where TimeGenerated >= ago(timeframe)
 | where Operation == "MailboxLogin" and Logon_Type != "Owner" 
 | summarize count(), min(TimeGenerated), max(TimeGenerated) by Operation, OrganizationName, UserType, UserId, MailboxOwnerUPN, Logon_Type
-| extend timestamp = min_TimeGenerated, AccountCustomEntity = UserId```
+| extend timestamp = min_TimeGenerated, AccountCustomEntity = UserId
+```
+
 ## Office Mail Forwarding - Hunting Version
 ### Hunt Tags
 
@@ -4340,6 +4671,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```let timeframe = 14d;
 OfficeActivity
 | where TimeGenerated >= ago(timeframe)
@@ -4361,7 +4693,9 @@ ClientIP has "[", tostring(split(ClientIP,"]:")[1]),
 ClientIP
 )
 | project TimeGenerated, UserId, UserDomain, subDomain, Operation, ForwardedtoDomain, ClientIPAddress, Result, Port, OriginatingServer, OfficeObjectId, fwdingDestination
-| extend timestamp = TimeGenerated, AccountCustomEntity = UserId, IPCustomEntity = ClientIPAddress, HostCustomEntity =  OriginatingServer```
+| extend timestamp = TimeGenerated, AccountCustomEntity = UserId, IPCustomEntity = ClientIPAddress, HostCustomEntity =  OriginatingServer
+```
+
 ## Powershell or non-browser mailbox login activity
 ### Hunt Tags
 
@@ -4379,13 +4713,16 @@ ClientIP
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 OfficeActivity
 | where TimeGenerated >= ago(timeframe)
 | where Operation == "MailboxLogin"
 | where ClientInfoString == "Client=Microsoft.Exchange.Powershell; Microsoft WinRM Client"
 | summarize count(), min(TimeGenerated), max(TimeGenerated) by Operation, OrganizationName, UserType, UserId, MailboxOwnerUPN, Logon_Type, ClientInfoString
-| extend timestamp = min_TimeGenerated, AccountCustomEntity = UserId```
+| extend timestamp = min_TimeGenerated, AccountCustomEntity = UserId
+```
+
 ## SharePointFileOperation via clientIP with previously unseen user agents
 ### Hunt Tags
 
@@ -4403,6 +4740,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```let starttime = 14d;
 let endtime = 1d;
 let historicalUA=
@@ -4421,7 +4759,9 @@ recentUA | join kind=leftanti (
 ) on ClientIP, UserAgent
 // Some OfficeActivity records do not contain ClientIP information - exclude these for fewer results:
 | where not(isempty(ClientIP)) 
-| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP```
+| extend timestamp = StartTimeUtc, IPCustomEntity = ClientIP
+```
+
 ## Files uploaded to teams and access summary
 ### Hunt Tags
 
@@ -4439,6 +4779,7 @@ recentUA | join kind=leftanti (
 
 > Query:
 
+```t
 ```OfficeActivity 
 | where RecordType =~ "SharePointFileOperation" 
 | where UserId != "app@sharepoint"
@@ -4454,7 +4795,9 @@ recentUA | join kind=leftanti (
 | extend userBag = pack(UserId1, ClientIP1) 
 | summarize makeset(UserId1), make_bag(userBag) by TimeGenerated, UserId, OfficeObjectId, SourceFileName 
 | extend NumberUsers = array_length(bag_keys(bag_userBag))
-| project timestamp=TimeGenerated, AccountCustomEntity=UserId, FileLocation=OfficeObjectId, FileName=SourceFileName, AccessedBy=bag_userBag, NumberOfUsersAccessed=NumberUsers```
+| project timestamp=TimeGenerated, AccountCustomEntity=UserId, FileLocation=OfficeObjectId, FileName=SourceFileName, AccessedBy=bag_userBag, NumberOfUsersAccessed=NumberUsers
+```
+
 ## Windows Reserved Filenames staged on Office file services
 ### Hunt Tags
 
@@ -4472,6 +4815,7 @@ recentUA | join kind=leftanti (
 
 > Query:
 
+```t
 ```// Reserved FileNames/Extension for Windows
 let Reserved = dynamic([CON, PRN, AUX, NUL, COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8, COM9, LPT1, LPT2, LPT3, LPT4, LPT5, LPT6, LPT7, LPT8, LPT9]);
 let endtime = 1d;
@@ -4486,7 +4830,9 @@ OfficeActivity | where TimeGenerated >= ago(endtime)
 | summarize TimeGenerated = make_list(TimeGenerated), StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), Operations = make_list(Operation), UserAgents = make_list(UserAgent), 
 OfficeIds = make_list(OfficeId), SourceRelativeUrls = make_list(SourceRelativeUrl), FileNames = make_list(SourceFileName)
 by OfficeWorkload, RecordType, UserType, UserKey, UserId, ClientIP, Site_Url, SourceFileExtension,SiteUrlUserFolder, UserIdUserFolderFormat, UserIdDiffThanUserFolder
-// Use mvexpand on any list items and you can expand out the exact time and other metadata about the hit```
+// Use mvexpand on any list items and you can expand out the exact time and other metadata about the hit
+```
+
 ## External user added and removed in short timeframe
 ### Hunt Tags
 
@@ -4504,6 +4850,7 @@ by OfficeWorkload, RecordType, UserType, UserKey, UserId, ClientIP, Site_Url, So
 
 > Query:
 
+```t
 ```// If you want to look at user added further than 7 days ago adjust this value
 let time_ago = 7d;
 // If you want to change the timeframe of how quickly accounts need to be added and removed change this value
@@ -4526,7 +4873,9 @@ OfficeActivity
 | where TimeDeleted < (TimeAdded + time_delta)
 | project TimeAdded, TimeDeleted, UPN, UserWhoAdded, UserWhoDeleted, TeamName, TeamGuid
 // Uncomment the following line to map query entities is you plan to use this as a detection query
-//| extend timestamp = TimeAdded, AccountCustomEntity = UPN```
+//| extend timestamp = TimeAdded, AccountCustomEntity = UPN
+```
+
 ## Summarize files uploads in a Teams chat
 ### Hunt Tags
 
@@ -4544,6 +4893,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 OfficeActivity
 | where TimeGenerated > ago(timeframe)
@@ -4560,7 +4910,9 @@ OfficeActivity
 | extend userBag = pack(UserId1, ClientIP1)
 | summarize make_set(UserId1), make_bag(userBag) by TimeGenerated, UserId, OfficeObjectId, SourceFileName
 | project UploadTime=TimeGenerated, Uploader=UserId, FileLocation=OfficeObjectId, FileName=SourceFileName, AccessedBy=bag_userBag
-| extend timestamp=UploadTime, AccountCustomEntity=Uploader```
+| extend timestamp=UploadTime, AccountCustomEntity=Uploader
+```
+
 ## Multiple Teams deleted by a single user
 ### Hunt Tags
 
@@ -4578,6 +4930,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```// Adjust this value to change how many Teams should be deleted before including
 let max_delete = 3;
 // Adjust this value to change the timewindow the query runs over
@@ -4596,7 +4949,9 @@ OfficeActivity
 | where Operation =~ "TeamDeleted"
 | where UserId in (deleting_users)
 // Uncomment the following line to map query entities is you plan to use this as a detection query
-//| extend timestamp = TimeGenerated, AccountCustomEntity = UserId```
+//| extend timestamp = TimeGenerated, AccountCustomEntity = UserId
+```
+
 ## Bots added to multiple teams
 ### Hunt Tags
 
@@ -4614,6 +4969,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```// Adjust these thresholds to suit your environment.
 let threshold = 2;
 let time_threshold = timespan(5m);
@@ -4627,7 +4983,9 @@ OfficeActivity
   | extend TimeDelta = End - Start 
   | where CountOfTeams > threshold
   | where TimeDelta >= time_threshold
-  | project Start, End, Teams, CountOfTeams```
+  | project Start, End, Teams, CountOfTeams
+```
+
 ## User made Owner of multiple teams
 ### Hunt Tags
 
@@ -4645,6 +5003,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```// Adjust this value to change how many teams a user is made owner of before detecting
 let max_owner_count = 3;
 // Change this value to adjust how larger timeframe the query is run over.
@@ -4668,7 +5027,9 @@ OfficeActivity
 | where NewRole == 2
 | where Member in (high_owner_count)
 // Uncomment the following line to map query entities is you plan to use this as a detection query
-//| extend timestamp = TimeGenerated, AccountCustomEntity = Member```
+//| extend timestamp = TimeGenerated, AccountCustomEntity = Member
+```
+
 ## External user from a new organisation added
 ### Hunt Tags
 
@@ -4686,6 +5047,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```// If you have more than 14 days worth of Teams data change this value
 let data_date = 14d;
 // If you want to look at users further back than the last day change this value
@@ -4709,7 +5071,9 @@ OfficeActivity
 | where isnotempty(Organization)
 | where Organization !in (known_orgs)
 // Uncomment the following line to map query entities is you plan to use this as a detection query
-//| extend timestamp = TimeGenerated, AccountCustomEntity = UPN```
+//| extend timestamp = TimeGenerated, AccountCustomEntity = UPN
+```
+
 ## User added to Team and immediately uploads file
 ### Hunt Tags
 
@@ -4727,6 +5091,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 let threshold = 1m;
 OfficeActivity
@@ -4745,7 +5110,9 @@ OfficeActivity
   ) on UploaderID
 | where UploadTime > TimeGenerated and UploadTime < TimeGenerated+threshold
 | project-away UploaderID1
-| extend timestamp=TimeGenerated, AccountCustomEntity = UploaderID```
+| extend timestamp=TimeGenerated, AccountCustomEntity = UploaderID
+```
+
 ## Alerts related to IP
 ### Hunt Tags
 
@@ -4763,6 +5130,7 @@ OfficeActivity
 
 > Query:
 
+```t
 ```let GetAllAlertsWithIp = (suspiciousEventTime:datetime, v_ipAddress:string){
 //-3d and +6h as some alerts fire after accumulation of events
 let v_StartTime = suspiciousEventTime-3d;
@@ -4783,7 +5151,9 @@ SecurityAlert
 | extend timestamp = StartTimeUtc, AccountCustomEntity = Account, HostCustomEntity = Computer, IPCustomEntity = IpAddress
 };
 // change datetime value and <ipaddress> value below
-GetAllAlertsWithIp(datetime(2019-02-05T10:02:51.000), ("<ipaddress>"))```
+GetAllAlertsWithIp(datetime(2019-02-05T10:02:51.000), ("<ipaddress>"))
+```
+
 ## Alerts related to account
 ### Hunt Tags
 
@@ -4801,6 +5171,7 @@ GetAllAlertsWithIp(datetime(2019-02-05T10:02:51.000), ("<ipaddress>"))```
 
 > Query:
 
+```t
 ```let GetAllAlertsForUser = (suspiciousEventTime:datetime, v_User:string){
 //-3d and +6h as some alerts fire after accumulation of events
 let v_StartTime = suspiciousEventTime-3d;
@@ -4820,7 +5191,9 @@ SecurityAlert
 | extend timestamp = TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer, IPCustomEntity = IpAddress
 };
 // change datetime value and username value below
-GetAllAlertsForUser(datetime(2019-01-20T10:02:51.000), toupper("<username>"))```
+GetAllAlertsForUser(datetime(2019-01-20T10:02:51.000), toupper("<username>"))
+```
+
 ## Alerts On Host
 ### Hunt Tags
 
@@ -4838,6 +5211,7 @@ GetAllAlertsForUser(datetime(2019-01-20T10:02:51.000), toupper("<username>"))```
 
 > Query:
 
+```t
 ```let GetAllAlertsOnHost = (suspiciousEventTime:datetime, v_Host:string){
 //-3d and +6h as some alerts fire after accumulation of events
 let v_StartTime = suspiciousEventTime-3d;
@@ -4854,7 +5228,9 @@ SecurityAlert
 | extend timestamp = TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer, IPCustomEntity = IpAddress
 };
 // change datetime value and hostname value below
-GetAllAlertsOnHost(datetime(2019-01-20T10:02:51.000), toupper("<hostname>"))```
+GetAllAlertsOnHost(datetime(2019-01-20T10:02:51.000), toupper("<hostname>"))
+```
+
 ## Alerts related to File
 ### Hunt Tags
 
@@ -4872,6 +5248,7 @@ GetAllAlertsOnHost(datetime(2019-01-20T10:02:51.000), toupper("<hostname>"))```
 
 > Query:
 
+```t
 ```let GetAllAlertsWithFile = (suspiciousEventTime:datetime, v_File:string){
 let v_StartTime = suspiciousEventTime-1d;
 let v_EndTime = suspiciousEventTime+1d;
@@ -4884,7 +5261,9 @@ SecurityAlert
 | extend timestamp = TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer, IPCustomEntity = IpAddress
 };
 // change datetime value and <filename> value below
-GetAllAlertsWithFile(datetime(2019-01-18T10:36:07Z), "<filename>")```
+GetAllAlertsWithFile(datetime(2019-01-18T10:36:07Z), "<filename>")
+```
+
 ## Alerts With This Process
 ### Hunt Tags
 
@@ -4902,6 +5281,7 @@ GetAllAlertsWithFile(datetime(2019-01-18T10:36:07Z), "<filename>")```
 
 > Query:
 
+```t
 ```let GetAllAlertsWithProcess = (suspiciousEventTime:datetime, v_Process:string){
 let v_StartTime = suspiciousEventTime-1d;
 let v_EndTime = suspiciousEventTime+1d;
@@ -4925,7 +5305,9 @@ SecurityAlert
 | top 10 by TimeGenerated desc nulls last
 };
 // change datetime value and <processname> value below
-GetAllAlertsWithProcess(datetime(2019-01-18T10:36:07Z), "<processname>")```
+GetAllAlertsWithProcess(datetime(2019-01-18T10:36:07Z), "<processname>")
+```
+
 ## Web shell command alert enrichment
 ### Hunt Tags
 
@@ -4943,6 +5325,7 @@ GetAllAlertsWithProcess(datetime(2019-01-18T10:36:07Z), "<processname>")```
 
 > Query:
 
+```t
 ```let scriptExtensions = dynamic([".php", ".jsp", ".js", ".aspx", ".asmx", ".asax", ".cfm", ".shtml"]);
 let timeRange = 3d; 
 let lookupWindow = 1m;  
@@ -5002,7 +5385,9 @@ W3CIISLog
 | extend attackerP = pack(AttackerIP, AttackerUserAgent)  
 | summarize Site=make_set(Site), Attacker=make_bag(attackerP) by csUriStem, filename, tostring(ImageName), CommandLine, HostName, IPCustomEntity, timestamp
 | project Site, ShellLocation=csUriStem, ShellName=filename, ParentProcess=ImageName, CommandLine, Attacker, HostName, IPCustomEntity, timestamp
-| join kind=inner (baseline) on $left.ShellLocation == $right.PageAccessed```
+| join kind=inner (baseline) on $left.ShellLocation == $right.PageAccessed
+```
+
 ## Web shell file alert enrichment
 ### Hunt Tags
 
@@ -5020,6 +5405,7 @@ W3CIISLog
 
 > Query:
 
+```t
 ```let timeWindow = 3d;
 let scriptExtensions = dynamic([".php", ".jsp", ".js", ".aspx", ".asmx", ".asax", ".cfm", ".shtml"]);  
 SecurityAlert  
@@ -5042,7 +5428,9 @@ W3CIISLog
 | summarize StartTime=min(TimeGenerated), EndTime=max(TimeGenerated) by AttackerIP=cIP, AttackerUserAgent=csUserAgent, SiteName=sSiteName, ShellLocation=csUriStem, tostring(FileName)  
 ) on FileName 
 | project StartTime, EndTime, AttackerIP, AttackerUserAgent, SiteName, ShellLocation
-| extend timestamp = StartTime, IPCustomEntity = AttackerIP```
+| extend timestamp = StartTime, IPCustomEntity = AttackerIP
+```
+
 ## AD Account Lockout
 ### Hunt Tags
 
@@ -5060,12 +5448,15 @@ W3CIISLog
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 SecurityEvent
 | where TimeGenerated >= ago(timeframe)
 | where EventID == 4740
 | summarize StartTime = min(TimeGenerated), EndTime = max(TimeGenerated), LockoutsCount = count() by Activity, Account, TargetSid, TargetDomainName, SourceComputerId, SourceDomainController = Computer
-| extend timestamp = StartTime, AccountCustomEntity = Account, HostCustomEntity = TargetDomainName```
+| extend timestamp = StartTime, AccountCustomEntity = Account, HostCustomEntity = TargetDomainName
+```
+
 ## Cscript script daily summary breakdown
 ### Hunt Tags
 
@@ -5083,6 +5474,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let ProcessCreationEvents=() {
 let processEvents=SecurityEvent
@@ -5111,7 +5503,9 @@ extract(@"([:\\a-zA-Z_\-0-9\.()]+)(""?)", 0, CommandLine)), CommandLine
 | project EventTime, ComputerName, AccountName, ScriptName, ScriptParams = iff(ScriptNameLength < strlen(CommandLine), substring(CommandLine, ScriptNameLength +1), "")
 | summarize min(EventTime), count() by ComputerName, AccountName, ScriptName, ScriptParams
 | order by count_ asc nulls last 
-| extend timestamp = min_EventTime, HostCustomEntity = ComputerName, AccountCustomEntity = AccountName```
+| extend timestamp = min_EventTime, HostCustomEntity = ComputerName, AccountCustomEntity = AccountName
+```
+
 ## VIP account more than 6 failed logons in 10
 ### Hunt Tags
 
@@ -5129,6 +5523,7 @@ extract(@"([:\\a-zA-Z_\-0-9\.()]+)(""?)", 0, CommandLine)), CommandLine
 
 > Query:
 
+```t
 ```// Create DataTable with your own values, example below shows dummy usernames and domain
 let List = datatable(VIPUser:string, Domain:string)["Bob", "Domain", "joe", "domain", "MATT", "DOMAIN", "administrator", ""];
 let timeframe = 10m;
@@ -5198,7 +5593,9 @@ SubStatus =~ "0xC0000389", "STATUS_SMARTCARD_CERT_REVOKED",
 "See - https://docs.microsoft.com/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55"
 )
 | project StartTimeUtc, EndTimeUtc, FailedVIPLogons, EventID, Activity, WorkstationName, Account, TargetAccount, TargetUserName, TargetDomainName, LogonType, LogonTypeName, LogonProcessName, Status, StatusDesc, SubStatus, SubStatusDesc
-| extend timestamp = StartTimeUtc, AccountCustomEntity = Account```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = Account
+```
+
 ## Enumeration of users and groups
 ### Hunt Tags
 
@@ -5216,6 +5613,7 @@ SubStatus =~ "0xC0000389", "STATUS_SMARTCARD_CERT_REVOKED",
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let ProcessCreationEvents=() {
 let processEvents=SecurityEvent
@@ -5234,7 +5632,9 @@ ProcessCreationEvents
 | summarize minTimeGenerated=min(TimeGenerated), maxTimeGenerated=max(TimeGenerated), count() by AccountName, Target, ProcessCommandLine, ComputerName
 | project minTimeGenerated, maxTimeGenerated, count_, AccountName, Target, ProcessCommandLine, ComputerName
 | sort by AccountName, Target
-| extend timestamp = minTimeGenerated, AccountCustomEntity = AccountName, HostCustomEntity = ComputerName```
+| extend timestamp = minTimeGenerated, AccountCustomEntity = AccountName, HostCustomEntity = ComputerName
+```
+
 ## Summary of failed user logons by reason of failure
 ### Hunt Tags
 
@@ -5252,6 +5652,7 @@ ProcessCreationEvents
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 SecurityEvent
 | where TimeGenerated >= ago(timeframe)
@@ -5273,7 +5674,9 @@ SubStatus == 0xc0000224, User is required to change password at next logon,
 SubStatus == 0xc0000234, Account is currently locked out,
 strcat(Unknown reason substatus: , SubStatus))
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), count() by Reason
-| extend timestamp = StartTimeUtc```
+| extend timestamp = StartTimeUtc
+```
+
 ## Group added to Built in Domain Local or Global Group
 ### Hunt Tags
 
@@ -5291,6 +5694,7 @@ strcat(Unknown reason substatus: , SubStatus))
 
 > Query:
 
+```t
 ```let timeframe = 7d;
 // For AD SID mappings - https://docs.microsoft.com/windows/security/identity-protection/access-control/active-directory-security-groups
 let WellKnownLocalSID = "S-1-5-32-5[0-9][0-9]$";
@@ -5324,7 +5728,9 @@ GroupCreated
 | join (
 GroupAddition
 ) on GroupSid
-| extend timestamp = GroupCreateTime, AccountCustomEntity = Account, HostCustomEntity = Computer```
+| extend timestamp = GroupCreateTime, AccountCustomEntity = Account, HostCustomEntity = Computer
+```
+
 ## Host Exporting Mailbox and Removing Export
 ### Hunt Tags
 
@@ -5342,6 +5748,7 @@ GroupAddition
 
 > Query:
 
+```t
 ```// Adjust the timeframe to change the window events need to occur within to alert
 let timeframe = 1h;
 SecurityEvent
@@ -5357,7 +5764,9 @@ SecurityEvent
 | extend commands = pack_array(CommandLine1, CommandLine)
 | summarize by timekey, Computer, tostring(commands), SubjectUserName
 | project-reorder timekey, Computer, SubjectUserName, [commands]
-| extend HostCustomEntity = Computer, AccountCustomEntity = SubjectUserName```
+| extend HostCustomEntity = Computer, AccountCustomEntity = SubjectUserName
+```
+
 ## Hosts with new logons
 ### Hunt Tags
 
@@ -5375,6 +5784,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```let starttime = 7d;
 let endtime = 1d;
 let LogonEvents=() { 
@@ -5398,7 +5808,9 @@ LogonEvents
 | summarize count() by ComputerName, AccountName 
 ) on ComputerName, AccountName 
 | summarize StartTimeUtc = min(StartTimeUtc), EndTimeUtc = max(EndTimeUtc), HostCount=dcount(ComputerName), HostSet=makeset(ComputerName, 10)  by AccountName, ComputerName
-| extend timestamp = StartTimeUtc, AccountCustomEntity = AccountName```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = AccountName
+```
+
 ## Least Common Parent And Child Process Pairs
 ### Hunt Tags
 
@@ -5416,6 +5828,7 @@ LogonEvents
 
 > Query:
 
+```t
 ```let Allowlist = dynamic ([foo.exe, baz.exe]);
 let Sensitivity = 5;
 let StartDate = ago(7d);
@@ -5431,7 +5844,9 @@ SecurityEvent
 | extend ParentChildPair = strcat(ParentProc ,  > , Proc)
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), TimesSeen = count(), HostCount = dcount(Computer), Hosts = makeset(Computer), UserCount = dcount(SubjectUserName), Users = makeset(SubjectUserName) by ParentChildPair
 | where TimesSeen < Sensitivity
-| extend timestamp = StartTimeUtc```
+| extend timestamp = StartTimeUtc
+```
+
 ## Least Common Processes by Command Line
 ### Hunt Tags
 
@@ -5449,6 +5864,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```let Allowlist = dynamic ([foo.exe, baz.exe]);
 let Sensitivity = 5;
 let StartDate = ago(7d);
@@ -5463,7 +5879,9 @@ SecurityEvent
 | where Proc !in (Allowlist)
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), TimesSeen = count(), HostCount = dcount(Computer), Hosts = makeset(Computer), UserCount = dcount(SubjectUserName), Users = makeset(SubjectUserName) by CommandLine
 | where TimesSeen < Sensitivity
-| extend timestamp = StartTimeUtc```
+| extend timestamp = StartTimeUtc
+```
+
 ## Least Common Processes Including Folder Depth
 ### Hunt Tags
 
@@ -5481,6 +5899,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```let Allowlist = dynamic ([foo.exe, baz.exe]);
 let Sensitivity = 15;
 let StartDate = ago(7d);
@@ -5497,7 +5916,9 @@ SecurityEvent
 | extend DriveDepthProc = strcat(ProcArray[0], -, ProcArrayLength, -, Proc)
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), TimesSeen = count(), HostCount = dcount(Computer), Hosts = makeset(Computer), UserCount = dcount(SubjectUserName), Users = makeset(SubjectUserName) by DriveDepthProc
 | where TimesSeen < Sensitivity
-| extend timestamp = StartTimeUtc```
+| extend timestamp = StartTimeUtc
+```
+
 ## Masquerading files
 ### Hunt Tags
 
@@ -5515,6 +5936,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 SecurityEvent
 | where TimeGenerated >= ago(timeframe)
@@ -5524,7 +5946,9 @@ SecurityEvent
 | where NewProcessName !contains ":\\Windows\\Syswow64"
 | summarize minTimeGenerated=min(TimeGenerated), maxTimeGenerated=max(TimeGenerated), count() by Computer, SubjectUserName, NewProcessName, CommandLine, Account
 | project minTimeGenerated , maxTimeGenerated , count_ , Computer , SubjectUserName , NewProcessName , CommandLine, Account 
-| extend timestamp = minTimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account```
+| extend timestamp = minTimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account
+```
+
 ## Multiple explicit credential usage - 4648 events
 ### Hunt Tags
 
@@ -5542,6 +5966,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```let WellKnownLocalSIDs = "S-1-5-[0-9][0-9]$";
 let protocols = dynamic([cifs, ldap, RPCSS, host , HTTP, RestrictedKrbHost, TERMSRV, msomsdksvc, mssqlsvc]);
 SecurityEvent
@@ -5573,7 +5998,9 @@ TargetMachines = make_set(TargetInfoMachine), TargetProtocols = dcount(TargetInf
 | extend TimePeriod = EndTime - StartTime //This identifies the time between start and finish for the use of the explicit credentials, shorter time period may indicate scripted executions
 | project-away UncommonProtocol
 | extend timestamp = StartTime, AccountCustomEntity = SubjectAccount, HostCustomEntity = Computer
-| order by Score desc```
+| order by Score desc
+```
+
 ## New processes observed in last 24 hours
 ### Hunt Tags
 
@@ -5591,6 +6018,7 @@ TargetMachines = make_set(TargetInfoMachine), TargetProtocols = dcount(TargetInf
 
 > Query:
 
+```t
 ```let starttime = 14d;
 let endtime = 1d;
 let ProcessCreationEvents=() {
@@ -5608,7 +6036,9 @@ ProcessCreationEvents
     | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), Computers = makeset(ComputerName) , HostCount=dcount(ComputerName) by tostring(FileName)
 ) on FileName
 | project StartTimeUtc, Computers, HostCount, FileName
-| extend timestamp = StartTimeUtc```
+| extend timestamp = StartTimeUtc
+```
+
 ## Summary of users created using uncommon/undocumented commandline switches
 ### Hunt Tags
 
@@ -5626,6 +6056,7 @@ ProcessCreationEvents
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 SecurityEvent
 | where TimeGenerated >= ago(timeframe) 
@@ -5641,7 +6072,9 @@ SecurityEvent
 | extend CreatedOnLocalMachine=(ProcessCommandLine !contains "/do")
 | where ProcessCommandLine contains "/add" or (CreatedOnLocalMachine == 0 and ProcessCommandLine !contains "/domain")
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), MachineCount=dcount(ComputerName) by CreatedUser, CreatedOnLocalMachine, InitiatingProcessFileName, FileName, ProcessCommandLine, InitiatingProcessCommandLine
-| extend timestamp = StartTimeUtc, AccountCustomEntity = CreatedUser```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = CreatedUser
+```
+
 ## PowerShell downloads
 ### Hunt Tags
 
@@ -5659,6 +6092,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let ProcessCreationEvents=() {
 let processEvents=SecurityEvent
@@ -5678,7 +6112,9 @@ ProcessCreationEvents
    or ProcessCommandLine contains "http:"
 | project TimeGenerated, ComputerName, AccountName, InitiatingProcessFileName, FileName, ProcessCommandLine
 | top 100 by TimeGenerated
-| extend timestamp = TimeGenerated, HostCustomEntity = ComputerName, AccountCustomEntity = AccountName```
+| extend timestamp = TimeGenerated, HostCustomEntity = ComputerName, AccountCustomEntity = AccountName
+```
+
 ## New PowerShell scripts encoded on the commandline
 ### Hunt Tags
 
@@ -5696,6 +6132,7 @@ ProcessCreationEvents
 
 > Query:
 
+```t
 ```let starttime = 21d;
 let midtime = 14d;
 let endtime = 7d;
@@ -5725,7 +6162,9 @@ encodedPSScripts
   | project decodedCommand=base64_decodestring(substring(encodedCommand, 0, 
    strlen(encodedCommand) - (strlen(encodedCommand) %8))), encodedCommand 
 ) on encodedCommand, decodedCommand 
-| extend timestamp = StartTimeUtc```
+| extend timestamp = StartTimeUtc
+```
+
 ## Entropy for Processes for a given Host
 ### Hunt Tags
 
@@ -5743,6 +6182,7 @@ encodedPSScripts
 
 > Query:
 
+```t
 ```// exclude when over # of machines have the process
 let excludeThreshold = 10;
 // exclude when more than percent (default 10%)
@@ -5852,7 +6292,9 @@ Process, NewProcessName, CommandLine, ParentProcessName, AllHostsProcessCount, P
 | project-reorder StartTime, EndTime, ResultCount, EventID, Computer, SubjectUserSid, Account, AccountType, Weight, ProcessEntropy,  
 Process, NewProcessName, CommandLine, ParentProcessName, AllHostsProcessCount, ProcessCountOnHost, DistinctHostsProcessCount, _ResourceId, SourceComputerId
 | sort by Weight asc, ProcessEntropy asc, NewProcessName asc 
-| extend timestamp = TimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account```
+| extend timestamp = TimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account
+```
+
 ## Rare processes run by Service accounts
 ### Hunt Tags
 
@@ -5870,6 +6312,7 @@ Process, NewProcessName, CommandLine, ParentProcessName, AllHostsProcessCount, P
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let excludeList = dynamic ( ["NT AUTHORITY","Local System", "Local Service", "Network Service"] );
 let List1 = datatable(AccountName:string)["MSSQLSERVER", "ReportServer", "MSDTSServer100", "IUSR"];         
@@ -5926,7 +6369,9 @@ Accounts
 ) on AccountName
 | where frequency < 10
 | project-away AccountName1
-| extend AccountCustomEntity = AccountName```
+| extend AccountCustomEntity = AccountName
+```
+
 ## Hosts running a rare process
 ### Hunt Tags
 
@@ -5944,6 +6389,7 @@ Accounts
 
 > Query:
 
+```t
 ```let v_StartTime = ago(1d);
 let v_EndTime = ago(1m);
 let basic=materialize(
@@ -5963,7 +6409,9 @@ basic | project-away FullCount
 basic_avg 
   on NewProcessName | project-away NewProcessName1
   | where Count < 14 or (Count <= Avg*0.01 and Count < 100) 
-  | extend HostCustomEntity=Computer```
+  | extend HostCustomEntity=Computer
+```
+
 ## Rare Process Path
 ### Hunt Tags
 
@@ -5981,6 +6429,7 @@ basic_avg
 
 > Query:
 
+```t
 ```let end = startofday(now());
 let start = end - 8d;
 let processEvents=
@@ -6033,7 +6482,9 @@ freqs
 | where frequency <= toscalar( freqs | serialize | project frequency | summarize percentiles(frequency, 5))
 | order by frequency asc  
 | mvexpand Computer = list_Computer, Account = list_Account, ProcessPath = list_ProcessPath
-| project StartTimeUtc, EndTimeUtc, frequency, Process, NormalizedProcessPath, tostring(ProcessPath), tostring(Computer), tostring(Account)```
+| project StartTimeUtc, EndTimeUtc, frequency, Process, NormalizedProcessPath, tostring(ProcessPath), tostring(Computer), tostring(Account)
+```
+
 ## Hosts running a rare process with commandline
 ### Hunt Tags
 
@@ -6051,6 +6502,7 @@ freqs
 
 > Query:
 
+```t
 ```let v_StartTime = ago(7d);
 let v_EndTime = ago(1m);
 let basic=materialize(
@@ -6072,7 +6524,9 @@ basic | project-away FullCount
 basic_avg 
   on NewProcessName, CommandLine | project-away NewProcessName1, CommandLine1
   | where Count < 7 or (Count <= Avg*0.01 and Count < 100) 
-  | extend HostCustomEntity=Computer```
+  | extend HostCustomEntity=Computer
+```
+
 ## Suspicious enumeration using Adfind tool
 ### Hunt Tags
 
@@ -6090,6 +6544,7 @@ basic_avg
 
 > Query:
 
+```t
 ```let startdate = 1d;
 let lookupwindow = 2m;
 let threshold = 3; //number of commandlines in the set below
@@ -6103,7 +6558,9 @@ SecurityEvent
 | where CommandLine matches regex "(.*)>(.*)"
 | summarize Commandlines = make_set(CommandLine), LastObserved=max(TimeGenerated) by bin(TimeGenerated, lookupwindow), Account, Computer, ParentProcessName, NewProcessName
 | extend Count = array_length(Commandlines)
-| where Count > threshold```
+| where Count > threshold
+```
+
 ## Suspicious Windows Login outside normal hours
 ### Hunt Tags
 
@@ -6121,6 +6578,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```let v_StartTime = 14d;
 let v_EndTime = 2d;
 let lookback = 1d;
@@ -6213,7 +6671,9 @@ on TargetUserName
 | extend historical_DayofWeek = tostring(historical_DayofWeek)
 | summarize Total= count(), max(HourOfLogin), min(HourOfLogin), current_DayofWeek =make_set(DayofWeek), StartTime=max(StartTime), EndTime = min(StartTime), SourceIP = make_set(IpAddress), SourceHost = make_set(WorkstationName), SubjectUserName = make_set(SubjectUserName), HostLoggedOn = make_set(Computer) by EventID, Activity, TargetDomainName, TargetUserName , ProcessName , LogonTypeName, StatusDesc, SubStatusDesc, historical_DayofWeek
 | extend historical_DayofWeek = todynamic(historical_DayofWeek) 
-| extend timestamp = StartTime, AccountCustomEntity = TargetUserName```
+| extend timestamp = StartTime, AccountCustomEntity = TargetUserName
+```
+
 ## Uncommon processes - bottom 5%
 ### Hunt Tags
 
@@ -6231,6 +6691,7 @@ on TargetUserName
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 let ProcessCreationEvents=() {
 let processEvents=SecurityEvent
@@ -6263,7 +6724,9 @@ freqs
 | project FileName, frequency, Since, LastSeen 
 // restrict results to unusual processes seen in last day 
 | where LastSeen >= ago(1d)
-| extend timestamp = LastSeen```
+| extend timestamp = LastSeen
+```
+
 ## Summary of user logons by logon type
 ### Hunt Tags
 
@@ -6281,13 +6744,16 @@ freqs
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 SecurityEvent
 | where TimeGenerated >= ago(timeframe)
 | where EventID in (4624, 4625)
 | where AccountType == User 
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), Amount = count() by LogonTypeName
-| extend timestamp = StartTimeUtc```
+| extend timestamp = StartTimeUtc
+```
+
 ## User Account added to Built in Domain Local or Global Group
 ### Hunt Tags
 
@@ -6305,6 +6771,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```let timeframe = 10d;
 // For AD SID mappings - https://docs.microsoft.com/windows/security/identity-protection/access-control/active-directory-security-groups
 let WellKnownLocalSID = "S-1-5-32-5[0-9][0-9]$";
@@ -6320,7 +6787,9 @@ SecurityEvent
 // Exclude Remote Desktop Users group: S-1-5-32-555
 | where TargetSid !in ("S-1-5-32-555")
 | project StartTimeUtc = TimeGenerated, EventID, Activity, Computer, TargetUserName, TargetDomainName, TargetSid, UserPrincipalName, SubjectUserName, SubjectUserSid 
-| extend timestamp = StartTimeUtc, HostCustomEntity = Computer, AccountCustomEntity = UserPrincipalName```
+| extend timestamp = StartTimeUtc, HostCustomEntity = Computer, AccountCustomEntity = UserPrincipalName
+```
+
 ## Long lookback User Account Created and Deleted within 10mins
 ### Hunt Tags
 
@@ -6338,6 +6807,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```// TimeFrame is the number of lookback days, default is last 14 days
 let timeframe = 14d;
 // TimeDelta is the difference between when the account was created and when it was deleted, default is set to 10min or less
@@ -6363,7 +6833,9 @@ AccountUsedToDelete = SubjectUserName, TargetSid, SubjectUserSid
 | where tolong(TimeDelta) >= 0
 | project TimeDelta, creationTime, CreateEventID, Computer, TargetUserName, UserPrincipalName, AccountUsedToCreate, 
 deletionTime, DeleteEventID, AccountUsedToDelete
-| extend timestamp = creationTime, HostCustomEntity = Computer, AccountCustomEntity = UserPrincipalName```
+| extend timestamp = creationTime, HostCustomEntity = Computer, AccountCustomEntity = UserPrincipalName
+```
+
 ## User account added or removed from a security group by an unauthorized user
 ### Hunt Tags
 
@@ -6381,6 +6853,7 @@ deletionTime, DeleteEventID, AccountUsedToDelete
 
 > Query:
 
+```t
 ```// Create DataTable with your own values, example below shows dummy usernames that are authorized and for what domain
 let List = datatable(AuthorizedUser:string, Domain:string)["Bob", "Domain", "joe", "domain", "MATT", "DOMAIN"];
 let timeframe = 1d;
@@ -6392,7 +6865,9 @@ SecurityEvent
     | project SubjectUserName = tolower(AuthorizedUser), SubjectDomainName = toupper(Domain)
 ) on SubjectUserName, SubjectDomainName
 | project TimeGenerated, Computer, Account, SubjectUserName, SubjectDomainName, TargetAccount, EventID, Activity
-| extend timestamp = TimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account```
+| extend timestamp = TimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account
+```
+
 ## User created by unauthorized user
 ### Hunt Tags
 
@@ -6410,6 +6885,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```// Create DataTable with your own values, example below shows dummy usernames that are authorized and for what domain
 let List = datatable(AuthorizedUser:string, Domain:string)["Bob", "Domain", "joe", "domain", "MATT", "DOMAIN"];
 let timeframe = 1d;
@@ -6422,7 +6898,9 @@ SecurityEvent
     | project SubjectUserName = tolower(AuthorizedUser), SubjectDomainName = toupper(Domain)
 ) on SubjectUserName, SubjectDomainName
 | project TimeGenerated, Computer, Account, SubjectUserName, SubjectDomainName, TargetAccount, EventID, Activity
-| extend timestamp = TimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account```
+| extend timestamp = TimeGenerated, HostCustomEntity = Computer, AccountCustomEntity = Account
+```
+
 ## VIP account more than 6 failed logons in 10
 ### Hunt Tags
 
@@ -6440,6 +6918,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```// Create DataTable with your own values, example below shows dummy usernames that are authorized and for what domain
 let List = datatable(VIPUser:string, Domain:string)["Bob", "Domain", "joe", "domain", "MATT", "DOMAIN"];
 let timeframe = 10m;
@@ -6452,7 +6931,9 @@ SecurityEvent
 ) on Account 
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), FailedVIPLogons = count() by LogonType, Account
 | where FailedVIPLogons >= 6
-| extend timestamp = StartTimeUtc, AccountCustomEntity = Account```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = Account
+```
+
 ## Windows System Time changed on hosts
 ### Hunt Tags
 
@@ -6470,11 +6951,14 @@ SecurityEvent
 
 > Query:
 
+```t
 ```SecurityEvent
 | where EventID == 4616
 | where not(ProcessName has_any (":\\Windows\\System32\\svchost.exe", ":\\Program Files\\VMware\\VMware Tools\\vmtoolsd.exe"))
 | summarize StartTime = min(TimeGenerated), EndTime = max(TimeGenerated), count() by Computer, EventID, Activity, Account, AccountType, NewTime, PreviousTime, ProcessName, ProcessId, SubjectAccount, SubjectUserSid, SourceComputerId, _ResourceId
-| extend timestamp = StartTime, HostCustomEntity = Computer, AccountCustomEntity = SubjectAccount```
+| extend timestamp = StartTime, HostCustomEntity = Computer, AccountCustomEntity = SubjectAccount
+```
+
 ## Anomalous Azure Active Directory apps based on authentication location
 ### Hunt Tags
 
@@ -6492,6 +6976,7 @@ SecurityEvent
 
 > Query:
 
+```t
 ```let timeRange=ago(14d);
 let azureSignIns = 
 SigninLogs
@@ -6518,7 +7003,9 @@ tostring(LocationDetails["state"]), "/", tostring(LocationDetails["city"]), ";" 
 locationString = strcat(tostring(LocationDetails["countryOrRegion"]), "/", tostring(LocationDetails["state"]), "/", 
 tostring(LocationDetails["city"]), ";" , tostring(LocationDetails["geoCoordinates"])), UserPrincipalName
 | extend timestamp = TimeGenerated, AccountCustomEntity = UserPrincipalName 
-| order by AppDisplayName, TimeGenerated desc```
+| order by AppDisplayName, TimeGenerated desc
+```
+
 ## Anomalous sign-in location by user account and authenticating application
 ### Hunt Tags
 
@@ -6536,6 +7023,7 @@ tostring(LocationDetails["city"]), ";" , tostring(LocationDetails["geoCoordinate
 
 > Query:
 
+```t
 ```let timeRange=ago(14d);
 SigninLogs 
 // Forces Log Analytics to recognize that the query should be run over full time range
@@ -6552,7 +7040,9 @@ by UserPrincipalName, AppDisplayName
 // A 0-value slope corresponds to an account being completely stable over time for a given Azure Active Directory application
 | top 3 by Slope desc
 | extend AccountCustomEntity = UserPrincipalName 
-| render timechart```
+| render timechart
+```
+
 ## Anomalous sign-in location by user account and authenticating application - with sign-in details
 ### Hunt Tags
 
@@ -6570,6 +7060,7 @@ by UserPrincipalName, AppDisplayName
 
 > Query:
 
+```t
 ```let timeRange = ago(14d);
 SigninLogs 
 // Forces Log Analytics to recognize that the query should be run over full time range
@@ -6595,7 +7086,9 @@ timerange=bin(TimeGenerated, 3d)) on AppDisplayName, UserPrincipalName
 | order by UserPrincipalName, timerange asc
 | project timerange, AppDisplayName , UserPrincipalName, threeDayWindowLocationCount, locationList 
 | order by AppDisplayName, UserPrincipalName, timerange asc
-| extend timestamp = timerange, AccountCustomEntity = UserPrincipalName```
+| extend timestamp = timerange, AccountCustomEntity = UserPrincipalName
+```
+
 ## Attempts to sign in to disabled accounts by account name
 ### Hunt Tags
 
@@ -6613,6 +7106,7 @@ timerange=bin(TimeGenerated, 3d)) on AppDisplayName, UserPrincipalName
 
 > Query:
 
+```t
 ```let timeRange = 14d;
 SigninLogs 
 | where TimeGenerated >= ago(timeRange)
@@ -6620,7 +7114,9 @@ SigninLogs
 | where ResultDescription == "User account is disabled. The account has been disabled by an administrator." 
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), count() by AppDisplayName, UserPrincipalName
 | extend timestamp = StartTimeUtc, AccountCustomEntity = UserPrincipalName
-| order by count_ desc```
+| order by count_ desc
+```
+
 ## Attempts to sign in to disabled accounts by IP address
 ### Hunt Tags
 
@@ -6638,6 +7134,7 @@ SigninLogs
 
 > Query:
 
+```t
 ```let timeRange = 14d;
 SigninLogs 
 | where TimeGenerated >= ago(timeRange)
@@ -6647,7 +7144,9 @@ SigninLogs
 numberApplicationsTargeted = dcount(AppDisplayName), accountSet = makeset(UserPrincipalName), applicationSet=makeset(AppDisplayName), 
 numberLoginAttempts = count() by IPAddress
 | extend timestamp = StartTimeUtc, IPCustomEntity = IPAddress
-| order by numberLoginAttempts desc```
+| order by numberLoginAttempts desc
+```
+
 ## Inactive or new account signins
 ### Hunt Tags
 
@@ -6665,6 +7164,7 @@ numberLoginAttempts = count() by IPAddress
 
 > Query:
 
+```t
 ```//Inactive accounts that sign in - first-time logins for accounts created in last 7 days are filtered out
 let starttime = 14d;
 let midtime = 7d;
@@ -6690,7 +7190,9 @@ SigninLogs
    // Normalize to lower case in order to match against equivalent UPN in Signin logs
    | extend NewUserPrincipalName = tolower(extractjson("$.userPrincipalName", tostring(TargetResources[0]), typeof(string)))
 ) on $left.UserPrincipalName == $right.NewUserPrincipalName 
-| extend timestamp = StartTimeUtc, AccountCustomEntity = UserPrincipalName```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = UserPrincipalName
+```
+
 ## Login attempts using Legacy Auth
 ### Hunt Tags
 
@@ -6708,6 +7210,7 @@ SigninLogs
 
 > Query:
 
+```t
 ```let endtime = 1d;
 let starttime = 7d;
 let legacyAuthentications =
@@ -6736,7 +7239,9 @@ tostring(LocationDetails["state"]), "/", tostring(LocationDetails["city"]))
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), AttemptCount = count() 
 by UserPrincipalName, ClientAppUsed, AppDisplayName, IPAddress, isLegacyAuth, tostring(OS), tostring(Browser), LocationString
 | sort by AttemptCount desc nulls last 
-| extend timestamp = StartTimeUtc, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress
+```
+
 ## Login spike with increase failure rate
 ### Hunt Tags
 
@@ -6754,6 +7259,7 @@ by UserPrincipalName, ClientAppUsed, AppDisplayName, IPAddress, isLegacyAuth, to
 
 > Query:
 
+```t
 ```let timerange = 30d;
 let failureThreshold = 15;
 let percentageChangeThreshold = 50;
@@ -6796,7 +7302,9 @@ SigninLogs
 | project-away TimeGenerated1
 //Thresholds, 15% account authentication failure rate at a 50% increase in accounts attempting to authenticate by default
 //Comment out line below to see all anomalous results
-| where FailureRate >= failureThreshold and PercentageChange >= percentageChangeThreshold```
+| where FailureRate >= failureThreshold and PercentageChange >= percentageChangeThreshold
+```
+
 ## Login attempt by Blocked MFA user
 ### Hunt Tags
 
@@ -6814,6 +7322,7 @@ SigninLogs
 
 > Query:
 
+```t
 ```let timeRange = 1d;
 let lookBack = 7d;
 let isGUID = "[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}";
@@ -6845,7 +7354,9 @@ u_MFABlocked
 | extend TimeGenerated = todatetime(tostring(TimeGenerated)), IPAddress = tostring(IPAddresses), Status = tostring(Status)
 | project-away IPAddresses
 | summarize StartTime = min(TimeGenerated), EndTime = max(TimeGenerated) by UserPrincipalName, UserId, UserDisplayName, Status,  IPAddress, IPAddressCount, AppDisplayName, Browser, OS, FullLocation
-| extend timestamp = StartTime, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress```
+| extend timestamp = StartTime, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress
+```
+
 ## Azure Active Directory signins from new locations
 ### Hunt Tags
 
@@ -6863,6 +7374,7 @@ u_MFABlocked
 
 > Query:
 
+```t
 ```let starttime = 14d;
 let endtime = 1d;
 let countThreshold = 1;
@@ -6883,7 +7395,9 @@ SigninLogs
 on locationString
 // select threshold above which #new accounts from a new location is deemed suspicious
 | where distinctAccountCount > countThreshold
-| extend timestamp = StartTimeUtc```
+| extend timestamp = StartTimeUtc
+```
+
 ## Azure Active Directory sign-in burst from multiple locations
 ### Hunt Tags
 
@@ -6901,6 +7415,7 @@ on locationString
 
 > Query:
 
+```t
 ```let timeRange = ago(10d);
 let signIns = SigninLogs
 | where TimeGenerated >= timeRange
@@ -6935,7 +7450,9 @@ signIns
 | where locationString != EndLocationString
 | summarize by timeSpan, Identity, locationString, EndLocationString, Start, End, UserPrincipalName
 | extend timestamp = Start, AccountCustomEntity = UserPrincipalName 
-| order by Identity```
+| order by Identity
+```
+
 ## Signin Logs with expanded Conditional Access Policies
 ### Hunt Tags
 
@@ -6953,6 +7470,7 @@ signIns
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 SigninLogs 
 | where TimeGenerated >= ago(timeframe)
@@ -6967,7 +7485,9 @@ SigninLogs
 ConditionalAccessPol0Name, ConditionalAccessPol0Result, ConditionalAccessPol1Name, ConditionalAccessPol1Result, ConditionalAccessPol2Name, ConditionalAccessPol2Result, 
 Location, State, City
 | extend timestamp = Date, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress
-| sort by Date```
+| sort by Date
+```
+
 ## Signins From VPS Providers
 ### Hunt Tags
 
@@ -6985,6 +7505,7 @@ Location, State, City
 
 > Query:
 
+```t
 ```let IP_Data = (externaldata(network:string)
 [@"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/Sample%20Data/Feeds/VPS_Networks.csv"] with (format="csv"));
 SigninLogs
@@ -6996,7 +7517,9 @@ SigninLogs
 //| where array_length(set_additionalDetails) == 2
 //| where (set_additionalDetails[1] == "MFA requirement satisfied by claim in the token" and set_additionalDetails[0] == "MFA requirement satisfied by claim provided by external provider") or (set_additionalDetails[0] == "MFA requirement satisfied by claim in the token" and set_additionalDetails[1] == "MFA requirement satisfied by claim provided by external provider")
 | extend timestamp = min_TimeGenerated, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress
-| project IPCustomEntity, AccountCustomEntity, timestamp, max_TimeGenerated```
+| project IPCustomEntity, AccountCustomEntity, timestamp, max_TimeGenerated
+```
+
 ## Sign-ins from IPs that attempt sign-ins to disabled accounts
 ### Hunt Tags
 
@@ -7014,6 +7537,7 @@ SigninLogs
 
 > Query:
 
+```t
 ```let lookBack = 1d;
 let threshold = 100;
 SigninLogs 
@@ -7042,7 +7566,9 @@ successfulAccountSigninCount, successfulAccountSigninSet
 | order by disabledAccountLoginAttempts
 // Break up the string of Succesfully signed into accounts into individual events
 | mvexpand successfulAccountSigninSet
-| extend AccountCustomEntity = tostring(successfulAccountSigninSet), timestamp = StartTime, IPCustomEntity = IPAddress```
+| extend AccountCustomEntity = tostring(successfulAccountSigninSet), timestamp = StartTime, IPCustomEntity = IPAddress
+```
+
 ## Same User - Successful logon for a given App and failure on another App within 1m and low distribution
 ### Hunt Tags
 
@@ -7060,6 +7586,7 @@ successfulAccountSigninCount, successfulAccountSigninSet
 
 > Query:
 
+```t
 ```let timeFrame = ago(1d);
 let logonDiff = 1m;
 let Success = SigninLogs 
@@ -7092,7 +7619,9 @@ InitialHits | join (
    Distribution 
 ) on SuccessAppDisplayName, ResultType
 | project UserPrincipalName, SuccessLogonTime, IPAddress, SuccessAppDisplayName, FailedLogonTime, FailedAppDisplayName, ResultType, ResultDescription 
-| extend timestamp = SuccessLogonTime, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress```
+| extend timestamp = SuccessLogonTime, AccountCustomEntity = UserPrincipalName, IPCustomEntity = IPAddress
+```
+
 ## Failed attempt to access Azure Portal
 ### Hunt Tags
 
@@ -7110,6 +7639,7 @@ InitialHits | join (
 
 > Query:
 
+```t
 ```let timeRange=ago(7d);
 SigninLogs
 | where TimeGenerated >= timeRange
@@ -7124,7 +7654,9 @@ SigninLogs
 makeset(OS), makeset(Browser), makeset(City), AttemptCount = count() 
 by UserDisplayName, UserPrincipalName, AppDisplayName, ResultType, ResultDescription, StatusCode, StatusDetails, Location, State
 | extend timestamp = StartTimeUtc, AccountCustomEntity = UserPrincipalName
-| sort by AttemptCount```
+| sort by AttemptCount
+```
+
 ## User Login IP Address Teleportation
 ### Hunt Tags
 
@@ -7142,6 +7674,7 @@ by UserDisplayName, UserPrincipalName, AppDisplayName, ResultType, ResultDescrip
 
 > Query:
 
+```t
 ```let timeRange = 7d;
 let windowTime = 20min / 2; //Window to lookup anomalous logins within
 let excludeKnownVPN = dynamic([127.0.0.1, 0.0.0.0]); //Known VPN IP addresses to exclude
@@ -7191,7 +7724,9 @@ SigninLogs
 | extend WindowEnd = TimeGenerated1 + windowTime
 | where TimeGenerated between (WindowStart .. WindowEnd)
 | project Account=UserPrincipalName, AnomalousIP=IPAddress, AnomalousLoginTime=TimeGenerated, AnomalousCountry=country, OtherLoginIP=IPAddress1, OtherLoginCountry=country1, OtherLoginWindowStart=WindowStart, OtherLoginWindowEnd=WindowEnd
-| where AnomalousIP !in(excludeKnownVPN) and OtherLoginIP !in(excludeKnownVPN)```
+| where AnomalousIP !in(excludeKnownVPN) and OtherLoginIP !in(excludeKnownVPN)
+```
+
 ## Failed Logon Attempts on SQL Server
 ### Hunt Tags
 
@@ -7209,13 +7744,16 @@ SigninLogs
 
 > Query:
 
+```t
 ```// SQLEvent is not the table name, it is the function name that should already be imported into your workspace.
 // The underlying table where the data exists is the Event table.
 SQLEvent
 | where TimeGenerated >= ago(1d)
 | where LogonResult has "failed"
 | summarize count() by TimeGenerated, CurrentUser, Reason, ClientIP
-| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP```
+| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
+```
+
 ## Failed Logon on SQL Server from Same IPAddress in Short time Span
 ### Hunt Tags
 
@@ -7233,6 +7771,7 @@ SQLEvent
 
 > Query:
 
+```t
 ```// SQLEvent is not the table name, it is the function name that should already be imported into your workspace.
 // The underlying table where the data exists is the Event table.
 // the timeframe and threshold can be changed below as per requirement.
@@ -7245,7 +7784,9 @@ SQLEvent
 | summarize StartTime = min(TimeGenerated), EndTime = max(TimeGenerated), TotalFailedLogons = count() by ClientIP, CurrentUser, Computer
 | where TotalFailedLogons >= failedThreshold
 | project StartTime, ClientIP, TotalFailedLogons, CurrentUser, Computer
-| extend timestamp = StartTime, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP```
+| extend timestamp = StartTime, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
+```
+
 ## Multiple Failed Logon on SQL Server in Short time Span
 ### Hunt Tags
 
@@ -7263,6 +7804,7 @@ SQLEvent
 
 > Query:
 
+```t
 ```// SQLEvent is not the table name, it is the function name that should already be imported into your workspace.
 // The underlying table where the data exists is the Event table.
 // the timeframe and threshold can be changed below as per requirement
@@ -7275,7 +7817,9 @@ SQLEvent
 | summarize StartTime = min(TimeGenerated), EndTime = max(TimeGenerated), TotalFailedLogons = count() by CurrentUser, ClientIP
 | where TotalFailedLogons >= failedThreshold
 | project StartTime, CurrentUser, TotalFailedLogons, ClientIP
-| extend timestamp = StartTime, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP```
+| extend timestamp = StartTime, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
+```
+
 ## New User created on SQL Server
 ### Hunt Tags
 
@@ -7293,6 +7837,7 @@ SQLEvent
 
 > Query:
 
+```t
 ```// SQLEvent is not the table name, it is the function name that should already be imported into your workspace.
 // The underlying table where the data exists is the Event table.
 // This query checks for new user account created on SQL Server using the SQLEvent() parser
@@ -7302,7 +7847,9 @@ SQLEvent
 | where Statement has "Create Login"
 | parse Statement with "CREATE LOGIN [" TargetUser:string "]" *
 | project TimeGenerated, Computer, Action, ClientIP, CurrentUser, DatabaseName, TargetUser, ObjectName, Statement
-| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP```
+| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
+```
+
 ## User added to SQL Server SecurityAdmin Group
 ### Hunt Tags
 
@@ -7320,6 +7867,7 @@ SQLEvent
 
 > Query:
 
+```t
 ```// SQLEvent is not the table name, it is the function name that should already be imported into your workspace.
 // The underlying table where the data exists is the Event table.
 // This query tracks user added into SecurityAdmingroup
@@ -7329,7 +7877,9 @@ SQLEvent
 | parse Statement with * "ADD MEMBER [" TargetUser:string "]" *
 | where ObjectName has "securityadmin"
 | project TimeGenerated, Computer, Action, ClientIP, CurrentUser, DatabaseName, TargetUser, ObjectName, Statement 
-| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP```
+| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
+```
+
 ## SQL User deleted from Database
 ### Hunt Tags
 
@@ -7347,6 +7897,7 @@ SQLEvent
 
 > Query:
 
+```t
 ```// SQLEvent is not the table name, it is the function name that should already be imported into your workspace.
 // The underlying table where the data exists is the Event table.
 // This query checks for user removed from a database by parsing the statement field at the query time.
@@ -7356,7 +7907,9 @@ SQLEvent
 | where Statement has "Alter role" and Statement has "drop member"
 | parse Statement with * "DROP MEMBER [" TargetUser:string "]" *
 | project TimeGenerated, Computer, Action, ClientIP, CurrentUser, DatabaseName, TargetUser, ObjectName, Statement
-| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP```
+| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
+```
+
 ## User removed from SQL Server SecurityAdmin Group
 ### Hunt Tags
 
@@ -7374,6 +7927,7 @@ SQLEvent
 
 > Query:
 
+```t
 ```// SQLEvent is not the table name, it is the function name that should already be imported into your workspace.
 // The underlying table where the data exists is the Event table.
 // This query checks for user removed from SecurityAdmin Role
@@ -7383,7 +7937,9 @@ SQLEvent
 | parse Statement with * "DROP MEMBER [" TargetUser:string "]" *
 | where ObjectName has "securityadmin"
 | project TimeGenerated, Computer, Action, ClientIP, CurrentUser, DatabaseName, TargetUser, ObjectName, Statement 
-| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP```
+| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
+```
+
 ## User removed from SQL Server Roles
 ### Hunt Tags
 
@@ -7401,6 +7957,7 @@ SQLEvent
 
 > Query:
 
+```t
 ```// SQLEvent is not the table name, it is the function name that should already be imported into your workspace.
 // The underlying table where the data exists is the Event table.
 // This query checks for user removed from a ServerRole
@@ -7409,7 +7966,9 @@ SQLEvent
 | where Statement has "Alter Server role" and Statement has "drop member"
 | parse Statement with * "DROP MEMBER [" TargetUser:string "]" *
 | project TimeGenerated, Computer, Action, ClientIP, CurrentUser, DatabaseName, TargetUser, ObjectName, Statement 
-| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP```
+| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
+```
+
 ## User Role altered on SQL Server
 ### Hunt Tags
 
@@ -7427,6 +7986,7 @@ SQLEvent
 
 > Query:
 
+```t
 ```// SQLEvent is not the table name, it is the function name that should already be imported into your workspace.
 // The underlying table where the data exists is the Event table.
 // This query looking for Alter role commands and extracts username which was altered and target objectName
@@ -7435,7 +7995,9 @@ SQLEvent
 | where Statement contains "Alter role" and Statement has "add member"
 | parse Statement with * "ADD MEMBER [" TargetUser:string "]" *
 | project TimeGenerated, Computer, Action, ClientIP, CurrentUser, DatabaseName, TargetUser, ObjectName, Statement
-| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP```
+| extend timestamp = TimeGenerated, AccountCustomEntity = CurrentUser, IPCustomEntity = ClientIP
+```
+
 ## Crypto currency miners EXECVE
 ### Hunt Tags
 
@@ -7453,6 +8015,7 @@ SQLEvent
 
 > Query:
 
+```t
 ```// Extract EventType and EventData from AUOMS Syslog message
 Syslog
 | parse SyslogMessage with "type=" EventType " audit(" * "): " EventData
@@ -7466,7 +8029,9 @@ Syslog
 | where cmdline contains "nicehashminer" or cmdline contains "ethminer" or cmdline contains "equihash" or cmdline contains "NsCpuCNMiner64" or cmdline contains "minergate" or cmdline contains "minerd" or cmdline contains "cpuminer" or cmdline contains "xmr-stak-cpu" or cmdline contains "xmrig" or cmdline contains "stratum+tcp" or cmdline contains "cryptonight" or cmdline contains "monero" or cmdline contains "oceanhole" or cmdline contains "dockerminer" or cmdline contains "xmrdemo"
 | project TimeGenerated, Computer, audit_user, user, cmdline
 | extend AccountCustomEntity = user, HostCustomEntity = Computer, timestamp = TimeGenerated
-| sort by TimeGenerated desc```
+| sort by TimeGenerated desc
+```
+
 ## Disabled accounts using Squid proxy
 ### Hunt Tags
 
@@ -7484,6 +8049,7 @@ Syslog
 
 > Query:
 
+```t
 ```let starttime = 14d;
 let endtime = 7d;
 let disabledAccounts = (){
@@ -7510,7 +8076,9 @@ Syslog
 proxyEvents 
 | where Status !contains DENIED
 | join kind=inner disabledAccounts on $left.User == $right.UserPrincipalName
-| extend timestamp = TimeGenerated, AccountCustomEntity = UserPrincipalName, URLCustomEntity = URL```
+| extend timestamp = TimeGenerated, AccountCustomEntity = UserPrincipalName, URLCustomEntity = URL
+```
+
 ## Rare process running on a Linux host
 ### Hunt Tags
 
@@ -7528,6 +8096,7 @@ proxyEvents
 
 > Query:
 
+```t
 ```let starttime = 7d;
 let endtime = 1m;
 let lookback = 30d;
@@ -7550,7 +8119,9 @@ basic | project-away FullCount
 basic_avg 
   on ProcessName | project-away ProcessName1
   | where Count < host_threshold or (Count <= Avg*perc_threshold and Count < count_threshold) 
-  | extend HostCustomEntity=Computer```
+  | extend HostCustomEntity=Computer
+```
+
 ## Linux scheduled task Aggregation
 ### Hunt Tags
 
@@ -7568,6 +8139,7 @@ basic_avg
 
 > Query:
 
+```t
 ```// Change startdate below if you want a different timespan
 let startdate = 7d;
 // Pull messages from Syslog-cron where the process name is "CRON" or "CROND", the severity level is info, and the SyslogMessage contains "CMD".
@@ -7603,7 +8175,9 @@ let FinalSummary = CommandSummary | join kind= leftouter (TotalComputers) on Ten
 AsPercentOfTotalComps = round(100 * (toreal(ComputerCount)/toreal(dcount_Computer)),2), cmdline
 | order by user asc, TimesCmdlineSeen desc;
 FinalSummary 
-| extend timestamp = StartTimeUtc, AccountCustomEntity = user```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = user
+```
+
 ## Editing Linux scheduled tasks through Crontab
 ### Hunt Tags
 
@@ -7621,6 +8195,7 @@ FinalSummary
 
 > Query:
 
+```t
 ```// Change startdate below if you want a different timespan
 let startdate = 14d;
 // Pull messages from Syslog-cron logs where the process is crontab and the severity level is "info". Extract the User and Action information from the SyslogMessage
@@ -7637,7 +8212,9 @@ Syslog
 | summarize makeset(Action) by bin(TimeGenerated, 10m), Computer, user  
 | project EventTime10MinInterval = TimeGenerated, Computer, user, ListOfActions = set_Action 
 | order by Computer asc nulls last, EventTime10MinInterval asc
-| extend timestamp = EventTime10MinInterval, AccountCustomEntity = user, HostCustomEntity = Computer```
+| extend timestamp = EventTime10MinInterval, AccountCustomEntity = user, HostCustomEntity = Computer
+```
+
 ## Squid commonly abused TLDs
 ### Hunt Tags
 
@@ -7655,6 +8232,7 @@ Syslog
 
 > Query:
 
+```t
 ```let suspicious_tlds = dynamic([ ".click", ".club", ".download",  ".xxx", ".xyz"]);
 let timeframe = 14d;
 Syslog
@@ -7671,7 +8249,9 @@ Syslog
 | where TLD in (suspicious_tlds)
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), clientCount = dcount(SourceIP) by TLD, User, URL
 | order by TLD asc, clientCount desc
-| extend timestamp = StartTimeUtc, AccountCustomEntity = User, URLCustomEntity = URL```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = User, URLCustomEntity = URL
+```
+
 ## Squid malformed requests
 ### Hunt Tags
 
@@ -7689,6 +8269,7 @@ Syslog
 
 > Query:
 
+```t
 ```let timeframe = 14d;
 Syslog
 | where TimeGenerated >= ago(timeframe) 
@@ -7706,7 +8287,9 @@ Syslog
 | where Domain !contains . and isnotempty(Domain)
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), badRequestCount = count() by Domain, SourceIP, User, URL
 | order by badRequestCount desc
-| extend timestamp = StartTimeUtc, AccountCustomEntity = User, IPCustomEntity = SourceIP, URLCustomEntity = URL```
+| extend timestamp = StartTimeUtc, AccountCustomEntity = User, IPCustomEntity = SourceIP, URLCustomEntity = URL
+```
+
 ## Squid data volume timeseries anomalies
 ### Hunt Tags
 
@@ -7724,6 +8307,7 @@ Syslog
 
 > Query:
 
+```t
 ```let starttime = 14d;
 let endtime = 1d;
 let timeframe = 1h;
@@ -7746,7 +8330,9 @@ Syslog
 TimeSeriesData
 | extend (anomalies, score, baseline) = series_decompose_anomalies(TotalBytesSent,3, -1, linefit)
 | extend timestamp = TimeGenerated
-| render timechart with (title="Squid Time Series anomalies")```
+| render timechart with (title="Squid Time Series anomalies")
+```
+
 ## Preview - TI map File entity to OfficeActivity Event
 ### Hunt Tags
 
@@ -7764,6 +8350,7 @@ TimeSeriesData
 
 > Query:
 
+```t
 ```let dt_lookBack = 1h;
 let ioc_lookBack = 14d;
 ThreatIntelligenceIndicator
@@ -7779,7 +8366,9 @@ on $left.FileName == $right.SourceFileName
 | summarize LatestIndicatorTime = arg_max(TimeGenerated, *) by IndicatorId
 | project LatestIndicatorTime, Description, ActivityGroupNames, IndicatorId, ThreatType, Url, ExpirationDateTime, ConfidenceScore,
 OfficeActivity_TimeGenerated, FileName, UserId, ClientIP, OfficeObjectId
-| extend timestamp = OfficeActivity_TimeGenerated, AccountCustomEntity = UserId, IPCustomEntity = ClientIP, URLCustomEntity = Url```
+| extend timestamp = OfficeActivity_TimeGenerated, AccountCustomEntity = UserId, IPCustomEntity = ClientIP, URLCustomEntity = Url
+```
+
 ## Preview - TI map File entity to Security Event
 ### Hunt Tags
 
@@ -7797,6 +8386,7 @@ OfficeActivity_TimeGenerated, FileName, UserId, ClientIP, OfficeObjectId
 
 > Query:
 
+```t
 ```let dt_lookBack = 1h;
 let ioc_lookBack = 14d;
 ThreatIntelligenceIndicator
@@ -7813,7 +8403,9 @@ on $left.FileName == $right.Process
 | summarize LatestIndicatorTime = arg_max(TimeGenerated, *) by IndicatorId
 | project LatestIndicatorTime, Description, ActivityGroupNames, IndicatorId, ThreatType, Url, ExpirationDateTime, ConfidenceScore,
 SecurityEvent_TimeGenerated, FileName, Computer, IpAddress, Account, Event, Activity
-| extend timestamp = SecurityEvent_TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer, IPCustomEntity = IpAddress, URLCustomEntity = Url```
+| extend timestamp = SecurityEvent_TimeGenerated, AccountCustomEntity = Account, HostCustomEntity = Computer, IPCustomEntity = IpAddress, URLCustomEntity = Url
+```
+
 ## Preview - TI map File entity to Syslog Event
 ### Hunt Tags
 
@@ -7831,6 +8423,7 @@ SecurityEvent_TimeGenerated, FileName, Computer, IpAddress, Account, Event, Acti
 
 > Query:
 
+```t
 ```let dt_lookBack = 1h;
 let ioc_lookBack = 14d;
 ThreatIntelligenceIndicator
@@ -7847,7 +8440,9 @@ on $left.TI_ProcessEntity == $right.ProcessName
 | summarize LatestIndicatorTime = arg_max(TimeGenerated, *) by IndicatorId
 | project LatestIndicatorTime, Description, ActivityGroupNames, IndicatorId, ThreatType, Url, ExpirationDateTime, ConfidenceScore,
 Syslog_TimeGenerated, FileName, Computer, HostIP, SyslogMessage
-| extend timestamp = Syslog_TimeGenerated, HostCustomEntity = Computer, IPCustomEntity = HostIP, URLCustomEntity = Url```
+| extend timestamp = Syslog_TimeGenerated, HostCustomEntity = Computer, IPCustomEntity = HostIP, URLCustomEntity = Url
+```
+
 ## Preview - TI map File entity to VMConnection Event
 ### Hunt Tags
 
@@ -7865,6 +8460,7 @@ Syslog_TimeGenerated, FileName, Computer, HostIP, SyslogMessage
 
 > Query:
 
+```t
 ```let dt_lookBack = 1h;
 let ioc_lookBack = 14d;
 ThreatIntelligenceIndicator
@@ -7881,7 +8477,9 @@ on $left.TI_ProcessEntity == $right.ProcessName
 | summarize LatestIndicatorTime = arg_max(TimeGenerated, *) by IndicatorId
 | project LatestIndicatorTime, Description, ActivityGroupNames, IndicatorId, ThreatType, Url, ExpirationDateTime, ConfidenceScore,
 VMConnection_TimeGenerated, FileName, Computer, Direction, SourceIp, DestinationIp, RemoteIp, DestinationPort, Protocol
-| extend timestamp = VMConnection_TimeGenerated, IPCustomEntity = RemoteIp, HostCustomEntity = Computer, URLCustomEntity = Url```
+| extend timestamp = VMConnection_TimeGenerated, IPCustomEntity = RemoteIp, HostCustomEntity = Computer, URLCustomEntity = Url
+```
+
 ## Preview - TI map File entity to WireData Event
 ### Hunt Tags
 
@@ -7899,6 +8497,7 @@ VMConnection_TimeGenerated, FileName, Computer, Direction, SourceIp, Destination
 
 > Query:
 
+```t
 ```let dt_lookBack = 1h;
 let ioc_lookBack = 14d;
 ThreatIntelligenceIndicator
@@ -7915,7 +8514,9 @@ on $left.FileName == $right.Process
 | summarize LatestIndicatorTime = arg_max(TimeGenerated, *) by IndicatorId
 | project LatestIndicatorTime, Description, ActivityGroupNames, IndicatorId, ThreatType, Url, ExpirationDateTime, ConfidenceScore,
 WireData_TimeGenerated, FileName, Computer, Direction, LocalIP, RemoteIP, LocalPortNumber, RemotePortNumber
-| extend timestamp = WireData_TimeGenerated, HostCustomEntity = Computer, IPCustomEntity = RemoteIP, URLCustomEntity = Url```
+| extend timestamp = WireData_TimeGenerated, HostCustomEntity = Computer, IPCustomEntity = RemoteIP, URLCustomEntity = Url
+```
+
 ## Preview - DNS Events that match threat intelligence
 ### Hunt Tags
 
@@ -7933,6 +8534,7 @@ WireData_TimeGenerated, FileName, Computer, Direction, LocalIP, RemoteIP, LocalP
 
 > Query:
 
+```t
 ```let timeframe = 1d;
 DnsEvents
 | where TimeGenerated >= ago(timeframe)
@@ -7941,7 +8543,9 @@ DnsEvents
   | summarize by Url) on $left.Name == $right.Url
 | summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), count()
 by Computer, ClientIP, ThreatIntel_Related_Domain = Name, Url
-| extend timestamp = StartTimeUtc, HostCustomEntity = Computer, IPCustomEntity = ClientIP, URLCustomEntity = Url```
+| extend timestamp = StartTimeUtc, HostCustomEntity = Computer, IPCustomEntity = ClientIP, URLCustomEntity = Url
+```
+
 ## Same IP address with multiple csUserAgent
 ### Hunt Tags
 
@@ -7959,6 +8563,7 @@ by Computer, ClientIP, ThreatIntel_Related_Domain = Name, Url
 
 > Query:
 
+```t
 ```let timeFrame = ago(1h);
 W3CIISLog
 | where TimeGenerated >= timeFrame
@@ -7967,7 +8572,9 @@ W3CIISLog
 by Computer, sSiteName, sIP, sPort, cIP, csMethod
 | extend csUserAgentPerIPCount = arraylength(set_csUserAgent)
 | where  csUserAgentPerIPCount between ( 2 .. 15 ) and ConnectionCount <=50
-| extend timestamp = StartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = Computer```
+| extend timestamp = StartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = Computer
+```
+
 ## Potential IIS brute force
 ### Hunt Tags
 
@@ -7985,6 +8592,7 @@ by Computer, sSiteName, sIP, sPort, cIP, csMethod
 
 > Query:
 
+```t
 ```let timeFrame = ago(1h);
 W3CIISLog
 | where TimeGenerated >= timeFrame
@@ -8039,7 +8647,9 @@ W3CIISLog
 | where FailEndTimeUtc < LogonSuccessTimeUtc and not(LogonSuccessTimeUtc between (FailStartTimeUtc .. FailEndTimeUtc))
 | summarize makeset(LogonSuccessTimeUtc) by FailStartTimeUtc, FailEndTimeUtc, Computer, sSiteName, sIP, cIP, tostring(set_csUserName), csUserNameCount, csUriQuery, csMethod, scStatus, scSubStatus, scWin32Status, tostring(set_sPort), tostring(set_csUserAgent), ConnectionCount, csUserAgentPerIPCount, sPortCount, scStatusFull, scStatusFull_Friendly, scWin32Status_Hex, scWin32Status_Friendly
 | project FailStartTimeUtc, FailEndTimeUtc, set_LogonSuccessTimeUtc, Computer, sSiteName, sIP, cIP, set_csUserName, csUserNameCount, csUriQuery, csMethod, scStatus, scSubStatus, scWin32Status, set_sPort, set_csUserAgent, ConnectionCount, csUserAgentPerIPCount, sPortCount, scStatusFull, scStatusFull_Friendly, scWin32Status_Hex, scWin32Status_Friendly
-| extend timestamp = FailStartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = Computer```
+| extend timestamp = FailStartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = Computer
+```
+
 ## Potential IIS code injection attempt
 ### Hunt Tags
 
@@ -8057,6 +8667,7 @@ W3CIISLog
 
 > Query:
 
+```t
 ```let lookback = 7d;
 // set cIP and csMethod count limit to indicate potentially noisy events, this will be listed at the top of the results 
 // for any returns that are gt or equal to the default of 50
@@ -8108,7 +8719,9 @@ tostring(arr), csHost, scStatus, sIP, csUriStem, csUriQuery, csUserName, csUserA
 (union isfuzzy=true
 cIP_MethodHighCount, codeInjectAtt
 | sort by cIP_MethodCount desc, cIP desc, StartTimeUtc desc)
-| extend timestamp = StartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = csHost, AccountCustomEntity = csUserName, URLCustomEntity = csUriQuery```
+| extend timestamp = StartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = csHost, AccountCustomEntity = csUserName, URLCustomEntity = csUriQuery
+```
+
 ## Web shell Detection
 ### Hunt Tags
 
@@ -8126,6 +8739,7 @@ cIP_MethodHighCount, codeInjectAtt
 
 > Query:
 
+```t
 ```let timeFrame = ago(1d);
 let command = "(?i)net(1)?(.exe)?(%20){1,}user|cmd(.exe)?(%20){1,}/c(%20){1,}";
 W3CIISLog
@@ -8136,7 +8750,9 @@ W3CIISLog
         ( csReferer has "whoami" or csReferer matches regex command )
 | summarize StartTimeUtc = max(TimeGenerated), EndTimeUtc = min(TimeGenerated), ConnectionCount = count() 
 by Computer, sSiteName, sIP, cIP, csUserName, csUriQuery, csMethod, scStatus, scSubStatus, scWin32Status
-| extend timestamp = StartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = Computer, AccountCustomEntity = csUserName```
+| extend timestamp = StartTimeUtc, IPCustomEntity = cIP, HostCustomEntity = Computer, AccountCustomEntity = csUserName
+```
+
 ## URI requests from single client
 ### Hunt Tags
 
@@ -8154,6 +8770,7 @@ by Computer, sSiteName, sIP, cIP, csUserName, csUriQuery, csMethod, scStatus, sc
 
 > Query:
 
+```t
 ```let timeRange = 7d;
 let clientThreshold = 1;
 let scriptExtensions = dynamic([".php", ".aspx", ".asp", ".cfml"]);
@@ -8168,7 +8785,9 @@ data
 | summarize dcount(list_cIP), makelist(list_cIP), makelist(sSiteName) by csUriStem, csUserAgent
 | where dcount_list_cIP == clientThreshold 
 //Selects user agent strings that are probably browsers, comment out to see all
-| where csUserAgent startswith "Mozilla"```
+| where csUserAgent startswith "Mozilla"
+```
+
 ## Rare User Agent strings
 ### Hunt Tags
 
@@ -8186,6 +8805,7 @@ data
 
 > Query:
 
+```t
 ```let timeframe = 3d;
 W3CIISLog | where TimeGenerated >= ago(timeframe)
 // The below line can be used to exclude local IPs if these create noise
@@ -8205,7 +8825,9 @@ scSubStatus, scWin32Status, csHost
 ) on csUserAgent_size
 | project TimeGenerated, sSiteName, sPort, sIP, cIP, csUserAgent, csUserAgent_size, csUserAgent_count, csUserName , csMethod, csUriStem, 
 scStatus, scSubStatus, scWin32Status, csHost
-| extend timestamp = TimeGenerated, IPCustomEntity = cIP, HostCustomEntity = csHost, AccountCustomEntity = csUserName```
+| extend timestamp = TimeGenerated, IPCustomEntity = cIP, HostCustomEntity = csHost, AccountCustomEntity = csUserName
+```
+
 ## Suspect Mailbox Export on IIS/OWA
 ### Hunt Tags
 
@@ -8223,6 +8845,7 @@ scStatus, scSubStatus, scWin32Status, csHost
 
 > Query:
 
+```t
 ```let excludeIps = dynamic(["127.0.0.1", "::1"]);
 let scriptingExt = dynamic(["aspx", "ashx", "asp"]);
 W3CIISLog
@@ -8242,7 +8865,9 @@ W3CIISLog
 | summarize dcount(cIP), AccessingIPs=make_set(cIP), AccessTimes=make_set(TimeGenerated), Access=count() by TenantId, file_name, Computer, csUriStem
 //Collection of the exfiltration will occur only once, lets check for 2 accesses in case they mess up
 //Tailor this for hunting
-| where Access <= 2 and dcount_cIP == 1```
+| where Access <= 2 and dcount_cIP == 1
+```
+
 ## Detect beacon like pattern based on repetitive time intervals in Wire Data Traffic
 ### Hunt Tags
 
@@ -8260,6 +8885,7 @@ W3CIISLog
 
 > Query:
 
+```t
 ```let starttime = 7d; 
 let endtime = 1d; 
 let TimeDeltaThreshold = 10; 
@@ -8285,7 +8911,9 @@ WireData
 | where TotalEvents > TotalEventsThreshold  
 | extend BeaconPercent = MostFrequentTimeDeltaCount/toreal(TotalEvents) * 100 
 | where BeaconPercent > PercentBeaconThreshold
-| extend timestamp = TimeGenerated, IPCustomEntity = RemoteIP```
+| extend timestamp = TimeGenerated, IPCustomEntity = RemoteIP
+```
+
 ## Zoom room high CPU alerts
 ### Hunt Tags
 
@@ -8303,6 +8931,7 @@ WireData
 
 > Query:
 
+```t
 ```let hunt_time = 14d; 
 ZoomLogs 
 | where TimeGenerated >= ago(hunt_time) 
@@ -8313,7 +8942,9 @@ ZoomLogs
 | extend timestamp = TimeGenerated, AccountCustomEntity = User
 // Uncomment the lines below to analyse event over time
 //| summarize count() by bin(TimeGenerated, 1h), RoomName
-//| render timechart```
+//| render timechart
+```
+
 ## User denied multiple registration events successfully registering
 ### Hunt Tags
 
@@ -8331,6 +8962,7 @@ ZoomLogs
 
 > Query:
 
+```t
 ```let hunt_time = 14d; 
 let threshold = 2; 
 let failed_users = (
@@ -8352,7 +8984,9 @@ ZoomLogs
 | extend EventStart = columnifexists(tostring(parse_json(WebinarEvents).Start),columnifexists(payload_object_start_time_s ,""))
 | where RegisteringUser !in (failed_users)
 | project TimeGenerated, RegisteringUser, EventName, ItemId, EventHost, EventStart
-| extend timestamp = TimeGenerated, AccountCustomEntity = RegisteringUser```
+| extend timestamp = TimeGenerated, AccountCustomEntity = RegisteringUser
+```
+
 ## New domain added to Whitelist
 ### Hunt Tags
 
@@ -8370,6 +9004,7 @@ ZoomLogs
 
 > Query:
 
+```t
 ```let hunt_time = 14d; 
 ZoomLogs 
 | where TimeGenerated >= ago(hunt_time)
@@ -8377,7 +9012,9 @@ ZoomLogs
 | extend NewDomains = columnifexists("payload_object_enforce_logon_domains", "")
 | where isnotempty(NewDomains)
 | project TimeGenerated, Event, User, NewDomains
-| extend timestamp = TimeGenerated, AccountCustomEntity = User```
+| extend timestamp = TimeGenerated, AccountCustomEntity = User
+```
+
 ## New time zone observed
 ### Hunt Tags
 
@@ -8395,6 +9032,7 @@ ZoomLogs
 
 > Query:
 
+```t
 ```let hunt_time = 1d;
 let lookback_time = 14d;
 let previous_tz = (
@@ -8409,4 +9047,6 @@ ZoomLogs
 | where Event =~ "meeting.participant_joined"
 | extend TimeZone = columnifexists(payload_object_timezone_s, "")
 | where isnotempty(TimeZone) and TimeZone in (previous_tz)
-| extend timestamp = TimeGenerated, AccountCustomEntity = User```
+| extend timestamp = TimeGenerated, AccountCustomEntity = User
+```
+

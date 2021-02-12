@@ -19,8 +19,8 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"author`": `"microsoft`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $huntingrules.name + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/" + $file.tostring().replace("\", "/").replace(" ","%20") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("\","\\").replace("`"","\`"").replace("`'","").replace("`n$"," ") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.Trim().replace("\","\\").replace("`"","\`"").replace("`'","").replace("`n","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.Trim().replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $tactics + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    },`r`n"
     }
@@ -34,8 +34,8 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"author`": `"microsoft`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $huntingrules.name + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/" + $file.tostring().replace("\", "/").replace(" ","%20") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.replace("\","\\").replace("`"","\`"").replace("`'","").replace("`n$"," ") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"description`": `"" + $huntingrules.description.Trim().replace("\","\\").replace("`"","\`"").replace("`'","").replace("`n","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"query`": `"" + $huntingrules.query.Trim().replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + $tactics + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    }`r`n"
     }

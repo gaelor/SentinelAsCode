@@ -18,4 +18,6 @@ for huntingrule in myjson:
         print('### Hunt details\n')
         print('> Description: ' + item["description"] + '\n')
         print('> Query:\n')
-        print('```' + item["query"] + '```')
+        print('```t')
+        print('```' + item["query"])
+        print('```\n')
