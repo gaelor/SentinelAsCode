@@ -16,7 +16,8 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"author`": `"wortell`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/wortell/KQL/master/" + $file.tostring() + "`",`r`n"
-        $HuntingRulesTemplate += "      `"description`": `"" + [regex]::Match($filecontent, "^(.*?) \|").Groups[1].Value.trim() | Select-String -pattern "//" -NotMatch + "`",`r`n"
+        $description = [regex]::Match($filecontent, "^(.*?) \|").Groups[1].Value.trim()
+        $HuntingRulesTemplate += "      `"description`": `"" + $description + "`",`r`n"
         $HuntingRulesTemplate += "      `"query`": `"" + $filecontent.replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"Collection`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    },`r`n"}
@@ -28,7 +29,8 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"author`": `"wortell`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/wortell/KQL/master/" + $file.tostring() + "`",`r`n"
-        $HuntingRulesTemplate += "      `"description`": `"" + [regex]::Match($filecontent, "^(.*?) \|").Groups[1].Value.trim() | Select-String -pattern "//" -NotMatch + "`",`r`n"
+        $description = [regex]::Match($filecontent, "^(.*?) \|").Groups[1].Value.trim()
+        $HuntingRulesTemplate += "      `"description`": `"" + $description + "`",`r`n"
         $HuntingRulesTemplate += "      `"query`": `"" + $filecontent.replace("\","\\").replace("`"","\`"").replace("`'","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"Collection`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    }`r`n"}
