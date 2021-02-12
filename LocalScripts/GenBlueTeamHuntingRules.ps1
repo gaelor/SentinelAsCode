@@ -14,9 +14,9 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"author`": `"blueteam`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/" + $file.tostring() + "`",`r`n"
-        $HuntingRulesTemplate += "      `"description`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"description`": `"" + [regex]::Match($filecontent, "// Description: (.*?) //").Groups[1].Value.replace("#","").replace(", ","`",`"") + "`",`r`n"
         $HuntingRulesTemplate += "      `"query`": `"" + $filecontent.replace("\","\\").replace("`"","\`"").replace("`'","").replace("`t","") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"Collection`"`r`n      ]`r`n"
+        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + [regex]::Match($filecontent, "// Tactics: (.*?) //").Groups[1].Value.replace("#","").replace(", ","`",`"") + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    },`r`n"}
     }
     else {
@@ -26,9 +26,9 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "      `"author`": `"blueteam`",`r`n"
         $HuntingRulesTemplate += "      `"displayName`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
         $HuntingRulesTemplate += "      `"reference`": `"https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/" + $file.tostring() + "`",`r`n"
-        $HuntingRulesTemplate += "      `"description`": `"" + $file.tostring().replace(".txt","") + "`",`r`n"
+        $HuntingRulesTemplate += "      `"description`": `"" + [regex]::Match($filecontent, "// Description: (.*?) //").Groups[1].Value.replace("#","").replace(", ","`",`"") + "`",`r`n"
         $HuntingRulesTemplate += "      `"query`": `"" + $filecontent.replace("\","\\").replace("`"","\`"").replace("`'","").replace("`t","") + "`",`r`n"
-        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"Collection`"`r`n      ]`r`n"
+        $HuntingRulesTemplate += "      `"tactics`": [`r`n`        `"" + [regex]::Match($filecontent, "// Tactics: (.*?) //").Groups[1].Value.replace("#","").replace(", ","`",`"") + "`"`r`n      ]`r`n"
         $HuntingRulesTemplate += "    }`r`n"}
     }
 }
