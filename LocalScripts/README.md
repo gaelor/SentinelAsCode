@@ -86,7 +86,7 @@ Generate a MS AnalyticsRules Template with all rules templates available from a 
 
 `.\LocalScripts\GenAnalyticsRules.ps1 -AnalyticsRulesFolder AnalyticsRules -TenantID <String> -SubscriptionID <String> -Workspace <String>`
 
-## Generate MS Huntinrules Template (GenMSHuntingRules.ps1)
+## Generate MS Huntingrules Template (GenMSHuntingRules.ps1)
 
 Generate a MS Huntingrules Template with all rules templates available from MS Sentinel github.
 
@@ -98,7 +98,7 @@ Generate a MS Huntingrules Template with all rules templates available from MS S
 
 `.\LocalScripts\GenMSHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
 
-## Generate Wortell Huntinrules Template (GenWortellHuntingRules.ps1)
+## Generate Wortell Huntingrules Template (GenWortellHuntingRules.ps1)
 
 Generate a Wortell Huntingrules Template with all rules templates available from Wortell KQL github.
 
@@ -109,3 +109,27 @@ Generate a Wortell Huntingrules Template with all rules templates available from
 ### Sample
 
 `.\LocalScripts\GenWortellHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
+
+## Generate RodTrent Huntingrules Template (GenRodTrentlHuntingRules.ps1)
+
+Generate a RodTrent Huntingrules Template with all rules templates available from RodTrent KQL github.
+
+### Syntax
+
+`GenRodTrentHuntingRules.ps1 -HuntingRulesFolder <String>`
+
+### Sample
+
+`.\LocalScripts\GenRodTrentHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
+
+## Generate BlueTeam Huntingrules Template (GenBlueTeamHuntingRules.ps1)
+
+Generate a BlueTeam Huntingrules Template with all rules templates available from BlueTeam KQL github.
+
+### Syntax
+
+`GenBlueTeamHuntingRules.ps1 -HuntingRulesFolder <String>`
+
+### Sample
+
+`.\LocalScripts\GenBlueTeamHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
