@@ -8,7 +8,7 @@ $HuntingRulesTemplate = "{`r`n"
 $HuntingRulesTemplate += "  `"hunting`": [`r`n"
 foreach ($file in $Files){
     if ($file -ne $Files[-1]) {
-        $filecontent = Get-Content -Path tmp\BlueTeam_KQL\$file
+        $filecontent = Get-Content -Path tmp\BlueTeam_KQL\detections\$file
         if ($null -ne $filecontent) {
         $HuntingRulesTemplate += "    {`r`n"
         $HuntingRulesTemplate += "      `"author`": `"blueteam`",`r`n"
@@ -20,7 +20,7 @@ foreach ($file in $Files){
         $HuntingRulesTemplate += "    },`r`n"}
     }
     else {
-        $filecontent = Get-Content -Path tmp\BlueTeam_KQL\$file
+        $filecontent = Get-Content -Path tmp\BlueTeam_KQL\detections\$file
         if ($null -ne $filecontent) {
         $HuntingRulesTemplate += "    {`r`n"
         $HuntingRulesTemplate += "      `"author`": `"blueteam`",`r`n"
