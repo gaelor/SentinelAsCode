@@ -1,10 +1,10 @@
 param(
     [Parameter(Mandatory=$true)]$HuntingRulesFolder
 )
-#git clone https://github.com/BlueTeamLabs/sentinel-attack.git tmp/BlueTeam_KQL
-$Files = Get-ChildItem -Path '.\tmp\BlueTeam_KQL\detections\'  -Filter *.txt -Recurse -File -Name
+#git clone https://github.com/rod-trent/SentinelKQL.git tmp/RodTrent_KQL
+$Files = Get-ChildItem -Path '.\tmp\RodTrent_KQL\'  -Filter *.txt -Recurse -File -Name
 foreach ($file in $Files){
-    $filecontent = Get-Content -Path tmp\BlueTeam_KQL\detections\$file
-    $HuntingRulesTemplate = [regex]::Match($filecontent, "// Description: (.*?) //").Groups[1].Value.replace("#","").replace(", ","`",`"")
+    $filecontent = Get-Content -Path tmp\RodTrent_KQL\$file
+    $HuntingRulesTemplate = [regex]::Match($filecontent, "^//.*  (.*?)\|").Groups[1].Value.trim().replace("//","") | Select-String -pattern " " -NotMatch
     $HuntingRulesTemplate
 }
