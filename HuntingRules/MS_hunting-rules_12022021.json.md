@@ -17,41 +17,6 @@
 
 > Query:
 
-```let auditLookback = 14d;
-let auditLogEvents = view (startTimeSpan:timespan)  {
-AuditLogs | where TimeGenerated >= ago(auditLookback)
-| extend ModProps = TargetResources.[0].modifiedProperties
-| extend IpAddress = iff(isnotempty(tostring(parse_json(tostring(InitiatedBy.user)).ipAddress)), 
-tostring(parse_json(tostring(InitiatedBy.user)).ipAddress), tostring(parse_json(tostring(InitiatedBy.app)).ipAddress))
-| extend InitiatedBy = iff(isnotempty(tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName)), 
-tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName), tostring(parse_json(tostring(InitiatedBy.app)).displayName))
-| extend TargetResourceName = tolower(tostring(TargetResources.[0].displayName))
-| mvexpand ModProps
-| extend PropertyName = tostring(ModProps.displayName), newValue = replace(\","",tostring(ModProps.newValue));
-};
-let HistoricalConsent = auditLogEvents(auditLookback)  
-| where OperationName == "Consent to application"
-| summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated), OperationCount = count() 
-by Type, InitiatedBy, IpAddress, TargetResourceName, Category, OperationName, PropertyName, newValue, CorrelationId, Id;
-let Correlate = HistoricalConsent 
-| summarize by InitiatedBy, CorrelationId;
-let allOtherEvents = auditLogEvents(auditLookback) 
-| where OperationName != "Consent to application";
-let CorrelatedEvents = Correlate 
-| join allOtherEvents on InitiatedBy, CorrelationId
-| summarize StartTimeUtc = min(TimeGenerated), EndTimeUtc = max(TimeGenerated) 
-by Type, InitiatedBy, IpAddress, TargetResourceName, Category, OperationName, PropertyName, newValue, CorrelationId, Id;
-let Results = union isfuzzy=true HistoricalConsent,CorrelatedEvents;
-Results
-| extend newValue = split(newValue, ";")
-| extend PropertyUpdate = pack(PropertyName, newValue, "Id", Id)
-| extend perms = tostring(parse_json(tostring(PropertyUpdate.["ConsentAction.Permissions"]))[0])
-| extend scope = extract(Scope:\\s*([^,\\]]*),1, perms)
-| where scope !contains openid and scope !in (user_impersonation,User.Read)
-| summarize StartTimeUtc = min(StartTimeUtc), EndTimeUtc = max(EndTimeUtc), PropertyUpdateSet = make_bag(PropertyUpdate) , make_set(scope)
-  by InitiatedBy, IpAddress, TargetResourceName, OperationName, CorrelationId
-| extend timestamp = StartTimeUtc, AccountCustomEntity = InitiatedBy, HostCustomEntity = TargetResourceName, IPCustomEntity = IpAddress
-| summarize make_set(InitiatedBy), make_set(IpAddress), make_set(PropertyUpdateSet) by TargetResourceName, tostring(set_scope)```
 ## Rare Audit activity initiated by App
 ### Hunt Tags
 
