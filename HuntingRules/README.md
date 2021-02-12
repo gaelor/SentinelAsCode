@@ -17,7 +17,10 @@
 
 > Query:
 
-```SecurityEvent | where EventID == "4687" | where CommandLine contains "-noni -ep bypass $"```
+```t
+```SecurityEvent | where EventID == "4687" | where CommandLine contains "-noni -ep bypass $"
+```
+
 ## HuntingRule02
 ### Hunt Tags
 
@@ -35,4 +38,7 @@
 
 > Query:
 
-```SecurityEvent | where EventID == "4688" | where CommandLine contains "-noni -ep bypass $"```
+```t
+```SecurityEvent | where EventID == "4688" | where CommandLine contains "-noni -ep bypass $"
+```
+
