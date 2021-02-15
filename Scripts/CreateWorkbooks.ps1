@@ -29,16 +29,18 @@ $armTemplateFiles = Get-ChildItem -Recurse -Path $WorkbooksFolder -Filter *.json
 foreach ($armTemplate in $armTemplateFiles) {
     $workbookFileName = Split-Path $armTemplate -leaf
     $workbookDisplayName = $workbookFileName.replace('.json', '')
-    try {
-        Write-Host "Deploying : $workbookDisplayName of type $workbookType in the resource group : $($workspaces.deployments[0].resourcegroup)"
-        New-AzResourceGroupDeployment -Name $(("$workbookDisplayName - $($workspaces.deployments[0].workspace)").replace(' ', '')) -ResourceGroupName $($workspaces.deployments[0].resourcegroup) `
-        -TemplateFile $armTemplate `
-        -Workspace $item.workspace `
-        -workbookDisplayName $workbookDisplayName `
-        -workbookType $workbookType `
-    }
-    catch {
-        $ErrorMessage = $_.Exception.Message
-        Write-Error "Workbook deployment failed with message: $($ErrorMessage)"
+    foreach ($item in $workspaces.deployments){
+        try {
+            Write-Host "Deploying : $workbookDisplayName of type $workbookType in the resource group : $($item.resourcegroup)"
+            New-AzResourceGroupDeployment -Name $(("$workbookDisplayName - $($item.workspace)").replace(' ', '')) -ResourceGroupName $($item.resourcegroup) `
+            -TemplateFile $armTemplate `
+            -Workspace $item.workspace `
+            -workbookDisplayName $workbookDisplayName `
+            -workbookType $workbookType `
+        }
+        catch {
+            $ErrorMessage = $_.Exception.Message
+            Write-Error "Workbook deployment failed with message: $($ErrorMessage)"
+        }
     }
 }
