@@ -5,14 +5,14 @@ param(
     [Parameter(Mandatory=$true)]$Azure_Pwd
 )
 
-#Continue if workbook exist
-$ErrorActionPreference = 'SilentlyContinue'
+# Variables
+$workbookType = "sentinel"
 
 #Adding AzSentinel module
-Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
-Import-Module AzSentinel
-Install-Module Az.Resources -AllowClobber -Scope CurrentUser -Force
-Import-Module Az.Resources
+#Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
+#Import-Module AzSentinel
+#Install-Module Az.Resources -AllowClobber -Scope CurrentUser -Force
+#Import-Module Az.Resources
 
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
@@ -25,23 +25,20 @@ Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscripti
 
 Write-Host "Folder is: $($WorkbooksFolder)"
 
-foreach ($item in $workspaces.deployments){
-    Write-Host "Processing resourcegroup $($item.resourcegroup) ..."
-
-    #Getting all playbooks from folder
-    $armTemplateFiles = Get-ChildItem -Path $WorkbooksFolder -Filter *.json
-
-    Write-Host "Files are: " $armTemplateFiles
-
-    $workbookSourceId = "/subscriptions/$($workspaces.subscription)/resourcegroups/$($item.resourcegroup)/providers/microsoft.operationalinsights/workspaces/$($item.workspace)"
-
-    foreach ($armTemplate in $armTemplateFiles) {
-        try {
-            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -WorkbookSourceId $workbookSourceId
-        }
-        catch {
-            $ErrorMessage = $_.Exception.Message
-            Write-Error "Workbook deployment failed with message: $ErrorMessage" 
-        }
+$armTemplateFiles = Get-ChildItem -Recurse -Path $WorkbooksFolder -Filter *.json
+foreach ($armTemplate in $armTemplateFiles) {
+    $workbookFileName = Split-Path $armTemplate -leaf
+    $workbookDisplayName = $workbookFileName.replace('.json', '')
+    try {
+        Write-Host "Deploying : $workbookDisplayName of type $workbookType in the resource group : $($workspaces.deployments[0].resourcegroup)"
+        New-AzResourceGroupDeployment -Name $(("$workbookDisplayName - $($workspaces.deployments[0].workspace)").replace(' ', '')) -ResourceGroupName $($workspaces.deployments[0].resourcegroup) `
+        -TemplateFile $armTemplate `
+        -Workspace $item.workspace `
+        -workbookDisplayName $workbookDisplayName `
+        -workbookType $workbookType `
+    }
+    catch {
+        $ErrorMessage = $_.Exception.Message
+        Write-Error "Workbook deployment failed with message: $($ErrorMessage)"
     }
 }

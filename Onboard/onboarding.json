@@ -1,13 +1,13 @@
-{   "tenant": "<tenantid>",
-    "subscription": "<subscriptionid>",
+{   "tenant": "a63c8ef2-c3d2-4df0-be32-e15159f96f69",
+    "subscription": "c3a3408b-632a-4df4-9c92-deded42a7e48",
     "deployments": [
         {
-            "resourcegroup": "<resourcegroup1>",
-            "workspace": "<workspace1>"
+            "resourcegroup": "sentinelascode-rg",
+            "workspace": "qualif-wks"
         },
         {
-            "resourcegroup": "<resourcegroup2>",
-            "workspace": "<workspace2>"
+            "resourcegroup": "accorinvest",
+            "workspace": "AccorInvest"
         }
     ]
 }

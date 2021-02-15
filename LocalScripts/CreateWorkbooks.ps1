@@ -3,12 +3,14 @@ param(
     [Parameter(Mandatory=$true)]$WorkbooksFolder
 )
 
+# Variables
+$workbookType = "sentinel"
+
 #Adding AzSentinel module
 Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
 Import-Module AzSentinel
 Install-Module Az.Resources -AllowClobber -Scope CurrentUser -Force
 Import-Module Az.Resources
-Clear-AzContext
 
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
@@ -17,23 +19,22 @@ Connect-AzAccount -Tenant $workspaces.tenant -Subscription $workspaces.subscript
 
 Write-Host "Folder is: $($WorkbooksFolder)"
 
-foreach ($item in $workspaces.deployments){
-    Write-Host "Processing resourcegroup $($item.resourcegroup) ..."
-
-    #Getting all playbooks from folder
-    $armTemplateFiles = Get-ChildItem -Path $WorkbooksFolder -Filter *.json
-
-    Write-Host "Files are: " $armTemplateFiles
-
-    $workbookSourceId = "/subscriptions/$($workspaces.subscription)/resourcegroups/$($item.resourcegroup)/providers/microsoft.operationalinsights/workspaces/$($item.workspace)"
-
-    foreach ($armTemplate in $armTemplateFiles) {
+$armTemplateFiles = Get-ChildItem -Recurse -Path $WorkbooksFolder -Filter *.json
+foreach ($armTemplate in $armTemplateFiles) {
+    $workbookFileName = Split-Path $armTemplate -leaf
+    $workbookDisplayName = $workbookFileName.replace('.json', '')
+    foreach ($item in $workspaces.deployments){
         try {
-            New-AzResourceGroupDeployment -ResourceGroupName $item.resourcegroup -TemplateFile $armTemplate -WorkbookSourceId $workbookSourceId
+            Write-Host "Deploying : $workbookDisplayName of type $workbookType in the resource group : $($item.resourcegroup)"
+            New-AzResourceGroupDeployment -Name $(("$workbookDisplayName - $($item.workspace)").replace(' ', '')) -ResourceGroupName $($item.resourcegroup) `
+            -TemplateFile $armTemplate `
+            -Workspace $item.workspace `
+            -workbookDisplayName $workbookDisplayName `
+            -workbookType $workbookType `
         }
         catch {
             $ErrorMessage = $_.Exception.Message
-            Write-Error "Workbook deployment failed with message: $ErrorMessage" 
+            Write-Error "Workbook deployment failed with message: $($ErrorMessage)"
         }
     }
 }
