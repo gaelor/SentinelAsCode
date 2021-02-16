@@ -57,6 +57,14 @@
         "Virustotal_Key": {
             "defaultValue": "<virustotal_key>",
             "type": "string"
+        },
+        "description": {
+            "defaultValue": "This playbook will block app execution on the machine in Microsoft Defender ATP.",
+            "type": "string"
+        },
+        "author": {
+            "defaultValue": "thomas couilleaux",
+            "type": "string"
         }
     },
     "variables": {},

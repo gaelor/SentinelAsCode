@@ -20,3 +20,4 @@ for key,workbook in myjson.items():
         print('```t')
         print(workbook[0]["properties"]["serializedData"].encode('utf-8'))
         print('```\n')
+        print('<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2F' + filename + '%2F' + filename + '.json" target="_blank">\n<img src="https://aka.ms/deploytoazurebutton""/>\n</a>')

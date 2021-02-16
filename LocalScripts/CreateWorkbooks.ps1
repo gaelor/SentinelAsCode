@@ -19,7 +19,7 @@ Connect-AzAccount -Tenant $workspaces.tenant -Subscription $workspaces.subscript
 
 Write-Host "Folder is: $($WorkbooksFolder)"
 
-$armTemplateFiles = Get-ChildItem -Recurse -Path $WorkbooksFolder -Filter *.json
+$armTemplateFiles = Get-ChildItem -Path $WorkbooksFolder -Filter *.json
 foreach ($armTemplate in $armTemplateFiles) {
     $workbookFileName = Split-Path $armTemplate -leaf
     $workbookDisplayName = $workbookFileName.replace('.json', '')

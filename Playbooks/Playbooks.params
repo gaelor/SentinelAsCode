@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "Azure_ServiceAccount": {
-            "value": "<azure_serviceaccount>"
+            "value": "thomas.couilleaux@theclemvp.com"
         },
         "AzureSentinelConnectionName": {
             "value": "azuresentinel"
@@ -12,10 +12,10 @@
             "value": "wdatp"
         },
         "integrationAccount": {
-            "value": "<integrationAccount>"
+            "value": "AccorInvest"
         },
         "integrationAccount_resourceGroup": {
-            "value": "<integrationAccount_resourceGroup>"
+            "value": "AccorInvest"
         },
         "CA_LocationName": {
             "value": "<ca_locationname>"

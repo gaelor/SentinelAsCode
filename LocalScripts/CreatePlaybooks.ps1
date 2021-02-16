@@ -22,8 +22,8 @@ Write-Host "Playbooks Parameter Files is: $($PlaybooksParams)"
 Write-Host "Processing resourcegroup $($workspaces.deployments[0].resourcegroup)"
 
 #Getting all playbooks from folder
-$armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter *.json
-Write-Host "Files are: " $armTemplateFiles
+$armTemplateFiles = Get-ChildItem -Path $PlaybooksFolder -Filter *.json
+
 foreach ($armTemplate in $armTemplateFiles) {
     $playbookFileName = Split-Path $armTemplate -leaf
     $playbookDisplayName = $playbookFileName.replace('.json', '')
