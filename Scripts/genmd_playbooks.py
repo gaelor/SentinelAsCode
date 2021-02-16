@@ -15,8 +15,8 @@ for key,playbook in myjson.items():
         print('> Reference: [Link to medium post](https://github.com/Azure/Azure-Sentinel/tree/master/' + sys.argv[1] + ')\n')
         print('### Playbook Requirements\n')
         for param_name, param_value in playbook.items():
-            if param_name != 'description' and param_name != 'author':
-                print('> ' + param_name + '\n')
+            if param_name != 'description' and param_name != 'author' and param_name != 'PlaybookName' and param_name != 'playbookDisplayName':
+                print('> ' + param_name + ':\n')
                 print(param_value['metadata']['description'] + '\n')
     if key == "variables":
         for var_name, var_value in playbook.items():
