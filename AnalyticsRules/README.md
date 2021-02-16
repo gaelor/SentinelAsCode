@@ -4,17 +4,11 @@
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-12T00:00:00Z
 
 > createdDateUTC: 2020-12-11T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will alert when an user or application modifies the federation settings on the domain. For example, this alert will trigger when a new Active Directory Federated Service (ADFS) TrustedRealm object, such as a signing certificate, is added to the domain.
 Modification to domain federation settings should be rare. Confirm the added or modified target domain/URL is legitimate administrator behavior.
@@ -26,17 +20,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-06-29T00:00:00Z
 
 > createdDateUTC: 2020-06-26T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will alert when a user consents to provide a previously-unknown Azure application with the same OAuth permissions used by the MDSec O365 Attack Toolkit (https://github.com/mdsecactivebreach/o365-attack-toolkit).
 The default permissions/scope for the MDSec O365 Attack toolkit are contacts.read, user.read, mail.read, notes.read.all, mailboxsettings.readwrite, and files.readwrite.all.
@@ -47,17 +35,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-10-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Matches domain name IOCs related to Phosphorus group activity with CommonSecurityLog, DnsEvents, OfficeActivity and VMConnection dataTypes.
 References: https://blogs.microsoft.com/on-the-issues/2019/03/27/new-steps-to-protect-customers-from-hacking/.
@@ -66,17 +48,11 @@ References: https://blogs.microsoft.com/on-the-issues/2019/03/27/new-steps-to-pr
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-12-16T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: IRIDIUM command and control IP. Identifies a match across various data feeds for IP IOCs related to the IRIDIUM activity group.
 
@@ -84,17 +60,11 @@ References: https://blogs.microsoft.com/on-the-issues/2019/03/27/new-steps-to-pr
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-01-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: THALLIUM spearphishing and command and control domains included in December 2019 DCU/MSTIC takedown. 
  Matches domain name IOCs related to the THALLIUM activity group with CommonSecurityLog, DnsEvents, VMConnection and SecurityEvents dataTypes.
@@ -104,17 +74,11 @@ References: https://blogs.microsoft.com/on-the-issues/2019/03/27/new-steps-to-pr
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-19T00:00:00Z
 
 > createdDateUTC: 2020-10-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Matches IOCs related to PHOSPHORUS group activity published October 2020 with CommonSecurityLog, DnsEvents, OfficeActivity and VMConnection dataTypes.
 References: 
@@ -123,17 +87,11 @@ References:
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-10-02T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Matches IP plus UserAgent IOCs in OfficeActivity data, along with IP plus Connection string information in the CommonSecurityLog data related to Manganese group activity.
 References: 
@@ -144,17 +102,11 @@ https://fortiguard.com/psirt/FG-IR-18-384
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-12-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: GALLIUM command and control domains and hash values for tools and malware used by GALLIUM. 
  Matches domain name IOCs related to the GALLIUM activity group with CommonSecurityLog, DnsEvents, VMConnection and SecurityEvents dataTypes.
@@ -164,17 +116,11 @@ https://fortiguard.com/psirt/FG-IR-18-384
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-07-25T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Matches domain name IOCs related to Strontium group activity published July 2019 with CommonSecurityLog, DnsEvents and VMConnection dataTypes.
 References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreats-require-new-ways-to-protect-democracy/.
@@ -183,17 +129,11 @@ References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreat
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-10-30T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: CERIUM malicious webserver and hash values for maldocs and malware. 
  Matches domain name IOCs related to the CERIUM activity group with CommonSecurityLog, DnsEvents, and VMConnection dataTypes.
@@ -202,17 +142,11 @@ References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreat
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-10-30T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Document hash used by ZINC in highly targeted spear phishing campaign.
 
@@ -220,37 +154,13 @@ References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreat
 
 ### Informations
 
-> productFilter: 
-
-> lastUpdatedDateUTC: 
-
-> createdDateUTC: 
-
 ### Details
-
-> Requirements:
-
-> Requirements: 
-
-> Description: 
 
 ## Advanced Multistage Attack Detection
 
 ### Informations
 
-> productFilter: 
-
-> lastUpdatedDateUTC: 
-
-> createdDateUTC: 
-
 ### Details
-
-> Requirements:
-
-> Requirements: 
-
-> Description: 
 
 ## Create incidents based on Office 365 Advanced Threat Protection alerts
 
@@ -263,10 +173,6 @@ References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreat
 > createdDateUTC: 2020-04-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Create incidents based on all alerts generated in Office 365 Advanced Threat Protection
 
@@ -282,10 +188,6 @@ References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreat
 
 ### Details
 
-> Requirements:
-
-> Requirements: 
-
 > Description: Create incidents based on all alerts generated in Azure Active Directory Identity Protection
 
 ## Create incidents based on Microsoft Defender Advanced Threat Protection alerts
@@ -299,10 +201,6 @@ References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreat
 > createdDateUTC: 2019-10-24T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Create incidents based on all alerts generated in Microsoft Defender Advanced Threat Protection
 
@@ -318,10 +216,6 @@ References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreat
 
 ### Details
 
-> Requirements:
-
-> Requirements: 
-
 > Description: Create incidents based on all alerts generated in Azure Security Center
 
 ## Create incidents based on Microsoft Cloud App Security alerts
@@ -336,10 +230,6 @@ References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreat
 
 ### Details
 
-> Requirements:
-
-> Requirements: 
-
 > Description: Create incidents based on all alerts generated in Microsoft Cloud App Security
 
 ## Create incidents based on Azure Advanced Threat Protection alerts
@@ -353,10 +243,6 @@ References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreat
 > createdDateUTC: 2019-07-16T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Create incidents based on all alerts generated in Azure Advanced Threat Protection
 

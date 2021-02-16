@@ -4,17 +4,11 @@
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-07-16T00:00:00Z
 
 > createdDateUTC: 2019-08-05T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This detection uses machine learning (ML) to identify anomalous Secure Shell (SSH) login activity, based on syslog data. Scenarios include:
 
@@ -30,17 +24,11 @@ This detection requires a specific configuration of the data source. [Learn more
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-07-16T00:00:00Z
 
 > createdDateUTC: 2020-04-02T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This detection uses machine learning (ML) to identify anomalous Remote Desktop Protocol (RDP) login activity, based on Windows Security Event data. Scenarios include:
 
@@ -56,17 +44,11 @@ This detection requires a specific configuration of the data source. [Learn more
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-04T00:00:00Z
 
 > createdDateUTC: 2020-12-04T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will show Active Directory Security Token Service (STS) refresh token modifications by Service Principals and Applications other than DirectorySync. Refresh tokens are used to validate identification and obtain access tokens.
 This event is most often generated when legitimate administrators troubleshoot frequent AAD user sign-ins but may also be generated as a result of malicious token extensions. Confirm that the activity is related to an administrator legitimately modifying STS refresh tokens and check the new token validation time period for high values.
@@ -77,17 +59,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in DnsEvents from any IP IOC from TI
 
@@ -95,17 +71,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Multi-Factor Authentication (MFA) helps you to prevent credential compromise. This alert identifies logins to the AWS Management Console without MFA.
 You can limit this detection to trigger for adminsitrative accounts if you do not have MFA enabled on all accounts.
@@ -116,17 +86,11 @@ and the ResponseElements field indicates NOT a Failure. Thereby indicating that 
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-07-08T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query searches for numerous login attempts to the management console with an unknown or invalid user name
 
@@ -134,17 +98,11 @@ and the ResponseElements field indicates NOT a Failure. Thereby indicating that 
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-03-19T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when 100 or more failed attempts by a given user in 10 minutes occur on the IIS Server.
 This could be indicative of attempted brute force based on known account information.
@@ -157,17 +115,11 @@ Win32 Status code mapping - https://msdn.microsoft.com/library/cc231199.aspx
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-04-02T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies evidence of brute force activity against Azure Portal by highlighting multiple authentication failures 
 and by a successful authentication within a given time window. 
@@ -179,17 +131,11 @@ References: https://docs.microsoft.com/azure/active-directory/reports-monitoring
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-01-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies whenever a new account is created with a default password and password is not changed within 24-48 hours.
 Simple version, can be more precise with Windowing, but not necessary if run as an alert on a daily basis.
@@ -199,17 +145,11 @@ Effectively, there is an event 4722 indicating a user enabled and no event 4723 
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies the creation of large size/expensive VMs (GPU or with large no of virtual CPUs) in Azure.
 Adversary may create new or update existing virtual machines sizes to evade defenses 
@@ -221,17 +161,11 @@ Azure VM Naming Conventions - https://docs.microsoft.com/azure/virtual-machines/
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in OfficeActivity from any IP IOC from TI
 
@@ -239,17 +173,11 @@ Azure VM Naming Conventions - https://docs.microsoft.com/azure/virtual-machines/
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in CommonSecurityLog table from any Email IOC from TI
 
@@ -257,17 +185,11 @@ Azure VM Naming Conventions - https://docs.microsoft.com/azure/virtual-machines/
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-22T00:00:00Z
 
 > createdDateUTC: 2020-12-17T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies an export of the ADFS DKM Master Key from Active Directory.
  References: https://blogs.microsoft.com/on-the-issues/2020/12/13/customers-protect-nation-state-cyberattacks/, 
@@ -277,17 +199,11 @@ Azure VM Naming Conventions - https://docs.microsoft.com/azure/virtual-machines/
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-12-16T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Multi-Factor Authentication (MFA) helps prevent credential compromise. This alert identifies when an attempt has been made to diable MFA for a user 
 
@@ -295,17 +211,11 @@ Azure VM Naming Conventions - https://docs.microsoft.com/azure/virtual-machines/
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-07-12T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Checks for Squid proxy events in Syslog associated with common mining pools .This query presumes the default Squid log format is being used. 
  http://www.squid-cache.org/Doc/config/access_log/
@@ -314,17 +224,11 @@ Azure VM Naming Conventions - https://docs.microsoft.com/azure/virtual-machines/
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This Creates an incident when a host has a high number of Urgent, severity 5, vulnerabilities detected.
 
@@ -332,17 +236,11 @@ Azure VM Naming Conventions - https://docs.microsoft.com/azure/virtual-machines/
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-03-26T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies evidence of password spray activity against Azure AD applications by looking for failures from multiple accounts from the same
 IP address within a time window. If the number of accounts breaches the threshold just once, all failures from the IP address within the time range
@@ -356,17 +254,11 @@ References: https://docs.microsoft.com/azure/active-directory/reports-monitoring
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-07-04T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will alert when the "Consent to application" operation occurs by a user that has not done this operation before or rarely does this.
 This could indicate that permissions to access the listed Azure App were provided to a malicious actor. 
@@ -378,17 +270,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies an IP address that had 15 failed attempts to sign in via SSH in a 4 hour block during a 24 hour time period.
 
@@ -396,17 +282,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Amazon Virtual Private Cloud (Amazon VPC) lets you provision a logically isolated section of the AWS Cloud where you can launch AWS resources
 in a virtual network that you define.
@@ -418,17 +298,11 @@ and AWS VPC API Docs: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/Ope
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in Palo Alto data in CommonSecurityLog table from any Domain IOC from TI
 
@@ -436,17 +310,11 @@ and AWS VPC API Docs: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/Ope
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in Syslog table from any Domain IOC from TI
 
@@ -454,17 +322,11 @@ and AWS VPC API Docs: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/Ope
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Creates an incident in the event a Client has an excessive amounts of denied access requests.
 
@@ -472,17 +334,11 @@ and AWS VPC API Docs: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/Ope
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-11T00:00:00Z
 
 > createdDateUTC: 2019-05-07T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies anomalous data transfer to public networks. The query leverages built-in KQL anomaly detection algorithms that detects large deviations from a baseline pattern.
 A sudden increase in data transferred to unknown public networks is an indication of data exfiltration attempts and should be investigated.
@@ -495,17 +351,11 @@ You may have to run queries for individual source IP addresses from SourceIPlist
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in WireData from any IP IOC from TI
 
@@ -513,17 +363,11 @@ You may have to run queries for individual source IP addresses from SourceIPlist
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-07-01T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when sensitive Azure Key Vault operations are used. This includes: VaultDelete, KeyDelete, KeyDecrypt, SecretDelete, SecretPurge, KeyPurge, SecretBackup, KeyBackup. 
 Any Backup operations should match with expected scheduled backup activity.
@@ -532,17 +376,11 @@ Any Backup operations should match with expected scheduled backup activity.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-05T00:00:00Z
 
 > createdDateUTC: 2020-09-10T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Surfaces potential STRONTIUM group Office365 credential harvesting attempts within OfficeActivity Logon events.
 References: https://www.microsoft.com/security/blog/2020/09/10/strontium-detecting-new-patters-credential-harvesting/.
@@ -551,17 +389,11 @@ References: https://www.microsoft.com/security/blog/2020/09/10/strontium-detecti
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-07-08T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This alert creates an incident when a source IP addresses attempt to communicate with a large amount of distinct ports within a short period.
 
@@ -569,17 +401,11 @@ References: https://www.microsoft.com/security/blog/2020/09/10/strontium-detecti
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-14T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when a user account is enabled and then disabled within 10 minutes. This can be an indication of compromise and
 an adversary attempting to hide in the noise.
@@ -588,17 +414,11 @@ an adversary attempting to hide in the noise.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Attackers often try to hide their steps by deleting or stopping the collection of logs that could show their activity. 
 This alert identifies any manipulation of AWS CloudTrail, Cloudwatch/EventBridge or VPC Flow logs.
@@ -610,17 +430,11 @@ AWS DelteteFlowLogs API : https://docs.aws.amazon.com/AWSEC2/latest/APIReference
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-20T00:00:00Z
 
 > createdDateUTC: 2020-11-30T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will alert when an admin or app owner account adds a new credential to an Application or Service Principal where there was no previous verify KeyCredential associated.
 If a threat actor obtains access to an account with sufficient privileges and adds the alternate authentication material triggering this event, the threat actor can now authenticate as the Application or Service Principal using this credential.
@@ -631,17 +445,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-03-02T00:00:00Z
 
 > createdDateUTC: 2020-02-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when executable file types are uploaded to Office services such as SharePoint and OneDrive.
 List currently includes 'exe', 'inf', 'gzip', 'cmd', 'bat' file extensions.
@@ -652,17 +460,11 @@ This may be indication of a staging location for malware or other malicious acti
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-22T00:00:00Z
 
 > createdDateUTC: 2020-12-19T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This detection uses Sysmon telemetry to detect potential ADFS certificate material export. 
 In order to use this query you need to be collecting Sysmon EventIdD 17 and 18.
@@ -673,17 +475,11 @@ Failed to resolve scalar expression named "[@Name]
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in SigninLogs table from any Email IOC from TI
 
@@ -691,17 +487,11 @@ Failed to resolve scalar expression named "[@Name]
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2018-09-14T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies malware that has been hidden in the recycle bin.
 References: https://azure.microsoft.com/blog/how-azure-security-center-helps-reveal-a-cyberattack/.
@@ -710,17 +500,11 @@ References: https://azure.microsoft.com/blog/how-azure-security-center-helps-rev
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query identifies a message containing a malware attachment that was delivered.
 
@@ -728,17 +512,11 @@ References: https://azure.microsoft.com/blog/how-azure-security-center-helps-rev
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in W3CIISLog from any IP IOC from TI
 
@@ -746,17 +524,11 @@ References: https://azure.microsoft.com/blog/how-azure-security-center-helps-rev
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when a recently created Group was added to a privileged built in domain local group or global group such as the 
 Enterprise Admins, Cert Publishers or DnsAdmins.  Be sure to verify this is an expected addition.
@@ -766,17 +538,11 @@ References: For AD SID mappings - https://docs.microsoft.com/windows/security/id
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-22T00:00:00Z
 
 > createdDateUTC: 2020-12-17T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match across various data feeds for domains IOCs related to the Solorigate incident.
  References: https://blogs.microsoft.com/on-the-issues/2020/12/13/customers-protect-nation-state-cyberattacks/, 
@@ -786,17 +552,11 @@ References: For AD SID mappings - https://docs.microsoft.com/windows/security/id
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in OfficeActivity table from any Email IOC from TI
 
@@ -804,17 +564,11 @@ References: For AD SID mappings - https://docs.microsoft.com/windows/security/id
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-06-29T00:00:00Z
 
 > createdDateUTC: 2020-06-26T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will alert when a user consents to provide a previously-unknown Azure application with the same OAuth permissions used by the MDSec O365 Attack Toolkit (https://github.com/mdsecactivebreach/o365-attack-toolkit).
 The default permissions/scope for the MDSec O365 Attack toolkit are contacts.read, user.read, mail.read, notes.read.all, mailboxsettings.readwrite, and files.readwrite.all.
@@ -825,17 +579,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-01-14T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when an RDP connection is new or rare related to any logon type by a given account today based on comparison with the previous 14 days.
 RDP connections are indicated by the EventID 4624 with LogonType = 10
@@ -844,17 +592,11 @@ RDP connections are indicated by the EventID 4624 with LogonType = 10
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Looks for SSH endpoints with a history of sign-ins only from private IP addresses are accessed from a public IP address.
 
@@ -862,17 +604,11 @@ RDP connections are indicated by the EventID 4624 with LogonType = 10
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-12T00:00:00Z
 
 > createdDateUTC: 2020-12-11T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will alert when an user or application modifies the federation settings on the domain. For example, this alert will trigger when a new Active Directory Federated Service (ADFS) TrustedRealm object, such as a signing certificate, is added to the domain.
 Modification to domain federation settings should be rare. Confirm the added or modified target domain/URL is legitimate administrator behavior.
@@ -884,17 +620,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in DnsEvent table from any Domain IOC from TI
 
@@ -902,17 +632,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This creates an incident in the event a client generates excessive amounts of DNS queries for non-existent domains.
 
@@ -920,17 +644,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-05-07T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies beaconing patterns from Palo Alto Network traffic logs based on recurrent timedelta patterns. 
 The query leverages various KQL functions to calculate time deltas and then compares it with total events observed in a day to find percentage of beaconing. 
@@ -942,17 +660,11 @@ http://www.austintaylor.io/detect/beaconing/intrusion/detection/system/command/c
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-07-09T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Escalates threats detected by Eset.
 
@@ -960,17 +672,11 @@ http://www.austintaylor.io/detect/beaconing/intrusion/detection/system/command/c
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in Syslog data from any URL IOC from TI
 
@@ -978,17 +684,11 @@ http://www.austintaylor.io/detect/beaconing/intrusion/detection/system/command/c
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-12-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: GALLIUM command and control domains and hash values for tools and malware used by GALLIUM. 
  Matches domain name IOCs related to the GALLIUM activity group with CommonSecurityLog, DnsEvents, VMConnection and SecurityEvents dataTypes.
@@ -998,17 +698,11 @@ http://www.austintaylor.io/detect/beaconing/intrusion/detection/system/command/c
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-19T00:00:00Z
 
 > createdDateUTC: 2020-12-19T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query look for applications that have been granted permissions to Read Mail (Permissions field has Mail.Read) and subsequently has been consented to. This can help identify applications that have been abused to gain access to mailboxes.
 
@@ -1016,17 +710,11 @@ http://www.austintaylor.io/detect/beaconing/intrusion/detection/system/command/c
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-07-08T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Correlates blocked URLs hosting [malicious] executables with host endpoint data
 to identify potential instances of executables of the same name having been recently run.
@@ -1035,17 +723,11 @@ to identify potential instances of executables of the same name having been rece
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-05T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when a rare Resource and ResourceGroup deployment occurs by a previously unseen Caller.
 
@@ -1053,17 +735,11 @@ to identify potential instances of executables of the same name having been rece
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-22T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when a user account was created and then added to the builtin Administrators group in the same day.
 This should be monitored closely and all additions reviewed.
@@ -1072,17 +748,11 @@ This should be monitored closely and all additions reviewed.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in CommonSecurityLog table from any Domain IOC from TI
 
@@ -1090,17 +760,11 @@ This should be monitored closely and all additions reviewed.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-23T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies if the number of documents uploaded or downloaded from device(s) associated
 with a previously unseen user agent exceeds a threshold (default is 5).
@@ -1109,17 +773,11 @@ with a previously unseen user agent exceeds a threshold (default is 5).
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-06-20T00:00:00Z
 
 > createdDateUTC: 2020-06-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This creates an incident when a new high severity vulnerability is detected across multilple hosts
 
@@ -1127,17 +785,11 @@ with a previously unseen user agent exceeds a threshold (default is 5).
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-12-16T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: IRIDIUM command and control IP. Identifies a match across various data feeds for IP IOCs related to the IRIDIUM activity group.
 
@@ -1145,17 +797,11 @@ with a previously unseen user agent exceeds a threshold (default is 5).
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-07-08T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Correlate IPs blocked by a Cisco firewall appliance with successful Azure Active Directory signins. 
 Because the IP was blocked by the firewall, that same IP logging on successfully to AAD is potentially suspect
@@ -1165,17 +811,11 @@ and could indicate credential compromise for the user account.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-10-02T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Matches IP plus UserAgent IOCs in OfficeActivity data, along with IP plus Connection string information in the CommonSecurityLog data related to Manganese group activity.
 References: 
@@ -1186,17 +826,11 @@ https://fortiguard.com/psirt/FG-IR-18-384
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-19T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when a user account successfully logs onto an Azure App from one IP and within 10 mins failed to logon to the same App via a different IP.
 This may indicate a malicious attempt at password guessing based on knowledge of the users account.
@@ -1205,17 +839,11 @@ This may indicate a malicious attempt at password guessing based on knowledge of
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-07-12T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Check for Squid proxy events associated with common ToR proxies. This query presumes the default squid log format is being used.
 http://www.squid-cache.org/Doc/config/access_log/
@@ -1224,17 +852,11 @@ http://www.squid-cache.org/Doc/config/access_log/
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-10T00:00:00Z
 
 > createdDateUTC: 2020-12-10T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies anomalous increases in Exchange mail items accessed operations. 
 The query leverages KQL built-in anomaly detection algorithms to find large deviations from baseline patterns. 
@@ -1246,17 +868,11 @@ Read more about MailItemsAccessed- https://docs.microsoft.com/microsoft-365/
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Amazon Relational Database Service (RDS) is scalable relational database in the cloud. 
 If your organization have one or more AWS RDS Databases running, monitoring changes to especially internet facing AWS RDS (Relational Database Service) 
@@ -1268,17 +884,11 @@ and RDS API Reference Docs: https://docs.aws.amazon.com/AmazonRDS/latest/APIRefe
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in Security Event data from any File Hash IOC from TI
 
@@ -1286,17 +896,11 @@ and RDS API Reference Docs: https://docs.aws.amazon.com/AmazonRDS/latest/APIRefe
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-14T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies failed logon attempts from unknown users in Syslog authpriv logs. The unknown user means the account that tried to log in 
 isn't provisioned on the machine. A few hits could indicate someone attempting to access a machine they aren't authorized to access. 
@@ -1307,17 +911,11 @@ Default threshold for logon attempts is 15.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-10-14T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: User explicitly denies MFA push, indicating that login was not expected and the account's password may be compromised.
 
@@ -1325,17 +923,11 @@ Default threshold for logon attempts is 15.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-05T00:00:00Z
 
 > createdDateUTC: 2020-09-10T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Surfaces potential STRONTIUM group Office365 credential harvesting attempts within OfficeActivity Logon events.
 
@@ -1343,17 +935,11 @@ Default threshold for logon attempts is 15.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a list of IP addresses with a minimum number (default of 5) of failed logon attempts to Azure Active Directory.
 Uses that list to identify any successful remote logons to hosts from these IPs within the same timeframe.
@@ -1362,17 +948,11 @@ Uses that list to identify any successful remote logons to hosts from these IPs 
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-01-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies whenever a user account has the setting "Password Never Expires" in the user account properties selected.
 This is indicated in Security event 4738 in the EventData item labeled UserAccountControl with an included value of %%2089 
@@ -1382,17 +962,11 @@ This is indicated in Security event 4738 in the EventData item labeled UserAccou
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This creates an incident in the event a critical threat was identified on a Carbon Black managed endpoint.
 
@@ -1400,17 +974,11 @@ This is indicated in Security event 4738 in the EventData item labeled UserAccou
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-03-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies contacts with domains names in CommonSecurityLog that might have been generated by a Domain Generation Algorithm (DGA). DGAs can be used
 by malware to generate rendezvous points that are difficult to predict in advance. This detection uses the Alexa Top 1 million domain names to build a model
@@ -1422,17 +990,11 @@ The start time and end time look back over 6 hours of data and the dgaLengthThre
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-10-21T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when an RDP connection is made to multiple systems and above the normal for the previous 7 days.  
 Connections from the same system with the same account within the same day.
@@ -1442,17 +1004,11 @@ RDP connections are indicated by the EventID 4624 with LogonType = 10
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in SecurityAlert table from any Email IOC from TI which will extend coverage to datatypes such as MCAS, StorageThreatProtection and many others
 
@@ -1460,17 +1016,11 @@ RDP connections are indicated by the EventID 4624 with LogonType = 10
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-30T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in CommonSecurityLog Event data from any FileHash IOC from TI
 
@@ -1478,17 +1028,11 @@ RDP connections are indicated by the EventID 4624 with LogonType = 10
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-03-17T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will look for connections to a domain where only a single file is requested, this is unusual as most modern web applications require additional recources. This type of activity is often assocaited with malware beaconing or tracking URL's delivered in emails. Developed for Zscaler but applicable to any outbound web logging.
 
@@ -1496,17 +1040,11 @@ RDP connections are indicated by the EventID 4624 with LogonType = 10
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-10-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Matches domain name IOCs related to Phosphorus group activity with CommonSecurityLog, DnsEvents, OfficeActivity and VMConnection dataTypes.
 References: https://blogs.microsoft.com/on-the-issues/2019/03/27/new-steps-to-protect-customers-from-hacking/.
@@ -1515,17 +1053,11 @@ References: https://blogs.microsoft.com/on-the-issues/2019/03/27/new-steps-to-pr
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query identifies a user clicking on an email link whose threat category is classified as a malware
 
@@ -1533,17 +1065,11 @@ References: https://blogs.microsoft.com/on-the-issues/2019/03/27/new-steps-to-pr
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-05-21T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Takes MDATP alerts where web scripts are present in the evidence and correlates with requests made to those scripts
 in the WCSIISLog to surface new alerts for potentially malicious web request activity.
@@ -1554,17 +1080,11 @@ has been provided in scriptExtensions that should be tailored to your environmen
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-04-15T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when the exchange audit logging has been disabled which may be an adversary attempt
 to evade detection or avoid other defenses.
@@ -1573,17 +1093,11 @@ to evade detection or avoid other defenses.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-04-03T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies accounts that are added to privileged group and then quickly removed, which could be a sign of compromise.' 
 
@@ -1591,17 +1105,11 @@ to evade detection or avoid other defenses.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-05T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query over Azure Active Directory sign-in considers all user sign-ins for each Azure Active 
 Directory application and picks out the most anomalous change in location profile for a user within an 
@@ -1612,17 +1120,11 @@ over last day but also over the last 7-day and 14-day periods.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will help you determine if Cisco ASA devices are under heavier attack than normal over the last hour versus the previous 6 hours based on DeviceEventClassID 733100
 References: https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog/syslogs9.html
@@ -1632,17 +1134,11 @@ Details on how to further troubleshoot/investigate: https://www.cisco.com/c/en/u
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-03-02T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Often times after the initial compromise the attackers create inbox rules to delete emails that contain certain keywords. 
  This is done so as to limit ability to warn compromised users that they've been compromised. Below is a sample query that tries to detect this.
@@ -1652,17 +1148,11 @@ Reference: https://www.reddit.com/r/sysadmin/comments/7kyp0a/recent_phishing_att
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-04-03T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies accounts who have failed to logon to the domain multiple times in a row, followed by a successful authentication
 within a short time frame. Multiple failed attempts followed by a success can be an indication of a brute force attempt or
@@ -1674,17 +1164,11 @@ of 5 failures followed by a success for an account within 1 hour to surface an a
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This alert creates an incident when a client generates an excessive amounts of denied proxy traffic.
 
@@ -1692,17 +1176,11 @@ of 5 failures followed by a success for an account within 1 hour to surface an a
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-11T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies failed attempts to sign in to disabled accounts across multiple Azure Applications.
 Default threshold for Azure Applications attempted to sign in to is 3.
@@ -1713,17 +1191,11 @@ References: https://docs.microsoft.com/azure/active-directory/reports-monitoring
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Looking for GetCallerIdentity Events where the UserID Type is AssumedRole 
 An attacker who has assumed the role of a legitimate account can call the GetCallerIdentity function to determine what account they are using.
@@ -1735,17 +1207,11 @@ AWS STS GetCallerIdentity API: https://docs.aws.amazon.com/STS/latest/APIReferen
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a list of IP addresses with a minimum numbe(default of 5) of failed logon attempts to AWS Console.
 Uses that list to identify any successful Azure Active Directory logons from these IPs within the same timeframe.
@@ -1754,17 +1220,11 @@ Uses that list to identify any successful Azure Active Directory logons from the
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Creates an incident in the event the requested URL accessed by the user has been identified as Suspicious, Phishing, or Hacking.
 
@@ -1772,17 +1232,11 @@ Uses that list to identify any successful Azure Active Directory logons from the
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-11T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies distributed password cracking attempts from the Azure Active Directory SigninLogs.
 The query looks for unusually high number of failed password attempts coming from multiple locations for a user account.
@@ -1796,17 +1250,11 @@ References: https://docs.microsoft.com/azure/active-directory/reports-monitoring
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-01-25T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies instances of PowerShell Empire cmdlets in powershell process command line data.
 
@@ -1814,17 +1262,11 @@ References: https://docs.microsoft.com/azure/active-directory/reports-monitoring
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-07T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies clients with a high NXDomain count which could be indicative of a DGA (cycling through possible C2 domains
 where most C2s are not live). Alert is generated when a new IP address is seen (based on not being seen associated with 
@@ -1834,17 +1276,11 @@ NXDomain records in prior 10-day baseline period).
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-30T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Detects anomalous IP address usage by user accounts and then checks to see if a suspicious Teams action is performed.
 Query calculates IP usage Delta for each user account and selects accounts where a delta >= 90% is observed between the most and least used IP.
@@ -1855,17 +1291,11 @@ Finally the user accounts activity within Teams logs is checked for suspicious c
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Creates an incident in the event that a user generates an excessive amount of failed authentications due to invalid inputs, indications of a potential brute force.
 
@@ -1873,17 +1303,11 @@ Finally the user accounts activity within Teams logs is checked for suspicious c
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in PaloAlto data from any URL IOC from TI
 
@@ -1891,17 +1315,11 @@ Finally the user accounts activity within Teams logs is checked for suspicious c
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-02T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Attackers who are trying to guess your users' passwords or use brute-force methods to get in. If your organization is using SSO with Azure Active Directory, authentication logs to GitHub.com will be generated. Using the following query can help you identify a sudden increase in failed logon attempt of users.
 
@@ -1909,17 +1327,11 @@ Finally the user accounts activity within Teams logs is checked for suspicious c
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a list of IP addresses with a minimum number(defualt of 5) of failed logon attempts to Azure Active Directory.
 Uses that list to identify any successful AWS Console logons from these IPs within the same timeframe.
@@ -1928,17 +1340,11 @@ Uses that list to identify any successful AWS Console logons from these IPs with
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in SecurityEvent table from any Email IOC from TI
 
@@ -1946,17 +1352,11 @@ Uses that list to identify any successful AWS Console logons from these IPs with
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-02T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This alerts when there Signin burst from multiple locations in GitHub (AAD SSO).
 
@@ -1964,17 +1364,11 @@ Uses that list to identify any successful AWS Console logons from these IPs with
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-09-04T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query creates a list of IP addresses with a number failed login attempts to AAD 
 above a set threshold.  It then looks for any successful Palo Alto VPN logins from any
@@ -1984,17 +1378,11 @@ of these IPs within the same timeframe.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This creates an incident when a known Malware is detected on a endpoint managed by a Carbon Black.
 
@@ -2002,17 +1390,11 @@ of these IPs within the same timeframe.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-13T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies Office operations that are typically rare and can provide capabilities useful to attackers.
 
@@ -2020,17 +1402,11 @@ of these IPs within the same timeframe.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-03-19T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when 30 or more ports are used for a given client IP in 10 minutes occurring on the IIS server.
 This could be indicative of attempted port scanning or exploit attempt at internet facing web applications.  
@@ -2043,17 +1419,11 @@ Win32 Status code mapping - https://msdn.microsoft.com/library/cc231199.aspx
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-04-15T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies if any tampering is done to either auditlog, ATP Safelink, SafeAttachment, AntiPhish or Dlp policy. 
 An adversary may use this technique to evade detection or avoid other policy based defenses.
@@ -2063,17 +1433,11 @@ References: https://docs.microsoft.com/powershell/module/exchange/advanced-threa
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Elastic Load Balancer distributes incoming traffic across multiple instances in multiple availability Zones. This increases the fault tolerance of your applications. 
  Unwanted changes to Elastic Load Balancer specific security groups could open your environment to attack and  hence needs monitoring.
@@ -2084,17 +1448,11 @@ References: https://docs.microsoft.com/powershell/module/exchange/advanced-threa
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-01-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: THALLIUM spearphishing and command and control domains included in December 2019 DCU/MSTIC takedown. 
  Matches domain name IOCs related to the THALLIUM activity group with CommonSecurityLog, DnsEvents, VMConnection and SecurityEvents dataTypes.
@@ -2104,17 +1462,11 @@ References: https://docs.microsoft.com/powershell/module/exchange/advanced-threa
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-01-24T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Encoding malicious software is a technique used to obfuscate files from detection. 
 The first CommandLine component is looking for Python decoding base64. 
@@ -2125,17 +1477,11 @@ The third one is looking for Ruby decoding base64.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in AuditLogs from any URL IOC from TI
 
@@ -2143,17 +1489,11 @@ The third one is looking for Ruby decoding base64.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-14T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when a user account is created and then deleted within 10 minutes. This can be an indication of compromise and
 an adversary attempting to hide in the noise.
@@ -2162,17 +1502,11 @@ an adversary attempting to hide in the noise.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-24T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query looks for a few sensitive subscription-level events based on Azure Activity Logs. 
  For example this monitors for the operation name 'Create or Update Snapshot' which is used for creating backups but could be misused by attackers 
@@ -2182,17 +1516,11 @@ an adversary attempting to hide in the noise.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-10-19T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies attack pattern when attacker tries to move, or scan, from resource to resource on the network and creates an incident when a source has more than 1 registered deny action in Azure Firewall.
 
@@ -2200,17 +1528,11 @@ an adversary attempting to hide in the noise.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This creates an incident in the event that an excessive amount of DHCPREQUEST have been recieved by a DHCP Server and could potentially be an indication of a DHCP Starvation Attack.
 
@@ -2218,17 +1540,11 @@ an adversary attempting to hide in the noise.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-07-08T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query searches for failed attempts to log into the Okta console from more than 15 various users within a 5 minute timeframe from the same source. This is a potential indication of a password spray attack
 
@@ -2236,17 +1552,11 @@ an adversary attempting to hide in the noise.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-04-01T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: A service principal name (SPN) is used to uniquely identify a service instance in a Windows environment. 
 Each SPN is usually associated with a service account. Organizations may have used service accounts with weak passwords in their environment. 
@@ -2259,17 +1569,11 @@ of request within a small time window. This is based on 4769 events which can be
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-07-01T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Indentifies a sudden increase in count of Azure Key Vault secret or vault access operations by CallerIPAddress. The query leverages a built-in KQL anomaly detection algorithm 
 to find large deviations from baseline Azure Key Vault access patterns. Any sudden increase in the count of Azure Key Vault accesses can be an 
@@ -2280,17 +1584,11 @@ TimeSeries Reference Blog: https://techcommunity.microsoft.com/t5/azure-sentinel
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-05-05T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when Exchange Online transport rule configured to forward emails.
 This could be an adversary mailbox configured to collect mail from multiple user accounts.
@@ -2299,17 +1597,11 @@ This could be an adversary mailbox configured to collect mail from multiple user
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies connection attempts (success or fail) from clients with very short or very long User Agent strings and with less than 100 connection attempts.
 
@@ -2317,17 +1609,11 @@ This could be an adversary mailbox configured to collect mail from multiple user
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in AzureActivity table from any Email IOC from TI
 
@@ -2335,17 +1621,11 @@ This could be an adversary mailbox configured to collect mail from multiple user
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-07-15T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will alert when a user is added to any of the Privileged Groups.
 For further information on AuditLogs please see https://docs.microsoft.com/azure/active-directory/reports-monitoring/reference-audit-activities.
@@ -2355,17 +1635,11 @@ For Administrator role permissions in Azure Active Directory please see https://
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-11T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies IPs with failed attempts to sign in to one or more disabled accounts signed in successfully to another account.
 References: https://docs.microsoft.com/azure/active-directory/reports-monitoring/reference-sign-ins-error-codes
@@ -2375,17 +1649,11 @@ References: https://docs.microsoft.com/azure/active-directory/reports-monitoring
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query identifies evidence of potential brute force attack by looking at multiple failed attempts to log into the VPN server
 
@@ -2393,17 +1661,11 @@ References: https://docs.microsoft.com/azure/active-directory/reports-monitoring
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-07T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies clients with a high reverse DNS counts which could be carrying out reconnaissance or discovery activity.
 Alert is generated if the IP performing such reverse DNS lookups was not seen doing so in the preceding 7-day period.
@@ -2412,17 +1674,11 @@ Alert is generated if the IP performing such reverse DNS lookups was not seen do
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-07-01T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies mass secret retrieval from Azure Key Vault observed by a single user. 
 Mass secret retrival crossing a certain threshold is an indication of credential dump operations or mis-configured applications. 
@@ -2433,17 +1689,11 @@ and also filter any known sources (IP/Account) and useragent combinations based 
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-06-29T00:00:00Z
 
 > createdDateUTC: 2020-06-26T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will alert when a user consents to provide a previously-unknown Azure application with the same OAuth permissions used by the FireEye PwnAuth toolkit (https://github.com/fireeye/PwnAuth).
 The default permissions/scope for the PwnAuth toolkit are user.read, offline_access, mail.readwrite, mail.send, and files.read.all.
@@ -2454,17 +1704,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-09-19T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: When a user has both an Unfamiliar sign-in properties alert and an Atypical travel alert within 20 minutes, the alert should be handled with a higher severity
 
@@ -2472,17 +1716,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-10-30T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Document hash used by ZINC in highly targeted spear phishing campaign.
 
@@ -2490,17 +1728,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-06-29T00:00:00Z
 
 > createdDateUTC: 2020-06-26T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will alert when a user consents to provide a previously-unknown Azure application with offline access via OAuth.
 Offline access will provide the Azure App with access to the listed resources without requiring two-factor authentication.
@@ -2511,17 +1743,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-10-30T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: CERIUM malicious webserver and hash values for maldocs and malware. 
  Matches domain name IOCs related to the CERIUM activity group with CommonSecurityLog, DnsEvents, and VMConnection dataTypes.
@@ -2530,17 +1756,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in SecurityAlert data from any URL IOC from TI
 
@@ -2548,17 +1768,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in SecurityAlert table from any Domain IOC from TI
 
@@ -2566,17 +1780,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a list of internal Source IPs (10.x.x.x Hosts) that have triggered 10 or more non-graceful tcp server resets from one or more Destination IPs which 
 results in an "ApplicationProtocol = incomplete" designation. The server resets coupled with an "Incomplete" ApplicationProtocol designation can be an indication 
@@ -2588,17 +1796,11 @@ https://knowledgebase.paloaltonetworks.com/KCSArticleDetail?id=kA10g000000ClTaCA
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-10-21T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when an RDP connection is made to a first system and then an RDP connection is made from the first system 
 to another system with the same account within the 60 minutes. Additionally, if historically daily  
@@ -2608,17 +1810,11 @@ RDP connections are indicated by the logged EventID 4624 with LogonType = 10
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-07-09T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Create alert on web sites blocked by Eset.
 
@@ -2626,17 +1822,11 @@ RDP connections are indicated by the logged EventID 4624 with LogonType = 10
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-11T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies failed login attempts in the Azure Active Directory SigninLogs to the Azure Portal.  Many failed logon 
 attempts or some failed logon attempts from multiple IPs could indicate a potential brute force attack.  
@@ -2650,17 +1840,11 @@ References: https://docs.microsoft.com/azure/active-directory/reports-monitoring
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a list of IP addresses with a minimum number(default of 5) of failed logon attempts to remote hosts.
 Uses that list to identify any successful logons to Azure Active Directory from these IPs within the same timeframe.
@@ -2669,17 +1853,11 @@ Uses that list to identify any successful logons to Azure Active Directory from 
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in AWSCloudTrail from any IP IOC from TI
 
@@ -2687,17 +1865,11 @@ Uses that list to identify any successful logons to Azure Active Directory from 
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-07-08T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query searches for successful user logins to the Okta Console from different countries within 3 hours
 
@@ -2705,17 +1877,11 @@ Uses that list to identify any successful logons to Azure Active Directory from 
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in SigninLogs from any IP IOC from TI
 
@@ -2723,17 +1889,11 @@ Uses that list to identify any successful logons to Azure Active Directory from 
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-07-25T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Matches domain name IOCs related to Strontium group activity published July 2019 with CommonSecurityLog, DnsEvents and VMConnection dataTypes.
 References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreats-require-new-ways-to-protect-democracy/.
@@ -2742,17 +1902,11 @@ References: https://blogs.microsoft.com/on-the-issues/2019/07/17/new-cyberthreat
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-09-13T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This detection flags the occurrences of deleting multiple teams within an hour.
 This data is a part of Office 365 Connector in Azure Sentinel.
@@ -2761,17 +1915,11 @@ This data is a part of Office 365 Connector in Azure Sentinel.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-14T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when a user account has been added to a privileged built in domain local group or global group 
 such as the Enterprise Admins, Cert Publishers or DnsAdmins. Be sure to verify this is an expected addition.
@@ -2780,17 +1928,11 @@ such as the Enterprise Admins, Cert Publishers or DnsAdmins. Be sure to verify t
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: A Security Group acts as a virtual firewall of an instance to control inbound and outbound traffic. 
  Hence, ingress and egress settings changes to AWS Security Group should be monitored as these can expose the enviornment to new attack vectors.
@@ -2800,17 +1942,11 @@ More information: https://medium.com/@GorillaStack/the-most-important-aws-cloudt
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in VMConnection from any IP IOC from TI
 
@@ -2818,17 +1954,11 @@ More information: https://medium.com/@GorillaStack/the-most-important-aws-cloudt
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-03-19T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when 20 or more failed attempts from a given client IP in 1 minute occur on the IIS server.
 This could be indicative of an attempted brute force. This could also simply indicate a misconfigured service or device.
@@ -2844,17 +1974,11 @@ Win32 Status code mapping: https://msdn.microsoft.com/library/cc231199.aspx
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-19T00:00:00Z
 
 > createdDateUTC: 2020-12-17T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Surfaces any Defender Alert for Solorigate Events. In Azure Sentinel the SecurityAlerts table includes only the Device Name of the affected device, this query joins the DeviceInfo table to clearly connect other information such as 
  Device group, ip, logged on users etc. This way, the Sentinel user can have all the pertinent device info in one view for all the the Solarigate Defender alerts.
@@ -2863,17 +1987,11 @@ Win32 Status code mapping: https://msdn.microsoft.com/library/cc231199.aspx
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-19T00:00:00Z
 
 > createdDateUTC: 2020-10-20T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Matches IOCs related to PHOSPHORUS group activity published October 2020 with CommonSecurityLog, DnsEvents, OfficeActivity and VMConnection dataTypes.
 References: 
@@ -2882,17 +2000,11 @@ References:
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-09-03T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query will determine multiple password resets by user across multiple data sources. 
 Account manipulation including password reset may aid adversaries in maintaining access to credentials 
@@ -2902,17 +2014,11 @@ and certain permission levels within an environment.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-07T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies IP addresses performing DNS lookups associated with common ToR proxies.
 
@@ -2920,17 +2026,11 @@ and certain permission levels within an environment.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-03-31T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies patterns in the time deltas of contacts between internal and external IPs in Fortinet network data that are consistent with beaconing.
  Accounts for randomness (jitter) and seasonality such as working hours that may have been introduced into the beacon pattern.
@@ -2945,17 +2045,11 @@ and certain permission levels within an environment.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-04-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identity and Access Management (IAM) securely manages access to AWS services and resources. 
 Identifies when a policy is created with Full Administrators Access (Allow-Action:*,Resource:*). 
@@ -2967,17 +2061,11 @@ and AWS IAM API at https://docs.aws.amazon.com/IAM/latest/APIReference/API_Opera
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-20T00:00:00Z
 
 > createdDateUTC: 2020-11-30T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will alert when an admin or app owner account adds a new credential to an Application or Service Principal where a verify KeyCredential was already present for the app.
 If a threat actor obtains access to an account with sufficient privileges and adds the alternate authentication material triggering this event, the threat actor can now authenticate as the Application or Service Principal using this credential.
@@ -2988,17 +2076,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-07-08T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This creates an incident in the event that a single source IP address generates a excessive amount of denied connections.
 
@@ -3006,17 +2088,11 @@ For further information on AuditLogs please see https://docs.microsoft.com/azure
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-01-25T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Malware authors will sometimes hardcode user agent string values when writing the network communication component of their malware.
 Malformed user agents can be an indication of such malware.
@@ -3025,17 +2101,11 @@ Malformed user agents can be an indication of such malware.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-28T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when the Cisco ASA Threat Detection engine fired an alert based on malicious activity occurring on the network inicated by DeviceEventClassID 733101-733105
 Resources: https://www.cisco.com/c/en/us/td/docs/security/asa/syslog/b_syslog/syslogs9.html
@@ -3045,17 +2115,11 @@ Details on how to further troubleshoot/investigate: https://www.cisco.com/c/en/u
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in AzureActivity from any IP IOC from TI
 
@@ -3063,17 +2127,11 @@ Details on how to further troubleshoot/investigate: https://www.cisco.com/c/en/u
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-23T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when the volume of documents uploaded to or downloaded from Sharepoint by new IP addresses
 exceeds a threshold (default is 50).
@@ -3082,17 +2140,11 @@ exceeds a threshold (default is 50).
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-12-15T00:00:00Z
 
 > createdDateUTC: 2020-12-11T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This will alert when an user or application signs in using Azure Active Directory PowerShell to access non-Active Directory resources, such as the Azure Key Vault, which may be undesired or unauthorized behavior.
 For capabilities and expected behavior of the Azure Active Directory PowerShell module, see: https://docs.microsoft.com/powershell/module/azuread/?view=azureadps-2.0.
@@ -3102,17 +2154,11 @@ For further information on Azure Active Directory Signin activity reports, see: 
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-07T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies IP addresses that may be performing DNS lookups associated with common currency mining pools.
 
@@ -3120,17 +2166,11 @@ For further information on Azure Active Directory Signin activity reports, see: 
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-11T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies an attempt to Bypass conditional access rule(s) in Azure Active Directory.
 The ConditionalAccessStatus column value details if there was an attempt to bypass Conditional Access
@@ -3148,17 +2188,11 @@ ConditionalAccessStatus == 3 // unknown
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-05-07T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies anomalous spike in frequency of executions of sensitive processes which are often leveraged as attack vectors. 
 The query leverages KQL built-in anomaly detection algorithms to find large deviations from baseline patterns. 
@@ -3169,17 +2203,11 @@ Tune the values from 1.5 to 3 in series_decompose_anomalies for further outliers
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-05-07T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies anamalous spikes in network traffic logs as compared to baseline or normal historical patterns. 
 The query leverages a KQL built-in anomaly detection algorithm to find large deviations from baseline patterns. 
@@ -3193,17 +2221,11 @@ You may have to run queries for individual source IP addresses from SourceIPlist
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-23T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when multiple (more than one) users mailboxes are configured to forward to the same destination. 
 This could be an attacker-controlled destination mailbox configured to collect mail from multiple compromised user accounts.
@@ -3212,17 +2234,11 @@ This could be an attacker-controlled destination mailbox configured to collect m
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in OfficeActivity data from any URL IOC from TI
 
@@ -3230,17 +2246,11 @@ This could be an attacker-controlled destination mailbox configured to collect m
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-22T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Checks for event id 1102 which indicates the security event log was cleared. 
 It uses Event Source Name "Microsoft-Windows-Eventlog" to avoid generating false positives from other sources, like AD FS servers for instance.
@@ -3249,17 +2259,11 @@ It uses Event Source Name "Microsoft-Windows-Eventlog" to avoid generating false
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2020-06-06T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: This query identifies evidence of failed login attempts from a large number of distinct users on a Pulse Connect Secure VPN server
 
@@ -3267,17 +2271,11 @@ It uses Event Source Name "Microsoft-Windows-Eventlog" to avoid generating false
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-14T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies when failed logon attempts are 20 or higher during a 10 minute period (2 failed logons per minute minimum) from valid account.
 
@@ -3285,17 +2283,11 @@ It uses Event Source Name "Microsoft-Windows-Eventlog" to avoid generating false
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-05T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies IPs from which users grant access to other users on azure resources and alerts when a previously unseen source IP address is used.
 
@@ -3303,17 +2295,11 @@ It uses Event Source Name "Microsoft-Windows-Eventlog" to avoid generating false
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2018-09-14T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies instances of a base64 encoded PE file header seen in the process command line parameter.
 
@@ -3321,17 +2307,11 @@ It uses Event Source Name "Microsoft-Windows-Eventlog" to avoid generating false
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-04-01T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies new UserAgents observed in the last 24 hours versus the previous 14 days. This detection 
 extracts words from user agents to build the baseline and determine rareity rather than perform a 
@@ -3345,17 +2325,11 @@ usually stable with low numbers of detections.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-18T00:00:00Z
 
 > createdDateUTC: 2019-02-05T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Indicates when an anomalous number of VM creations or deployment activities occur in Azure via the AzureActivity log.
 The anomaly detection identifies activities that have occurred both since the start of the day 1 day ago and the start of the day 7 days ago.
@@ -3365,17 +2339,11 @@ The start of the day is considered 12am UTC time.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-30T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in CommonSecurityLog Event data from any FileHash published in the Microsoft COVID-19 Threat Intel Feed - as described at https://www.microsoft.com/security/blog/2020/05/14/open-sourcing-covid-threat-intelligence/
 
@@ -3383,17 +2351,11 @@ The start of the day is considered 12am UTC time.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-02-22T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: User has over 50 Windows logon failures today and at least 33% of the count of logon failures over the previous 7 days.
 
@@ -3401,17 +2363,11 @@ The start of the day is considered 12am UTC time.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-11-17T00:00:00Z
 
 > createdDateUTC: 2019-08-27T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Identifies a match in GitHub_CL table from any IP IOC from TI
 
@@ -3419,17 +2375,11 @@ The start of the day is considered 12am UTC time.
 
 ### Informations
 
-> productFilter: 
-
 > lastUpdatedDateUTC: 2020-09-09T00:00:00Z
 
 > createdDateUTC: 2019-07-25T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Using Fusion technology based on machine learning, Azure Sentinel automatically detects multistage attacks by identifying combinations of anomalous behaviors and suspicious activities observed at various stages of the kill chain. On the basis of these discoveries, Azure Sentinel generates incidents that would otherwise be very difficult to catch. By design, these incidents are low-volume, high-fidelity, and high-severity, which is why this detection is turned ON by default.
 
@@ -3457,10 +2407,6 @@ For a full list and description of each scenario that is supported for these mul
 
 ### Details
 
-> Requirements:
-
-> Requirements: 
-
 > Description: Create incidents based on all alerts generated in Azure Active Directory Identity Protection
 
 ## Create incidents based on Microsoft Defender Advanced Threat Protection alerts
@@ -3474,10 +2420,6 @@ For a full list and description of each scenario that is supported for these mul
 > createdDateUTC: 2019-10-24T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Create incidents based on all alerts generated in Microsoft Defender Advanced Threat Protection
 
@@ -3493,10 +2435,6 @@ For a full list and description of each scenario that is supported for these mul
 
 ### Details
 
-> Requirements:
-
-> Requirements: 
-
 > Description: Create incidents based on all alerts generated in Azure Security Center
 
 ## Create incidents based on Azure Advanced Threat Protection alerts
@@ -3510,10 +2448,6 @@ For a full list and description of each scenario that is supported for these mul
 > createdDateUTC: 2019-07-16T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Create incidents based on all alerts generated in Azure Advanced Threat Protection
 
@@ -3529,10 +2463,6 @@ For a full list and description of each scenario that is supported for these mul
 
 ### Details
 
-> Requirements:
-
-> Requirements: 
-
 > Description: Create incidents based on all alerts generated in Microsoft Cloud App Security
 
 ## Create incidents based on Office 365 Advanced Threat Protection alerts
@@ -3547,10 +2477,6 @@ For a full list and description of each scenario that is supported for these mul
 
 ### Details
 
-> Requirements:
-
-> Requirements: 
-
 > Description: Create incidents based on all alerts generated in Office 365 Advanced Threat Protection
 
 ## Create incidents based on Azure Security Center for IoT alerts
@@ -3564,10 +2490,6 @@ For a full list and description of each scenario that is supported for these mul
 > createdDateUTC: 2019-12-24T00:00:00Z
 
 ### Details
-
-> Requirements:
-
-> Requirements: 
 
 > Description: Create incidents based on all alerts generated in Azure Security Center for IoT
 
