@@ -39,7 +39,7 @@ jobs:
         run: |
           echo '![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")' > README.md
           echo '# Workbooks' >> README.md
-s          echo 'JSON files in this folder are ARM templates that define Workbooks that need to be deployed on a given Sentinel environment.' >> README.md
+          echo 'JSON files in this folder are ARM templates that define Workbooks that need to be deployed on a given Sentinel environment.' >> README.md
           find Workbooks/ -name '*.json' | while read file; do python Scripts/genmd_workbooks.py $file >> README.md; done
 
       - name: Commit Workbooks Readme
