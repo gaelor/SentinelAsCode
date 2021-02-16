@@ -1,0 +1,261 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "[newGuid()]",
+            "type": "string",
+            "metadata": {
+                "description": "The unique guid for this playbook instance"
+            }
+        },
+        "playbookDisplayName": {
+            "defaultValue": "<playbook>",
+            "type": "string",
+            "metadata": {
+                "description": "The friendly name for the playbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+            }
+        },
+        "Azure_ServiceAccount": {
+            "defaultValue": "<azure_serviceaccount>",
+            "type": "string",
+            "metadata": {
+                "description": "The service account used to run the logic app."
+            }
+        },
+        "AzureSentinelConnectionName": {
+            "defaultValue": "azuresentinel",
+            "type": "string",
+            "metadata": {
+                "description": "The azure sentinel connection name used by the logic app."
+            }
+        },
+        "MDATPConnectionName": {
+            "defaultValue": "wdatp",
+            "type": "string",
+            "metadata": {
+                "description": "The mdatp connection name used by the logic app.."
+            }
+        },
+        "description": {
+            "defaultValue": "This playbook will block hash file on the machine in Microsoft Defender ATP.",
+            "type": "string",
+            "metadata": {
+                "description": "The logic app description."
+            }
+        },
+        "author": {
+            "defaultValue": "thomas couilleaux",
+            "type": "string",
+            "metadata": {
+                "description": "The logic app author."
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('AzureSentinelConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('Azure_ServiceAccount')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]"            
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_response_to_an_Azure_Sentinel_alert_is_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "path": "/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Add_comment_to_incident_(V2)": {
+                            "runAfter": {
+                                "For_each_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "Value": "Files Hashes are blocked in MDATP .\n@{body('Entities_-_Get_FileHashes')}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "method": "put",
+                                "path": "/Comment/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}/@{encodeURIComponent('Incident')}/@{encodeURIComponent(body('Alert_-_Get_incident')?['properties']?['CaseNumber'])}"
+                            }
+                        },
+                        "Alert_-_Get_incident": {
+                            "runAfter": {
+                                "Entities_-_Get_FileHashes": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/Cases/@{encodeURIComponent(triggerBody()?['SystemAlertId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}"
+                            }
+                        },
+                        "Entities_-_Get_FileHashes": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "@triggerBody()?['Entities']",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/entities/filehash"
+                            }
+                        },
+                        "For_each_2": {
+                            "foreach": "@body('Entities_-_Get_FileHashes')?['Filehashes']",
+                            "actions": {
+                                "Switch_2": {
+                                    "runAfter": {},
+                                    "cases": {
+                                        "Case": {
+                                            "case": "SHA1",
+                                            "actions": {
+                                                "HTTP_3": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://api.securitycenter.windows.com",
+                                                            "clientId": "74a1f35c-7f9e-4b80-99f9-a2bede0f1d98",
+                                                            "secret": "0x8.2~bN0QYjQ4jobuGvL1_Piu5xU-hYtE",
+                                                            "tenant": "a63c8ef2-c3d2-4df0-be32-e15159f96f69",
+                                                            "type": "ActiveDirectoryOAuth"
+                                                        },
+                                                        "body": {
+                                                            "action": "AlertAndBlock",
+                                                            "application": "@{triggerBody()?['ProductName']}",
+                                                            "description": "@{body('Alert_-_Get_incident')?['properties']?['Title']}",
+                                                            "expirationTime": "@{addDays(triggerBody()?['TimeGenerated'], 90)}",
+                                                            "indicatorType": "FileSha1",
+                                                            "indicatorValue": "@{items('For_each_2')?['Value']}",
+                                                            "severity": "@{body('Alert_-_Get_incident')?['properties']?['Severity']}",
+                                                            "title": "@{guid()}"
+                                                        },
+                                                        "method": "POST",
+                                                        "uri": "https://api.securitycenter.windows.com/api/indicators"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Case_2": {
+                                            "case": "SHA256",
+                                            "actions": {
+                                                "HTTP_4": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://api.securitycenter.windows.com",
+                                                            "clientId": "74a1f35c-7f9e-4b80-99f9-a2bede0f1d98",
+                                                            "secret": "0x8.2~bN0QYjQ4jobuGvL1_Piu5xU-hYtE",
+                                                            "tenant": "a63c8ef2-c3d2-4df0-be32-e15159f96f69",
+                                                            "type": "ActiveDirectoryOAuth"
+                                                        },
+                                                        "body": {
+                                                            "action": "AlertAndBlock",
+                                                            "application": "@{triggerBody()?['ProductName']}",
+                                                            "description": "@{body('Alert_-_Get_incident')?['properties']?['Title']}",
+                                                            "expirationTime": "@{addDays(triggerBody()?['TimeGenerated'], 90)}",
+                                                            "indicatorType": "FileSha256",
+                                                            "indicatorValue": "@{items('For_each_2')?['Value']}",
+                                                            "severity": "@{body('Alert_-_Get_incident')?['properties']?['Severity']}",
+                                                            "title": "@{guid()}"
+                                                        },
+                                                        "method": "POST",
+                                                        "uri": "https://api.securitycenter.windows.com/api/indicators"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "default": {
+                                        "actions": {}
+                                    },
+                                    "expression": "@items('For_each_2')?['Algorithm']",
+                                    "type": "Switch"
+                                }
+                            },
+                            "runAfter": {
+                                "Alert_-_Get_incident": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuresentinel": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]",
+                                "connectionName": "[parameters('AzureSentinelConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

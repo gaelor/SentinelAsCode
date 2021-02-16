@@ -32,7 +32,8 @@ foreach ($armTemplate in $armTemplateFiles) {
     foreach ($item in $workspaces.deployments){
         try {
             Write-Host "Deploying : $workbookDisplayName of type $workbookType in the resource group: $($item.resourcegroup)"
-            New-AzResourceGroupDeployment -Name $(("$workbookDisplayName - $($item.workspace)").replace(' ', '')) -ResourceGroupName $($item.resourcegroup) `
+            New-AzResourceGroupDeployment -Name $(("$workbookDisplayName - $($item.workspace)").replace(' ', '')) `
+            -ResourceGroupName $($item.resourcegroup) `
             -TemplateFile $armTemplate `
             -Workspace $item.workspace `
             -workbookDisplayName $workbookDisplayName `

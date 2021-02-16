@@ -8,8 +8,14 @@
         "AzureSentinelConnectionName": {
             "value": "azuresentinel"
         },
-        "MDATPConnectionName": {
-            "value": "wdatp"
+        "Jira_Organization": {
+            "value": "<jira_organization>"
+        },
+        "Jira_User": {
+            "value": "<jira_user>"
+        },
+        "Jira_Pwd": {
+            "value": "<jira_pwd>"
         }
     },
     "variables": {

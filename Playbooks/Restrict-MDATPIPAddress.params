@@ -10,7 +10,13 @@
         },
         "MDATPConnectionName": {
             "value": "wdatp"
-        }
+        },
+        "integrationAccount": {
+            "value": "<integrationAccount>"
+        },
+        "integrationAccount_resourceGroup": {
+            "value": "<integrationAccount_resourceGroup>"
+        },
     },
     "variables": {
     }

@@ -8,8 +8,14 @@
         "AzureSentinelConnectionName": {
             "value": "azuresentinel"
         },
-        "MDATPConnectionName": {
-            "value": "wdatp"
+        "integrationAccount": {
+            "value": "<integrationAccount>"
+        },
+        "integrationAccount_resourceGroup": {
+            "value": "<integrationAccount_resourceGroup>"
+        },
+        "CA_LocationName": {
+            "value": "<ca_locationname>"
         }
     },
     "variables": {

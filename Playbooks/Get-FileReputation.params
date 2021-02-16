@@ -8,8 +8,14 @@
         "AzureSentinelConnectionName": {
             "value": "azuresentinel"
         },
-        "MDATPConnectionName": {
-            "value": "wdatp"
+        "integrationAccount": {
+            "value": "<integrationAccount>"
+        },
+        "integrationAccount_resourceGroup": {
+            "value": "<integrationAccount_resourceGroup>"
+        },
+        "Virustotal_Key": {
+            "value": "<virustotal_key>"
         }
     },
     "variables": {

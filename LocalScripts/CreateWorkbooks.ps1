@@ -25,7 +25,8 @@ foreach ($armTemplate in $armTemplateFiles) {
     $workbookDisplayName = $workbookFileName.replace('.json', '')
     try {
         Write-Host "Deploying : $workbookDisplayName of type $workbookType in the resource group: $($workspaces.deployments[0].resourcegroup)"
-        New-AzResourceGroupDeployment -Name $(("$workbookDisplayName - $($workspaces.deployments[0].workspace)").replace(' ', '')) -ResourceGroupName $($workspaces.deployments[0].resourcegroup) `
+        New-AzResourceGroupDeployment -Name $(("$workbookDisplayName - $($workspaces.deployments[0].workspace)").replace(' ', '')) `
+        -ResourceGroupName $($workspaces.deployments[0].resourcegroup) `
         -TemplateFile $armTemplate `
         -Workspace $workspaces.deployments[0].workspace `
         -workbookDisplayName $workbookDisplayName `

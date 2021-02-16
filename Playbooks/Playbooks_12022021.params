@@ -41,5 +41,7 @@
         "Virustotal_Key": {
             "value": "<virustotal_key>"
         }
+    },
+    "variables": {
     }
 }
