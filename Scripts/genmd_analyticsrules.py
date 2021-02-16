@@ -29,7 +29,7 @@ for analyticsrule in myjson:
         except:
             None
         try:
-            print(item["requiredDataConnectors"].encode('utf-8') + '```\n')
+            print('> Requirements:\n```' + item["requiredDataConnectors"].encode('utf-8') + '```\n')
         except:
             None
         try:
