@@ -4,10 +4,7 @@ param(
     [Parameter(Mandatory=$true)]$PlaybooksFilter,
     [Parameter(Mandatory=$true)]$Azure_User,
     [Parameter(Mandatory=$true)]$Azure_Pwd,
-    [Parameter(Mandatory=$false)]$PlaybooksParams,
-    [Parameter(Mandatory=$true)]$Jira_User,
-    [Parameter(Mandatory=$true)]$Jira_Pwd,
-    [Parameter(Mandatory=$true)]$Virustotal_Key
+    [Parameter(Mandatory=$false)]$PlaybooksParams
 )
 
 #Adding AzSentinel module
