@@ -37,15 +37,15 @@ jobs:
       - name: Generate Workbooks Readme
         shell: bash
         run: |
-          echo '![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")' > README.md
-          echo '# Workbooks' >> README.md
-          echo 'JSON files in this folder are ARM templates that define Workbooks that need to be deployed on a given Sentinel environment.' >> README.md
-          find Workbooks/ -name '*.json' | while read file; do python Scripts/genmd_workbooks.py $file >> README.md; done
+          echo '![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")' > Workbooks/README.md
+          echo '# Workbooks' >> Workbooks/README.md
+          echo 'JSON files in this folder are ARM templates that define Workbooks that need to be deployed on a given Sentinel environment.' >> Workbooks/README.md
+          find Workbooks/ -name '*.json' | while read file; do python Scripts/genmd_workbooks.py $file >> Workbooks/README.md; done
 
       - name: Commit Workbooks Readme
         run: |
           git config --global user.name ${{ secrets.GIT_USER }}
           git config --global user.email ${{ secrets.GIT_EMAIL }}
-          git add Workbooks/*.md
+          git add Workbooks/README.md
           git commit -am "Automated Workbooks Readme"
           git push
