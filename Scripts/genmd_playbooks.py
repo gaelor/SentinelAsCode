@@ -12,7 +12,7 @@ for key,playbook in myjson.items():
         print('## ' + filename)
         print('### Playbook Tags\n')
         print('> Author: ['+ playbook["author"]["defaultValue"].encode('utf-8') + '](https://www.metsys.fr/)' + '\n')
-        print('> Reference: [Link to medium post](https://github.com/Azure/Azure-Sentinel/tree/master/' + sys.argv[1] + ')\n')
+        print('> Reference: [Link to medium post](https://github.com/gaelor/SentinelAsCode/tree/master/Playbooks/' + sys.argv[1] + ')\n')
         print('### Playbook Requirements\n')
         for param_name, param_value in playbook.items():
             if param_name != 'description' and param_name != 'author' and param_name != 'PlaybookName' and param_name != 'playbookDisplayName':
