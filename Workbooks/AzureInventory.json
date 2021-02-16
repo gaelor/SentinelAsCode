@@ -2,38 +2,46 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-      "workbookName": {
-          "defaultValue": "[newGuid()]",
-          "type": "string",
-          "metadata": {
-              "description": "The unique guid for this workbook instance"
-          }
-      },
-      "workbookDisplayName": {
-          "defaultValue": "<workbook>",
-          "type": "string",
-          "metadata": {
-              "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
-          }
-      },
-      "workbookType": {
-          "defaultValue": "sentinel",
-          "type": "string",
-          "metadata": {
-              "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
-          }
+        "workbookName": {
+            "defaultValue": "[newGuid()]",
+            "type": "string",
+            "metadata": {
+                "description": "The unique guid for this workbook instance"
+            }
         },
-      "Workspace": {
-          "defaultValue": "<workspace>",
-          "type": "string",
-          "metadata": {
-              "description": "The workspace used by the workbook"
-          }
+        "workbookDisplayName": {
+            "defaultValue": "<workbook>",
+            "type": "string",
+            "metadata": {
+                "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This   name must be unique within a resource group."
+            }
         },
-      "workspaces_externalid": {
-          "defaultValue": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/microsoft.operationalinsights/workspaces/', parameters('Workspace'))]",
-          "type": "string"
-      }
+        "workbookType": {
+            "defaultValue": "sentinel",
+            "type": "string",
+            "metadata": {
+                "description": "The gallery that the workbook will been shown under. Supported values include     workbook, tsg, etc. Usually, this is 'workbook'"
+            }
+        },
+        "Workspace": {
+            "defaultValue": "<workspace>",
+            "type": "string",
+            "metadata": {
+                "description": "The workspace used by the workbook"
+            }
+          },
+        "workspaces_externalid": {
+            "defaultValue": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/',     resourceGroup().name, '/providers/microsoft.operationalinsights/workspaces/', parameters('Workspace'))]",
+            "type": "string"
+        },
+        "description": {
+            "defaultValue": "This workbook will get a report on Azure Inventory.",
+            "type": "string"
+        },
+        "author": {
+            "defaultValue": "thomas couilleaux",
+            "type": "string"
+        }
   },
   "variables": {},
   "resources": [

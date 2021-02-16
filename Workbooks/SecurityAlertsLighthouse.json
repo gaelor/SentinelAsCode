@@ -22,16 +22,24 @@
             "metadata": {
                 "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
             }
-          },
+        },
         "Workspace": {
             "defaultValue": "<workspace>",
             "type": "string",
             "metadata": {
                 "description": "The workspace used by the workbook"
             }
-          },
+        },
         "workspaces_externalid": {
             "defaultValue": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/microsoft.operationalinsights/workspaces/', parameters('Workspace'))]",
+            "type": "string"
+        },
+        "description": {
+            "defaultValue": "This workbook will get a report on Security Alerts Multi Tenant.",
+            "type": "string"
+        },
+        "author": {
+            "defaultValue": "thomas couilleaux",
             "type": "string"
         }
     },
