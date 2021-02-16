@@ -44,9 +44,6 @@ foreach ($armTemplate in $armTemplateFiles) {
         -TemplateFile $armTemplate `
         -TemplateParameterFile $PlaybooksParams `
         -playbookDisplayName $playbookDisplayName `
-        -Jira_User $Jira_User `
-        -Jira_Pwd $Jira_Pwd `
-        -Virustotal_Key $Virustotal_Key `
     }
     catch {
         $ErrorMessage = $_.Exception.Message
