@@ -5,9 +5,6 @@ import re
 with open(sys.argv[1], 'r') as workbooks:
     myjson = json.load(workbooks)
 
-print('![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")')
-print('# Workbooks')
-
 filename = re.sub('^.*/', '', sys.argv[1], flags=re.DOTALL).replace('.json','')
 
 for key,workbook in myjson.items():
