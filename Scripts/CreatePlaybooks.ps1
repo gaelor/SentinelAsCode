@@ -1,10 +1,10 @@
 param(
     [Parameter(Mandatory=$true)]$OnboardingFile,
     [Parameter(Mandatory=$true)]$PlaybooksFolder,
-    [Parameter(Mandatory=$true)]$PlaybooksParams,
-    [Parameter(Mandatory=$true)]$Azure_ServiceAccount,
+    [Parameter(Mandatory=$true)]$PlaybooksFilter,
     [Parameter(Mandatory=$true)]$Azure_User,
     [Parameter(Mandatory=$true)]$Azure_Pwd,
+    [Parameter(Mandatory=$false)]$PlaybooksParams,
     [Parameter(Mandatory=$true)]$Jira_User,
     [Parameter(Mandatory=$true)]$Jira_Pwd,
     [Parameter(Mandatory=$true)]$Virustotal_Key
@@ -25,25 +25,31 @@ $Credential = New-Object -TypeName "System.Management.Automation.PSCredential" -
 
 Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscription $workspaces.subscription
 
-Write-Host "Folder is: $($PlaybooksFolder)"
-Write-Host "Playbooks Parameter File is: $($PlaybooksParams)"
+Write-Host "Playbook Folder is: $($PlaybooksFolder)"
 
-$Params = Get-Content -Path $PlaybooksParams
-$TmpParams = $Params.replace('<azure_serviceaccount>',$Azure_ServiceAccount).replace('<jira_user>',$Jira_User).replace('<jira_pwd>',$Jira_Pwd).replace('<virustotal_key>',$Virustotal_Key)
-$TmpParamsFile = New-TemporaryFile
-$TmpParams | out-file -filepath $TmpParamsFile
-
-Write-Host "Processing resourcegroup: $($workspaces.deployments[0].resourcegroup)"
+Write-Host "Processing resourcegroup $($workspaces.deployments[0].resourcegroup)"
 
 #Getting all playbooks from folder
-$armTemplateFiles = Get-ChildItem -Recurse -Path $PlaybooksFolder -Filter *.json
+$armTemplateFiles = Get-ChildItem -Path $PlaybooksFolder -Filter $PlaybooksFilter
+
 foreach ($armTemplate in $armTemplateFiles) {
+    $playbookFileName = Split-Path $armTemplate -leaf
+    $playbookDisplayName = $playbookFileName.replace('.json', '')
+    Write-Host "Playbook is: $playbookDisplayName"
+    Write-Host "Playbook Template File is: $armTemplate"
     try {
-        Write-Host "Processing template file:  $($armTemplate)"
-        New-AzResourceGroupDeployment -ResourceGroupName $workspaces.deployments[0].resourcegroup -TemplateFile $armTemplate -TemplateParameterFile $TmpParamsFile
+        Write-Host "Deploying: $playbookDisplayName, with template file: $armTemplate, in the resource group: $($workspaces.deployments[0].resourcegroup)"
+        New-AzResourceGroupDeployment -Name $(("$playbookDisplayName").replace(' ', '')) `
+        -ResourceGroupName $workspaces.deployments[0].resourcegroup `
+        -TemplateFile $armTemplate `
+        -TemplateParameterFile $PlaybooksParams `
+        -playbookDisplayName $playbookDisplayName `
+        -Jira_User $Jira_User `
+        -Jira_Pwd $Jira_Pwd `
+        -Virustotal_Key $Virustotal_Key `
     }
     catch {
         $ErrorMessage = $_.Exception.Message
-        Write-Error "Playbook deployment failed with message: $($ErrorMessage)"
+        Write-Error "Playbook deployment failed with message: $ErrorMessage"
     }
 }
