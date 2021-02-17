@@ -30,6 +30,20 @@
                 "description": "The azure sentinel connection name used by the logic app."
             }
         },
+        "integrationAccount": {
+            "defaultValue": "<integrationaccount>",
+            "type": "string",
+            "metadata": {
+                "description": "The azure integration account name."
+            }
+        },
+        "integrationAccount_resourceGroup": {
+            "defaultValue": "<integrationaccount_resourcegroup>",
+            "type": "string",
+            "metadata": {
+                "description": "The azure integration account resource group name."
+            }
+        },
         "Jira_Organization": {
             "defaultValue": "<jira_organization>",
             "type": "string",

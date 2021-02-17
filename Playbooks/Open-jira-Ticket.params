@@ -8,6 +8,12 @@
         "AzureSentinelConnectionName": {
             "value": "azuresentinel"
         },
+        "integrationAccount": {
+            "value": "<integrationAccount>"
+        },
+        "integrationAccount_resourceGroup": {
+            "value": "<integrationAccount_resourceGroup>"
+        },
         "Jira_Organization": {
             "value": "<jira_organization>"
         },

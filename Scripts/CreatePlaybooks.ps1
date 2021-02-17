@@ -1,10 +1,11 @@
 param(
     [Parameter(Mandatory=$true)]$OnboardingFile,
     [Parameter(Mandatory=$true)]$PlaybooksFolder,
-    [Parameter(Mandatory=$true)]$PlaybooksFilter,
+    [Parameter(Mandatory=$false)]$PlaybooksFilter,
+    [Parameter(Mandatory=$false)]$PlaybooksParamsFile,
+    [Parameter(Mandatory=$false)]$PlaybooksParams,
     [Parameter(Mandatory=$true)]$Azure_User,
-    [Parameter(Mandatory=$true)]$Azure_Pwd,
-    [Parameter(Mandatory=$false)]$PlaybooksParams
+    [Parameter(Mandatory=$true)]$Azure_Pwd
 )
 
 #Adding AzSentinel module
@@ -29,21 +30,44 @@ Write-Host "Processing resourcegroup $($workspaces.deployments[0].resourcegroup)
 #Getting all playbooks from folder
 $armTemplateFiles = Get-ChildItem -Path $PlaybooksFolder -Filter $PlaybooksFilter
 
-foreach ($armTemplate in $armTemplateFiles) {
-    $playbookFileName = Split-Path $armTemplate -leaf
-    $playbookDisplayName = $playbookFileName.replace('.json', '')
-    Write-Host "Playbook is: $playbookDisplayName"
-    Write-Host "Playbook Template File is: $armTemplate"
-    try {
-        Write-Host "Deploying: $playbookDisplayName, with template file: $armTemplate, in the resource group: $($workspaces.deployments[0].resourcegroup)"
-        New-AzResourceGroupDeployment -Name $(("$playbookDisplayName").replace(' ', '')) `
-        -ResourceGroupName $workspaces.deployments[0].resourcegroup `
-        -TemplateFile $armTemplate `
-        -TemplateParameterFile $PlaybooksParams `
-        -playbookDisplayName $playbookDisplayName `
+if($null -eq $PlaybooksFilter){
+    $PlaybooksFilter = '*.json'
+}
+
+if($null -eq $PlaybooksParamsFile){
+    foreach ($armTemplate in $armTemplateFiles) {
+        $PlaybooksParamsFile = $armTemplate -replace [regex]::Escape('.json'), ('.params')
+        $playbookFileName = Split-Path $armTemplate -leaf
+        $playbookDisplayName = $playbookFileName.replace('.json', '')
+        Write-Host "Playbook is: $playbookDisplayName"
+        Write-Host "Playbook Template File is: $armTemplate"
+        Write-Host "Playbook Parameters File is: $PlaybooksParamsFile"
+        Write-Host "Playbook Parameters are:"@PlaybooksParams
+                try {
+            Write-Host "Deploying: $playbookDisplayName, with template file: $armTemplate, with parameters file: $PlaybooksParamsFile, in the resource group: $($workspaces.deployments[0].resourcegroup)"
+            New-AzResourceGroupDeployment -Name $(("$playbookDisplayName").replace(' ', '')) -ResourceGroupName $($workspaces.deployments[0].resourcegroup) -TemplateFile `'$armTemplate`' -TemplateParameterFile $PlaybooksParamsFile -playbookDisplayName $playbookDisplayName @PlaybooksParams
+        }
+        catch {
+            $ErrorMessage = $_.Exception.Message
+            Write-Error "Playbook deployment failed with message: $ErrorMessage"
+        }
     }
-    catch {
-        $ErrorMessage = $_.Exception.Message
-        Write-Error "Playbook deployment failed with message: $ErrorMessage"
+}
+else{
+    foreach ($armTemplate in $armTemplateFiles) {
+        $playbookFileName = Split-Path $armTemplate -leaf
+        $playbookDisplayName = $playbookFileName.replace('.json', '')
+        Write-Host "Playbook is: $playbookDisplayName"
+        Write-Host "Playbook Template File is: $armTemplate"
+        Write-Host "Playbook Parameters File is: $PlaybooksParamsFile"
+        Write-Host "Playbook Parameters are:"@PlaybooksParams
+        try {
+            Write-Host "Deploying: $playbookDisplayName, with template file: $armTemplate, with parameters file: $PlaybooksParamsFile, in the resource group: $($workspaces.deployments[0].resourcegroup)"
+            New-AzResourceGroupDeployment -Name $(("$playbookDisplayName").replace(' ', '')) -ResourceGroupName $($workspaces.deployments[0].resourcegroup) -TemplateFile `'$armTemplate`' -TemplateParameterFile $PlaybooksParamsFile -playbookDisplayName $playbookDisplayName @PlaybooksParams
+        }
+        catch {
+            $ErrorMessage = $_.Exception.Message
+            Write-Error "Playbook deployment failed with message: $ErrorMessage"
+        }
     }
 }

@@ -12,7 +12,7 @@ Reads configuration file under Onboard folder and installs SecurityInsights (Sen
 
 ### Sample
 
-`.\Script\InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
+`.\Script\InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Analytics Rules deployment script (CreateAnalyticsRules.ps1)
 
@@ -24,7 +24,7 @@ Reads the config file in the AnalyticsRules folder and deploys its contents to a
 
 ### Sample
 
-`.\Script\CreateAnalyticsRules.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile AnalyticsRules\analytics-rules.json -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
+`.\Script\CreateAnalyticsRules.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile AnalyticsRules\analytics-rules.json -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Hunting Rules deployment script (CreateHuntingRulesAPI.ps1)
 
@@ -36,7 +36,7 @@ Reads the config file in the HuntingRules folder and deploys its contents to a s
 
 ### Sample
 
-`.\Script\CreateHuntingRulesAPI.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile HuntingRules\hunting-rules.json -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
+`.\Script\CreateHuntingRulesAPI.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile HuntingRules\hunting-rules.json -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Playbooks deployment script (CreatePLaybooks.ps1)
 
@@ -44,11 +44,11 @@ Takes all the json files within a folder (specified as PlaybooksFolder parameter
 
 ### Syntax
 
-`CreatePlaybooks.ps1 -ResourceGroup <String> -PlaybooksFolder <String> -PlaybooksParams <String> -Azure_ServiceAccount <String> -Azure_User <String> -Azure_Pwd '<String>' -Jira_User <String> -Jira_Pwd '<String>' -Virustotal_Key '<String>'`
+`CreatePlaybooks.ps1 -OnboardingFile <String> -PlaybooksFolder <String> -PlaybooksParams <String> -PlaybooksFilter <String> -PlaybooksParamsFile <String> -PlaybooksParams <@Array> -Azure_User <String> -Azure_Pwd '<String>'`
 
 ### Sample
 
-`.\Script\CreatePlaybooks.ps1 -OnboardingFile Onboard\onboarding.json -PlaybooksFolder Playbooks -PlaybooksParams Playbooks\Playbooks.params -Azure_ServiceAccount thomas.couilleaux@theclemvp.com -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>' -Jira_User couilleaux -Jira_Pwd '<String>' -Virustotal_Key '<String>'`
+`.\Script\CreatePlaybooks.ps1 -OnboardingFile .\Onboard\onboarding.json -PlaybooksFolder .\Playbooks\ -PlaybooksFilter "Open-jira*.json" -PlaybooksParamsFile .\Playbooks\Playbooks.params -PlaybooksParams @{Jira_User="string";Jira_Pwd="string"} -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Workbooks deployment script (CreateWorkbooks.ps1)
 
@@ -60,7 +60,7 @@ Takes all the json files within a folder (specified as WorkbooksFolder) and depl
 
 ### Sample
 
-`.\Script\CreateWorkbooks.ps1 -OnboardingFile Onboard\onboarding.json -WorkbooksFolder Workbooks -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
+`.\Script\CreateWorkbooks.ps1 -OnboardingFile Onboard\onboarding.json -WorkbooksFolder Workbooks -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Generate Onboarding Template (GenOnboarding.ps1)
 
@@ -72,7 +72,7 @@ Generate a onboarding template with all workspaces from the tenant.
 
 ### Sample
 
-`.\Script\GenOnboarding.ps1 -OnboardingFolder Onboard -TenantID <String> -SubscriptionID <String> -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
+`.\Script\GenOnboarding.ps1 -OnboardingFolder Onboard -TenantID <String> -SubscriptionID <String> -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Generate MS AnalyticsRules Template (GenAnalyticsRules.ps1)
 
@@ -84,7 +84,7 @@ Generate a MS AnalyticsRules Template with all rules templates available from a 
 
 ### Sample
 
-`.\Script\GenAnalyticsRules.ps1 -AnalyticsRulesFolder AnalyticsRules -TenantID <String> -SubscriptionID <String> -Workspace <String> -Azure_User thomas.couilleaux@theclemvp.com -Azure_Pwd '<String>'`
+`.\Script\GenAnalyticsRules.ps1 -AnalyticsRulesFolder AnalyticsRules -TenantID <String> -SubscriptionID <String> -Workspace <String> -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Generate MS Huntingrules Template (GenMSHuntingRules.ps1)
 

@@ -8,8 +8,20 @@
         "AzureSentinelConnectionName": {
             "value": "azuresentinel"
         },
-        "MDATPConnectionName": {
-            "value": "wdatp"
+        "integrationAccount": {
+            "value": "AccorInvest"
+        },
+        "integrationAccount_resourceGroup": {
+            "value": "AccorInvest"
+        },
+        "Jira_Organization": {
+            "value": "AccordInvest"
+        },
+        "Jira_User": {
+            "value": "<jira_user>"
+        },
+        "Jira_Pwd": {
+            "value": "<jira_pwd>"
         }
     },
     "variables": {

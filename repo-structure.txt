@@ -14,13 +14,20 @@
 |     |- onboarding.json _________________ # Onboarding definition file (JSON)
 |
 |  |- Playbooks/  ______________________ # Subfolder for Playbooks
-|     |- playbook.json _________________ # Playbooks definition files (ARM)
+|     |- *.json _________________ # Playbooks definition files (ARM)
 |
 |  |- Scripts/ _____________________ # Subfolder for script helpers 
-|     |- CreateAnalyticsRules.ps1 _______________ # Script files
+|     |- *.ps1 _______________ # Powershell Script files (Powershell)
+|     |- *.py _______________ # Python Script files (Python)
 |
 |  |- LocalScripts/ _____________________ # Subfolder for local script helpers
-|     |- CreateAnalyticsRules.ps1 _______________ # Script files
+|     |- *.ps1 _______________ # Powershell Script files (Powershell)
+|
+|  |- Reports/ _____________________ # Subfolder for Powerbi Reports
+|     |- *.pbix _______________ # PowerBI report files (PowerBI)
 |
 |  |- Workbooks/  ______________________ # Subfolder for Workbooks
-|     |- workbook-sample.json _________________ # Workbook definiton files (JSON)
+|     |- *.json _________________ # Workbook definiton files (JSON)
+|
+|  |- Workflows/  ______________________ # Subfolder for Workflows
+|     |- *.yml _________________ # Workflow definiton files (YAML)
