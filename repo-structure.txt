@@ -28,6 +28,3 @@
 |
 |  |- Workbooks/  ______________________ # Subfolder for Workbooks
 |     |- *.json _________________ # Workbook definiton files (JSON)
-|
-|  |- Workflows/  ______________________ # Subfolder for Workflows
-|     |- *.yml _________________ # Workflow definiton files (YAML)
