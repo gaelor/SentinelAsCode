@@ -27,7 +27,7 @@ jobs:
       - name: Perform Scan
         uses: ShiftLeftSecurity/scan-action@master
         with:
-          type: "credscan,python,powershell"
+          type: "credscan,python,powershell,javascript"
         env:
           WORKSPACE: https://github.com/${{ github.repository }}/blob/${{ github.sha }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
