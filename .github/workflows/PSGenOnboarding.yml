@@ -11,7 +11,7 @@ on:
   # Allows you to run this workflow manually from VS Code
   repository_dispatch:
     branches:
-      - ${{ github.ref }}
+      - dev
     types: [ psgenonboarding ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
