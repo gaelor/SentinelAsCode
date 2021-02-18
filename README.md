@@ -1,5 +1,5 @@
 ![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")
-![Build Status](https://github.com/gaelor/SentinelAsCode/actions)
+[![Build Status](https://avatars.githubusercontent.com/u/60777331?s=64&v=4)](https://github.com/gaelor/SentinelAsCode/actions)
 
 # Azure Sentinel as Code
 
