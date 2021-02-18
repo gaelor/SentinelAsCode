@@ -12,7 +12,7 @@ Reads configuration file under Onboard folder and installs SecurityInsights (Sen
 
 ### Sample
 
-`.\Script\InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json -Azure_User '<String>' -Azure_Pwd '<String>'`
+`.\Scripts\InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Analytics Rules deployment script (CreateAnalyticsRules.ps1)
 
@@ -24,7 +24,7 @@ Reads the config file in the AnalyticsRules folder and deploys its contents to a
 
 ### Sample
 
-`.\Script\CreateAnalyticsRules.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile AnalyticsRules\analytics-rules.json -Azure_User '<String>' -Azure_Pwd '<String>'`
+`.\Scripts\CreateAnalyticsRules.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile AnalyticsRules\analytics-rules.json -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Hunting Rules deployment script (CreateHuntingRulesAPI.ps1)
 
@@ -36,7 +36,7 @@ Reads the config file in the HuntingRules folder and deploys its contents to a s
 
 ### Sample
 
-`.\Script\CreateHuntingRulesAPI.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile HuntingRules\hunting-rules.json -Azure_User '<String>' -Azure_Pwd '<String>'`
+`.\Scripts\CreateHuntingRulesAPI.ps1 -OnboardingFile Onboard\onboarding.json -RulesFile HuntingRules\hunting-rules.json -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Playbooks deployment script (CreatePLaybooks.ps1)
 
@@ -48,7 +48,7 @@ Takes all the json files within a folder (specified as PlaybooksFolder parameter
 
 ### Sample
 
-`.\Script\CreatePlaybooks.ps1 -OnboardingFile .\Onboard\onboarding.json -PlaybooksFolder .\Playbooks\ -PlaybooksFilter "Open-jira*.json" -PlaybooksParamsFile .\Playbooks\Playbooks.params -PlaybooksParams @{Jira_User="string";Jira_Pwd="string"} -Azure_User '<String>' -Azure_Pwd '<String>'`
+`.\Scripts\CreatePlaybooks.ps1 -OnboardingFile .\Onboard\onboarding.json -PlaybooksFolder .\Playbooks\ -PlaybooksFilter "Open-jira*.json" -PlaybooksParamsFile .\Playbooks\Playbooks.params -PlaybooksParams @{Azure_ServiceAccount="string";Jira_User="string";Jira_Pwd="string"} -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Workbooks deployment script (CreateWorkbooks.ps1)
 
@@ -60,7 +60,7 @@ Takes all the json files within a folder (specified as WorkbooksFolder) and depl
 
 ### Sample
 
-`.\Script\CreateWorkbooks.ps1 -OnboardingFile Onboard\onboarding.json -WorkbooksFolder Workbooks -Azure_User '<String>' -Azure_Pwd '<String>'`
+`.\Scripts\CreateWorkbooks.ps1 -OnboardingFile Onboard\onboarding.json -WorkbooksFolder Workbooks -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Generate Onboarding Template (GenOnboarding.ps1)
 
@@ -72,7 +72,7 @@ Generate a onboarding template with all workspaces from the tenant.
 
 ### Sample
 
-`.\Script\GenOnboarding.ps1 -OnboardingFolder Onboard -TenantID <String> -SubscriptionID <String> -Azure_User '<String>' -Azure_Pwd '<String>'`
+`.\Scripts\GenOnboarding.ps1 -OnboardingFolder Onboard -TenantID <String> -SubscriptionID <String> -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Generate MS AnalyticsRules Template (GenAnalyticsRules.ps1)
 
@@ -84,7 +84,7 @@ Generate a MS AnalyticsRules Template with all rules templates available from a 
 
 ### Sample
 
-`.\Script\GenAnalyticsRules.ps1 -AnalyticsRulesFolder AnalyticsRules -TenantID <String> -SubscriptionID <String> -Workspace <String> -Azure_User '<String>' -Azure_Pwd '<String>'`
+`.\Scripts\GenAnalyticsRules.ps1 -AnalyticsRulesFolder AnalyticsRules -TenantID <String> -SubscriptionID <String> -Workspace <String> -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Generate MS Huntingrules Template (GenMSHuntingRules.ps1)
 
@@ -96,7 +96,7 @@ Generate a MS Huntingrules Template with all rules templates available from MS S
 
 ### Sample
 
-`.\Script\GenMSHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
+`.\Scripts\GenMSHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
 
 ## Generate Wortell Huntingrules Template (GenWortellHuntingRules.ps1)
 
@@ -108,7 +108,7 @@ Generate a Wortell Huntingrules Template with all rules templates available from
 
 ### Sample
 
-`.\Script\GenWortellHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
+`.\Scripts\GenWortellHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
 
 ## Generate RodTrent Huntingrules Template (GenRodTrentlHuntingRules.ps1)
 
@@ -120,7 +120,7 @@ Generate a RodTrent Huntingrules Template with all rules templates available fro
 
 ### Sample
 
-`.\Script\GenRodTrentHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
+`.\Scripts\GenRodTrentHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
 
 ## Generate BlueTeam Huntingrules Template (GenBlueTeamHuntingRules.ps1)
 
@@ -132,4 +132,4 @@ Generate a BlueTeam Huntingrules Template with all rules templates available fro
 
 ### Sample
 
-`.\Script\GenBlueTeamHuntingRules.ps1 -HuntingRulesFolder HuntingRules`
+`.\Scripts\GenBlueTeamHuntingRules.ps1 -HuntingRulesFolder HuntingRules`

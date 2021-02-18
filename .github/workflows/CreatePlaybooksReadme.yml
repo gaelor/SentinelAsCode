@@ -37,7 +37,7 @@ jobs:
       - name: Generate Playbooks Readme
         shell: bash
         run: |
-          echo '![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")' > Playbooks/README.md
+          echo '[![Metsys](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg)](https://www.metsys.fr/ "Metsys")' > Playbooks/README.md
           echo '# Playbooks' >> Playbooks/README.md
           echo 'JSON files in this folder are ARM templates that define Playbooks that need to be deployed on a given Sentinel environment.' >> Playbooks/README.md
           find Playbooks/ -name '*.json' | while read file; do python Scripts/genmd_playbooks.py $file >> Playbooks/README.md; done
