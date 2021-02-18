@@ -256,9 +256,9 @@
                             "inputs": {
                                 "variables": [
                                     {
-                                        "name": "organization",
-                                        "type": "string",
-                                        "value": "[parameters('Jira_Organization')]"
+                                        "name": "Jira_URL",
+                                        "type": "String",
+                                        "value": "[parameters('Jira_URL')]"
                                     }
                                 ]
                             }
@@ -273,9 +273,9 @@
                             "inputs": {
                                 "variables": [
                                     {
-                                        "name": "Jira_User",
-                                        "type": "String",
-                                        "value": "[parameters('Jira_User')]"
+                                        "name": "organization",
+                                        "type": "string",
+                                        "value": "[parameters('Jira_Organization')]"
                                     }
                                 ]
                             }
@@ -290,9 +290,9 @@
                             "inputs": {
                                 "variables": [
                                     {
-                                        "name": "Jira_Pwd",
+                                        "name": "Jira_User",
                                         "type": "String",
-                                        "value": "[parameters('Jira_Pwd')]"
+                                        "value": "[parameters('Jira_User')]"
                                     }
                                 ]
                             }
@@ -307,9 +307,9 @@
                             "inputs": {
                                 "variables": [
                                     {
-                                        "name": "Jira_URL",
+                                        "name": "Jira_Pwd",
                                         "type": "String",
-                                        "value": "[parameters('Jira_URL')]"
+                                        "value": "[parameters('Jira_Pwd')]"
                                     }
                                 ]
                             }
