@@ -38,11 +38,23 @@ jobs:
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
 
+      - name: Decrypt Playbook Parameter Template
+        shell: pwsh
+        run: |
+              Get-ChildItem .\Playbooks\*.gpg | ForEach-Object {gpg --quiet --batch --yes --decrypt --passphrase='${{ secrets.GPG_PASSPHRASE }}' --output $_.FullName.replace('.gpg','') $_.FullName}
+              $errors   = $issues.Where({$_.Severity -eq 'Error'})
+              $warnings = $issues.Where({$_.Severity -eq 'Warning'})
+              if ($errors) {
+                  Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
+              } else {
+                  Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
+              }
+
       # Runs a single command using the runners shell
       - name: Create Playbooks on Client Tenant
         shell: pwsh
         run: |
-              Scripts/CreatePlaybooks.ps1 -OnboardingFile Onboard\onboarding.json -PlaybooksFoder Playbooks -PlaybooksFilter "Open*.json" -PlaybooksParamsFile Playbooks\Playbooks.params -PlaybooksParams @{Azure_ServiceAccount="${{ secrets.AZURE_SERVICEACCOUNT }}";Jira_User="${{ secrets.JIRA_USER }}";Jira_Pwd="${{ secrets.JIRA_PWD }}"} -Azure_User ${{ secrets.AZURE_USER }} -Azure_Pwd '${{ secrets.AZURE_PWD }}' -Outvariable issues
+              Scripts/CreatePlaybooks.ps1 -OnboardingFile Onboard\onboarding.json -PlaybooksFolder Playbooks -PlaybooksFilter "Open*.json" -PlaybooksParamsFile Playbooks\Playbooks.params -PlaybooksParams @{Azure_ServiceAccount="${{ secrets.AZURE_SERVICEACCOUNT }}";Jira_User="${{ secrets.JIRA_USER }}";Jira_Pwd="${{ secrets.JIRA_PWD }}"} -Azure_User ${{ secrets.AZURE_USER }} -Azure_Pwd '${{ secrets.AZURE_PWD }}' -Outvariable issues
               $errors   = $issues.Where({$_.Severity -eq 'Error'})
               $warnings = $issues.Where({$_.Severity -eq 'Warning'})
               if ($errors) {
