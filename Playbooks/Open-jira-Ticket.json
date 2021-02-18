@@ -217,7 +217,7 @@
                         },
                         "HTTP_2": {
                             "runAfter": {
-                                "Initialize_variable_4": [
+                                "Initialize_variable_5": [
                                     "Succeeded"
                                 ]
                             },
@@ -293,6 +293,23 @@
                                         "name": "Jira_Pwd",
                                         "type": "String",
                                         "value": "[parameters('Jira_Pwd')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_5": {
+                            "runAfter": {
+                                "Initialize_variable_4": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Jira_URL",
+                                        "type": "String",
+                                        "value": "[parameters('Jira_URL')]"
                                     }
                                 ]
                             }
@@ -479,7 +496,7 @@
                                                     }
                                                 },
                                                 "method": "POST",
-                                                "uri": "https://support.metsys.fr/rest/api/2/issue/"
+                                                "uri": "@variables('url')"
                                             }
                                         }
                                     }
