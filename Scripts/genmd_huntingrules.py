@@ -4,7 +4,7 @@ import sys
 with open(sys.argv[1], 'r') as huntingrules:
     myjson = json.load(huntingrules, strict=False)
 
-print('![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")')
+print('[![Metsys](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg)](https://www.metsys.fr/ "Metsys")')
 print('# Hunting Rules')
 
 for huntingrule in myjson:
