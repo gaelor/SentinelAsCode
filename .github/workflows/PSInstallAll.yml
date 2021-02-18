@@ -17,6 +17,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ secrets.ENV }}
       - name: Install Sentinel on Client Tenant
         shell: pwsh
         run: |
@@ -34,6 +36,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ secrets.ENV }}
       - name: Create Analytics Rules on Client Tenant
         shell: pwsh
         run: |
@@ -51,6 +55,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ secrets.ENV }}
       - name: Create Hunting Rules on Client Tenant
         shell: pwsh
         run: |
@@ -68,6 +74,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ secrets.ENV }}
       - name: Create Workbooks on Client Tenant
         shell: pwsh
         run: |
@@ -85,6 +93,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ secrets.ENV }}
       - name: Create Playbooks on Client Tenant
         shell: pwsh
         run: |

@@ -23,6 +23,8 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ secrets.ENV }}
 
       # Runs a single command using the runners shell
       - name: Generate Onboarding Template
@@ -37,10 +39,22 @@ jobs:
                   Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
               }
 
-      - name: Commit Onboarding Template
+      - name: Encrypt Onboarding Template
+        shell: pwsh
+        run: |
+              Get-ChildItem .\Onboard\*.json | ForEach-Object {gpg --quiet --batch --yes --passphrase='${{ secrets.GPG_PASSPHRASE }}' --symmetric $_.FullName}
+              $errors   = $issues.Where({$_.Severity -eq 'Error'})
+              $warnings = $issues.Where({$_.Severity -eq 'Warning'})
+              if ($errors) {
+                  Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
+              } else {
+                  Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
+              }
+
+      - name: Commit Onboarding Template Encrypted
         run: |
           git config --global user.name ${{ secrets.GIT_USER }}
           git config --global user.email ${{ secrets.GIT_EMAIL }}
           git add Onboard/*
-          git commit -am "Automated Onboarding Template"
+          git commit -am "Automated Onboarding Template Encrypted"
           git push
