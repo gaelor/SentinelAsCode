@@ -44,6 +44,13 @@
                 "description": "The azure integration account resource group name."
             }
         },
+        "Jira_URL": {
+            "defaultValue": "<jira_url>",
+            "type": "string",
+            "metadata": {
+                "description": "The jira url."
+            }
+        },
         "Jira_Organization": {
             "defaultValue": "<jira_organization>",
             "type": "string",
