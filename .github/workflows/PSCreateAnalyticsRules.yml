@@ -23,7 +23,9 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
+        with:
+          ref: ${{ secrets.ENV }}
+          
       # Runs a single command using the runners shell
       - name: Create Analytics Rules on Client Tenant
         shell: pwsh
