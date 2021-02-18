@@ -32,10 +32,14 @@ jobs:
           WORKSPACE: https://github.com/${{ github.repository }}/blob/${{ github.sha }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/upload-artifact@v1
-        with:
-          name: reports
-          path: reports          
+      - name: Commit Security Reports Template
+        run: |
+          mv report/* Reports/AuditSecurity/*
+          git config --global user.name ${{ secrets.GIT_USER }}
+          git config --global user.email ${{ secrets.GIT_EMAIL }}
+          git add Reports/AuditSecurity/*
+          git commit -am "Automated Security Reports"
+          git push
 
       - uses: actions/checkout@v2
         with:
