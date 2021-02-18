@@ -40,7 +40,7 @@ jobs:
       - name: Encrypt Onboarding Template
         shell: pwsh
         run: |
-              find Onboard/ -name '*.json' | while read file; do gpg --quiet --batch --yes --passphrase=${{ secrets.GPG_PASSPHRASE }} --symmetric $file --output $file.enc; done
+              find Onboard/ -name '*.json' | while read file; do gpg --quiet --batch --yes --passphrase=${{ secrets.GPG_PASSPHRASE }} --symmetric $file; done
               $errors   = $issues.Where({$_.Severity -eq 'Error'})
               $warnings = $issues.Where({$_.Severity -eq 'Warning'})
               if ($errors) {
