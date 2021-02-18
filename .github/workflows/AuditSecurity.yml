@@ -24,13 +24,19 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     steps:
-      - name: Perform Scan
+      - name: ShiftLeftSecurity Scan
         uses: ShiftLeftSecurity/scan-action@master
         with:
           type: "credscan,python,yaml,nodejs,json,arm,bash,depscan,java,ruby,php"
         env:
           WORKSPACE: https://github.com/${{ github.repository }}/blob/${{ github.sha }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - uses: actions/upload-artifact@v1
         with:
