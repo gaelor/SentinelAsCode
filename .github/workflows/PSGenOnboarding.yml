@@ -10,6 +10,8 @@ on:
 
   # Allows you to run this workflow manually from VS Code
   repository_dispatch:
+    branches:
+      - ${{ github.ref }}
     types: [ psgenonboarding ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -38,9 +40,9 @@ jobs:
               }
 
       - name: Encrypt Onboarding Template
-        shell: bash
+        shell: pwsh
         run: |
-              find Onboard/ -name '*.json' | while read file; do gpg --quiet --batch --yes --passphrase=${{ secrets.GPG_PASSPHRASE }} --symmetric $file; done
+              Get-ChildItem .\Onboard\*.json | ForEach-Object {gpg --quiet --batch --yes --passphrase='${{ secrets.GPG_PASSPHRASE }}' --symmetric $_.FullName}
               $errors   = $issues.Where({$_.Severity -eq 'Error'})
               $warnings = $issues.Where({$_.Severity -eq 'Warning'})
               if ($errors) {
