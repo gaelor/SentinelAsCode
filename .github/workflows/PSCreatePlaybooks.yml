@@ -25,7 +25,19 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{ secrets.ENV }}
-          
+
+      - name: Decrypt Onboarding Template
+        shell: pwsh
+        run: |
+              Get-ChildItem .\Onboard\*.gpg | ForEach-Object {gpg --quiet --batch --yes --decrypt --passphrase='${{ secrets.GPG_PASSPHRASE }}' --output $_.FullName.replace('.gpg','') $_.FullName}
+              $errors   = $issues.Where({$_.Severity -eq 'Error'})
+              $warnings = $issues.Where({$_.Severity -eq 'Warning'})
+              if ($errors) {
+                  Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
+              } else {
+                  Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
+              }
+
       # Runs a single command using the runners shell
       - name: Create Playbooks on Client Tenant
         shell: pwsh
