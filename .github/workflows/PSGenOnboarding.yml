@@ -11,7 +11,7 @@ on:
   # Allows you to run this workflow manually from VS Code
   repository_dispatch:
     branches:
-      - dev
+      - ${{ secrets.ENV }}
     types: [ psgenonboarding ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -26,7 +26,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
         with:
-          ref: dev
+          ref: ${{ secrets.ENV }}
 
       # Runs a single command using the runners shell
       - name: Generate Onboarding Template
