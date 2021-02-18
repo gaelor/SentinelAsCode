@@ -32,13 +32,17 @@ jobs:
           WORKSPACE: https://github.com/${{ github.repository }}/blob/${{ github.sha }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - uses: actions/upload-artifact@v1
+        with:
+          name: reports
+          path: reports          
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis          
+          
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - uses: actions/upload-artifact@v1
-        with:
-          name: reports
-          path: reports
