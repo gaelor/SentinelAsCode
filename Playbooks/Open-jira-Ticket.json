@@ -44,13 +44,6 @@
                 "description": "The azure integration account resource group name."
             }
         },
-        "Jira_URL": {
-            "defaultValue": "<jira_url>",
-            "type": "string",
-            "metadata": {
-                "description": "The jira url."
-            }
-        },
         "Jira_Organization": {
             "defaultValue": "<jira_organization>",
             "type": "string",
@@ -217,7 +210,7 @@
                         },
                         "HTTP_2": {
                             "runAfter": {
-                                "Initialize_variable_5": [
+                                "Initialize_variable_4": [
                                     "Succeeded"
                                 ]
                             },
@@ -256,9 +249,9 @@
                             "inputs": {
                                 "variables": [
                                     {
-                                        "name": "Jira_URL",
-                                        "type": "String",
-                                        "value": "[parameters('Jira_URL')]"
+                                        "name": "organization",
+                                        "type": "string",
+                                        "value": "[parameters('Jira_Organization')]"
                                     }
                                 ]
                             }
@@ -273,23 +266,6 @@
                             "inputs": {
                                 "variables": [
                                     {
-                                        "name": "organization",
-                                        "type": "string",
-                                        "value": "[parameters('Jira_Organization')]"
-                                    }
-                                ]
-                            }
-                        },
-                        "Initialize_variable_4": {
-                            "runAfter": {
-                                "Initialize_variable_3": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
                                         "name": "Jira_User",
                                         "type": "String",
                                         "value": "[parameters('Jira_User')]"
@@ -297,9 +273,9 @@
                                 ]
                             }
                         },
-                        "Initialize_variable_5": {
+                        "Initialize_variable_4": {
                             "runAfter": {
-                                "Initialize_variable_4": [
+                                "Initialize_variable_3": [
                                     "Succeeded"
                                 ]
                             },
@@ -496,7 +472,7 @@
                                                     }
                                                 },
                                                 "method": "POST",
-                                                "uri": "@variables('url')"
+                                                "uri": "https://support.metsys.fr/rest/api/2/issue/"
                                             }
                                         }
                                     }
