@@ -384,14 +384,6 @@ The azure integration account name.
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-> [concat('teams-', parameters('PlaybookName'))]
-
-> [concat('azuread-', parameters('PlaybookName'))]
-
-> [concat('azuresentinel-', parameters('PlaybookName'))]
-
-> [concat('office365-', parameters('PlaybookName'))]
-
 ## Prompt-User
 ### Playbook Tags
 
