@@ -64,7 +64,7 @@
         {
             "type": "Microsoft.Web/connections",
             "apiVersion": "2016-06-01",
-            "name": "[variables('AzureLAConnectionName')]",
+            "name": "[parameters('AzureLAConnectionName')]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "customParameterValues": {},
@@ -76,7 +76,7 @@
         {
             "type": "Microsoft.Web/connections",
             "apiVersion": "2016-06-01",
-            "name": "[variables('AzureSentinelConnectionName')]",
+            "name": "[parameters('AzureSentinelConnectionName')]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "customParameterValues": {},
@@ -94,8 +94,8 @@
                 "LogicAppsCategory": "security"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', variables('AzureLAConnectionName'))]",
-                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]"
+                "[resourceId('Microsoft.Web/connections', parameters('AzureLAConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]"
             ],
             "properties": {
                 "state": "Enabled",
@@ -205,7 +205,7 @@
                                     "inputs": {
                                         "method": "GET",
                                         "queries": {
-                                            "apikey": "@variables('ApiKey')",
+                                            "apikey": "@parameters('ApiKey')",
                                             "resource": "@items('For_each')?['Url']"
                                         },
                                         "uri": "https://www.virustotal.com/vtapi/v2/url/report"
@@ -1158,7 +1158,7 @@
                         "value": {
                             "azurela": {
                                 "connectionId": "[resourceId('Microsoft.Web/connections', parameters('AzureLAConnectionName'))]",
-                                "connectionName": "[variables('AzureLAConnectionName')]",
+                                "connectionName": "[parameters('AzureLAConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureloganalyticsdatacollector')]"
                             },
                             "azuresentinel": {
