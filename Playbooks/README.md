@@ -348,9 +348,9 @@ The azure integration account name.
 
 The client organization in jira.
 
-> Jira_User:
+> Jira_URL:
 
-The jira account name used to authenticate on the API.
+The jira url.
 
 > Jira_Pwd:
 
@@ -363,6 +363,10 @@ The azure sentinel connection name used by the logic app.
 > Azure_ServiceAccount:
 
 The service account used to run the logic app.
+
+> Jira_User:
+
+The jira account name used to authenticate on the API.
 
 > integrationAccount_resourceGroup:
 
@@ -377,6 +381,51 @@ The azure integration account name.
 > Description: This playbook will open a ticket on Jira with incident informations using the client organization.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2FOpen-jira-Ticket.json" target="_blank">
+<img src="https://aka.ms/deploytoazurebutton""/>
+</a>
+
+> [concat('teams-', parameters('PlaybookName'))]
+
+> [concat('azuread-', parameters('PlaybookName'))]
+
+> [concat('azuresentinel-', parameters('PlaybookName'))]
+
+> [concat('office365-', parameters('PlaybookName'))]
+
+## Prompt-User
+### Playbook Tags
+
+> Author: [thomas couilleaux](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://github.com/gaelor/SentinelAsCode/tree/master/Playbooks/Prompt-User.json)
+
+### Playbook Requirements
+
+> AzureADConnectionName:
+
+The azure ad connection name used by the logic app.
+
+> Office365ConnectionName:
+
+The o365 connection name used by the logic app.
+
+> TeamsConnectionName:
+
+The teams connection name used by the logic app.
+
+> AzureSentinelConnectionName:
+
+The azure sentinel connection name used by the logic app.
+
+> Azure_ServiceAccount:
+
+The service account used to run the logic app.
+
+### Playbook details
+
+> Description: This playbook will ask the user if they completed the action from the Incident in Azure Sentinel.  If so, it will close the incident and add a comment.  If not, it will post a message to teams for the SOC to investigate and add a comment to the incident.
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2FPrompt-User.json" target="_blank">
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
