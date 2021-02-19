@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Azure_ServiceAccount": {
+            "value": "<azure_serviceaccount>"
+        },
+        "AzureSentinelConnectionName": {
+            "value": "azuresentinel"
+        },
+        "AzureADConnectionName": {
+            "value": "azuread"
+        },
+        "Office365ConnectionName": {
+            "value": "office365"
+        },
+        "TeamsConnectionName": {
+            "value": "teams"
+        }
+    },
+    "variables": {
+    }
+}
