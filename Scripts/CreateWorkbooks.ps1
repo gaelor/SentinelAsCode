@@ -9,10 +9,10 @@ param(
 $workbookType = "sentinel"
 
 #Adding AzSentinel module
-Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
-Import-Module AzSentinel
-Install-Module Az.Resources -AllowClobber -Scope CurrentUser -Force
-Import-Module Az.Resources
+#Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
+#Import-Module AzSentinel
+#Install-Module Az.Resources -AllowClobber -Scope CurrentUser -Force
+#Import-Module Az.Resources
 
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
