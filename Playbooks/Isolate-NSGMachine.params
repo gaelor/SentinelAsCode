@@ -8,8 +8,11 @@
         "AzureSentinelConnectionName": {
             "value": "azuresentinel"
         },
-        "Virustotal_Key": {
-            "value": "<virustotal_key>"
+        "Office365ConnectionName": {
+            "value": "office365"
+        },
+        "EmailApprovalContact": {
+            "value": "<user>@<domain>"
         }
     },
     "variables": {

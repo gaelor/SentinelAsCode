@@ -44,11 +44,11 @@ Takes all the json files within a folder (specified as PlaybooksFolder parameter
 
 ### Syntax
 
-`CreatePlaybooks.ps1 -OnboardingFile <String> -PlaybooksFolder <String> -PlaybooksParams <String> -PlaybooksFilter <String> -PlaybooksParamsFile <String> -PlaybooksParams <@Array> -Azure_User <String> -Azure_Pwd '<String>'`
+`CreatePlaybooks.ps1 -OnboardingFile <String> -PlaybooksFolder <String> -PlaybooksParams <String> -PlaybooksParamsFile <String> -PlaybooksParams <@Array> -Azure_User <String> -Azure_Pwd '<String>'`
 
 ### Sample
 
-`.\Scripts\CreatePlaybooks.ps1 -OnboardingFile .\Onboard\onboarding.json -PlaybooksFolder .\Playbooks\ -PlaybooksFilter "Open-jira*.json" -PlaybooksParamsFile .\Playbooks\Playbooks.params -PlaybooksParams @{Azure_ServiceAccount="string";Jira_User="string";Jira_Pwd="string"} -Azure_User '<String>' -Azure_Pwd '<String>'`
+`.\Scripts\CreatePlaybooks.ps1 -OnboardingFile .\Onboard\onboarding.json -PlaybooksFolder ".\Playbooks\Open-jira*.json" -PlaybooksParamsFile .\Playbooks\Playbooks.params -PlaybooksParams @{Azure_ServiceAccount="string";Jira_User="string";Jira_Pwd="string"} -Azure_User '<String>' -Azure_Pwd '<String>'`
 
 ## Workbooks deployment script (CreateWorkbooks.ps1)
 

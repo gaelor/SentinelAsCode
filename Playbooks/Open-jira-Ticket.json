@@ -44,6 +44,13 @@
                 "description": "The azure integration account resource group name."
             }
         },
+        "Jira_URL": {
+            "defaultValue": "<jira_url>",
+            "type": "string",
+            "metadata": {
+                "description": "The jira url."
+            }
+        },
         "Jira_Organization": {
             "defaultValue": "<jira_organization>",
             "type": "string",
@@ -141,12 +148,6 @@
                     },
                     "actions": {
                         "Add_comment_to_incident_(V2)": {
-                            "runAfter": {
-                                "Switch": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ApiConnection",
                             "inputs": {
                                 "body": {
                                     "Value": "Incident create in Jira with http status @{outputs('HTTP')['statusCode']}.\nTicket Information:\n@{body('HTTP')}"
@@ -158,11 +159,15 @@
                                 },
                                 "method": "put",
                                 "path": "/Comment/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}/@{encodeURIComponent('Incident')}/@{encodeURIComponent(body('Alert_-_Get_incident')?['properties']?['CaseNumber'])}"
-                            }
+                            },
+                            "runAfter": {
+                                "Switch": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection"
                         },
                         "Alert_-_Get_incident": {
-                            "runAfter": {},
-                            "type": "ApiConnection",
                             "inputs": {
                                 "host": {
                                     "connection": {
@@ -171,23 +176,23 @@
                                 },
                                 "method": "get",
                                 "path": "/Cases/@{encodeURIComponent(triggerBody()?['SystemAlertId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}"
-                            }
+                            },
+                            "runAfter": {},
+                            "type": "ApiConnection"
                         },
                         "For_each": {
-                            "foreach": "@body('Parse_JSON')?['value']",
                             "actions": {
                                 "Condition": {
                                     "actions": {
                                         "Set_variable": {
-                                            "runAfter": {},
-                                            "type": "SetVariable",
                                             "inputs": {
                                                 "name": "workspace_name",
                                                 "value": "@items('For_each')?['name']"
-                                            }
+                                            },
+                                            "runAfter": {},
+                                            "type": "SetVariable"
                                         }
                                     },
-                                    "runAfter": {},
                                     "expression": {
                                         "and": [
                                             {
@@ -198,9 +203,11 @@
                                             }
                                         ]
                                     },
+                                    "runAfter": {},
                                     "type": "If"
                                 }
                             },
+                            "foreach": "@body('Parse_JSON')?['value']",
                             "runAfter": {
                                 "Parse_JSON": [
                                     "Succeeded"
@@ -209,27 +216,21 @@
                             "type": "Foreach"
                         },
                         "HTTP_2": {
-                            "runAfter": {
-                                "Initialize_variable_4": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Http",
                             "inputs": {
                                 "authentication": {
                                     "type": "ManagedServiceIdentity"
                                 },
                                 "method": "GET",
                                 "uri": "https://management.azure.com/subscriptions/@{triggerBody()?['WorkspaceSubscriptionId']}/providers/Microsoft.OperationalInsights/workspaces?api-version=2020-08-01"
-                            }
-                        },
-                        "Initialize_variable": {
+                            },
                             "runAfter": {
-                                "Alert_-_Get_incident": [
+                                "Initialize_variable_5": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "Http"
+                        },
+                        "Initialize_variable": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -237,15 +238,32 @@
                                         "type": "string"
                                     }
                                 ]
-                            }
+                            },
+                            "runAfter": {
+                                "Alert_-_Get_incident": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
                         },
                         "Initialize_variable_2": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Jira_URL",
+                                        "type": "String",
+                                        "value": "[parameters('Jira_URL')]"
+                                    }
+                                ]
+                            },
                             "runAfter": {
                                 "Initialize_variable": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_3": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -254,15 +272,15 @@
                                         "value": "[parameters('Jira_Organization')]"
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_3": {
+                            },
                             "runAfter": {
                                 "Initialize_variable_2": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_4": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -271,15 +289,15 @@
                                         "value": "[parameters('Jira_User')]"
                                     }
                                 ]
-                            }
-                        },
-                        "Initialize_variable_4": {
+                            },
                             "runAfter": {
                                 "Initialize_variable_3": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_5": {
                             "inputs": {
                                 "variables": [
                                     {
@@ -288,15 +306,15 @@
                                         "value": "[parameters('Jira_Pwd')]"
                                     }
                                 ]
-                            }
-                        },
-                        "Parse_JSON": {
+                            },
                             "runAfter": {
-                                "HTTP_2": [
+                                "Initialize_variable_4": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "ParseJson",
+                            "type": "InitializeVariable"
+                        },
+                        "Parse_JSON": {
                             "inputs": {
                                 "content": "@body('HTTP_2')",
                                 "schema": {
@@ -424,21 +442,19 @@
                                     },
                                     "type": "object"
                                 }
-                            }
-                        },
-                        "Switch": {
+                            },
                             "runAfter": {
-                                "For_each": [
+                                "HTTP_2": [
                                     "Succeeded"
                                 ]
                             },
+                            "type": "ParseJson"
+                        },
+                        "Switch": {
                             "cases": {
                                 "Case": {
-                                    "case": "Low",
                                     "actions": {
                                         "HTTP": {
-                                            "runAfter": {},
-                                            "type": "Http",
                                             "inputs": {
                                                 "authentication": {
                                                     "password": "@{variables('Jira_Pwd')}",
@@ -472,17 +488,17 @@
                                                     }
                                                 },
                                                 "method": "POST",
-                                                "uri": "https://support.metsys.fr/rest/api/2/issue/"
-                                            }
+                                                "uri": "@variables('Jira_URL')"
+                                            },
+                                            "runAfter": {},
+                                            "type": "Http"
                                         }
-                                    }
+                                    },
+                                    "case": "Low"
                                 },
                                 "Case_2": {
-                                    "case": "Medium",
                                     "actions": {
                                         "HTTP_3": {
-                                            "runAfter": {},
-                                            "type": "Http",
                                             "inputs": {
                                                 "authentication": {
                                                     "password": "@{variables('Jira_Pwd')}",
@@ -516,17 +532,17 @@
                                                     }
                                                 },
                                                 "method": "POST",
-                                                "uri": "https://support.metsys.fr/rest/api/2/issue/"
-                                            }
+                                                "uri": "@variables('Jira_URL')"
+                                            },
+                                            "runAfter": {},
+                                            "type": "Http"
                                         }
-                                    }
+                                    },
+                                    "case": "Medium"
                                 },
                                 "Case_3": {
-                                    "case": "High",
                                     "actions": {
                                         "HTTP_4": {
-                                            "runAfter": {},
-                                            "type": "Http",
                                             "inputs": {
                                                 "authentication": {
                                                     "password": "@{variables('Jira_Pwd')}",
@@ -560,17 +576,18 @@
                                                     }
                                                 },
                                                 "method": "POST",
-                                                "uri": "https://support.metsys.fr/rest/api/2/issue/"
-                                            }
+                                                "uri": "@variables('Jira_URL')"
+                                            },
+                                            "runAfter": {},
+                                            "type": "Http"
                                         }
-                                    }
+                                    },
+                                    "case": "High"
                                 }
                             },
                             "default": {
                                 "actions": {
                                     "HTTP_5": {
-                                        "runAfter": {},
-                                        "type": "Http",
                                         "inputs": {
                                             "authentication": {
                                                 "password": "@{variables('Jira_Pwd')}",
@@ -604,12 +621,19 @@
                                                 }
                                             },
                                             "method": "POST",
-                                            "uri": "https://support.metsys.fr/rest/api/2/issue/"
-                                        }
+                                            "uri": "@variables('Jira_URL')"
+                                        },
+                                        "runAfter": {},
+                                        "type": "Http"
                                     }
                                 }
                             },
                             "expression": "@body('Alert_-_Get_incident')?['properties']?['Severity']",
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded"
+                                ]
+                            },
                             "type": "Switch"
                         }
                     },

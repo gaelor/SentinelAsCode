@@ -8,6 +8,9 @@
         "AzureSentinelConnectionName": {
             "value": "azuresentinel"
         },
+        "AzureLAConnectionName": {
+            "value": "azurela"
+        },
         "Virustotal_Key": {
             "value": "<virustotal_key>"
         }
