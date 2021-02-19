@@ -53,7 +53,7 @@
             }
         },
         "description": {
-            "defaultValue": "This playbook will block app execution on the machine in Microsoft Defender ATP.",
+            "defaultValue": "This playbook will ask the user if they completed the action from the Incident in Azure Sentinel.  If so, it will close the incident and add a comment.  If not, it will post a message to teams for the SOC to investigate and add a comment to the incident.",
             "type": "string",
             "metadata": {
                 "description": "The logic app description."
