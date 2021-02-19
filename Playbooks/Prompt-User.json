@@ -67,12 +67,6 @@
             }
         }
     },
-    "variables": {
-        "AzureADConnectionName": "[concat('azuread-', parameters('PlaybookName'))]",
-        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]",
-        "Office365ConnectionName": "[concat('office365-', parameters('PlaybookName'))]",
-        "TeamsConnectionName": "[concat('teams-', parameters('PlaybookName'))]"
-    },
     "resources": [
         {
             "type": "Microsoft.Web/connections",
