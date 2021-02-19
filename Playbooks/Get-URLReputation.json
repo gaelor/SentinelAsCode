@@ -1,20 +1,65 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-        "metadata":{
-        "comments": "This playbook will take each URL entity and query VirusTotal for URL  Report.",
-        "author": "Yehuda Tognder and Yaniv Shasha"
-        },
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Send-UrlReport",
-            "type": "String"
+            "defaultValue": "[newGuid()]",
+            "type": "string",
+            "metadata": {
+                "description": "The unique guid for this playbook instance"
+            }
+        },
+        "playbookDisplayName": {
+            "defaultValue": "<playbook>",
+            "type": "string",
+            "metadata": {
+                "description": "The friendly name for the playbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+            }
+        },
+        "Azure_ServiceAccount": {
+            "defaultValue": "<azure_serviceaccount>",
+            "type": "string",
+            "metadata": {
+                "description": "The service account used to run the logic app."
+            }
+        },
+        "AzureSentinelConnectionName": {
+            "defaultValue": "azuresentinel",
+            "type": "string",
+            "metadata": {
+                "description": "The azure sentinel connection name used by the logic app."
+            }
+        },
+        "AzureLAConnectionName": {
+            "defaultValue": "azurela",
+            "type": "string",
+            "metadata": {
+                "description": "The azure log analytics connection name used by the logic app."
+            }
+        },
+        "Virustotal_Key": {
+            "defaultValue": "<virustotal_key>",
+            "type": "string",
+            "metadata": {
+                "description": "The virustotal api key."
+            }
+        },
+        "description": {
+            "defaultValue": "This playbook will take each URL entity and query VirusTotal for URL  Report.",
+            "type": "string",
+            "metadata": {
+                "description": "The logic app description."
+            }
+        },
+        "author": {
+            "defaultValue": "thomas couilleaux",
+            "type": "string",
+            "metadata": {
+                "description": "The logic app author."
+            }
         }  
     },
-    "variables": {
-	        "AzureLAConnectionName": "[concat('azureloganalyticsdatacollector-', parameters('PlaybookName'))]",
-        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]"
-	},
+    "variables": {},
     "resources": [
         {
             "type": "Microsoft.Web/connections",
@@ -1111,14 +1156,14 @@
                 "parameters": {
                     "$connections": {
                         "value": {
-                            "azureloganalyticsdatacollector": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureLAConnectionName'))]",
+                            "azurela": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('AzureLAConnectionName'))]",
                                 "connectionName": "[variables('AzureLAConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureloganalyticsdatacollector')]"
                             },
                             "azuresentinel": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
-                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]",
+                                "connectionName": "[parameters('AzureSentinelConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
                             }
                         }
