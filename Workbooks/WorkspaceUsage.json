@@ -35,7 +35,7 @@
             "type": "string"
         },
         "description": {
-            "defaultValue": "This workbook will get a report on workspace usage.",
+            "defaultValue": "This workbook will get a report on workspace usage and cost.",
             "type": "string"
         },
         "author": {
