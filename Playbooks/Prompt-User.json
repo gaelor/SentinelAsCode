@@ -71,7 +71,7 @@
         {
             "type": "Microsoft.Web/connections",
             "apiVersion": "2016-06-01",
-            "name": "[variables('AzureADConnectionName')]",
+            "name": "[parameters('AzureADConnectionName')]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "displayName": "[parameters('Azure_ServiceAccount')]",
@@ -84,7 +84,7 @@
         {
             "type": "Microsoft.Web/connections",
             "apiVersion": "2016-06-01",
-            "name": "[variables('AzureSentinelConnectionName')]",
+            "name": "[parameters('AzureSentinelConnectionName')]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "displayName": "[parameters('Azure_ServiceAccount')]",
@@ -97,7 +97,7 @@
         {
             "type": "Microsoft.Web/connections",
             "apiVersion": "2016-06-01",
-            "name": "[variables('Office365ConnectionName')]",
+            "name": "[parameters('Office365ConnectionName')]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "displayName": "[parameters('Azure_ServiceAccount')]",
@@ -110,7 +110,7 @@
         {
             "type": "Microsoft.Web/connections",
             "apiVersion": "2016-06-01",
-            "name": "[variables('TeamsConnectionName')]",
+            "name": "[parameters('TeamsConnectionName')]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "displayName": "[parameters('Azure_ServiceAccount')]",
@@ -129,10 +129,10 @@
                 "LogicAppsCategory": "security"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', variables('AzureADConnectionName'))]",
-                "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
-                "[resourceId('Microsoft.Web/connections', variables('Office365ConnectionName'))]",
-                "[resourceId('Microsoft.Web/connections', variables('TeamsConnectionName'))]"
+                "[resourceId('Microsoft.Web/connections', parameters('AzureADConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('Office365ConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('TeamsConnectionName'))]"
             ],
             "properties": {
                 "state": "Enabled",
@@ -348,23 +348,23 @@
                     "$connections": {
                         "value": {
                             "azuread": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureADConnectionName'))]",
-                                "connectionName": "[variables('AzureADConnectionName')]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('AzureADConnectionName'))]",
+                                "connectionName": "[parameters('AzureADConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuread')]"
                             },
                             "azuresentinel": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
-                                "connectionName": "[variables('AzureSentinelConnectionName')]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]",
+                                "connectionName": "[parameters('AzureSentinelConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
                             },
                             "office365": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('Office365ConnectionName'))]",
-                                "connectionName": "[variables('Office365ConnectionName')]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('Office365ConnectionName'))]",
+                                "connectionName": "[parameters('Office365ConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
                             },
                             "teams": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('TeamsConnectionName'))]",
-                                "connectionName": "[variables('TeamsConnectionName')]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('TeamsConnectionName'))]",
+                                "connectionName": "[parameters('TeamsConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/teams')]"
                             }
                         }
