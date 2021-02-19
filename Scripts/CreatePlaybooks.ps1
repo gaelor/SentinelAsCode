@@ -45,7 +45,7 @@ if($null -eq $PlaybooksParamsFile){
         Write-Host "Playbook Parameters are:"@PlaybooksParams
                 try {
             Write-Host "Deploying: $playbookDisplayName, with template file: $armTemplate, with parameters file: $PlaybooksParamsFile, in the resource group: $($workspaces.deployments[0].resourcegroup)"
-            New-AzResourceGroupDeployment -Name $(("$playbookDisplayName").replace(' ', '')) -ResourceGroupName $($workspaces.deployments[0].resourcegroup) -TemplateFile `'$armTemplate`' -TemplateParameterFile $PlaybooksParamsFile -playbookDisplayName $playbookDisplayName @PlaybooksParams
+            New-AzResourceGroupDeployment -PlaybookName $(("$playbookDisplayName").replace(' ', '')) -ResourceGroupName $($workspaces.deployments[0].resourcegroup) -TemplateFile `'$armTemplate`' -TemplateParameterFile $PlaybooksParamsFile -playbookDisplayName $playbookDisplayName @PlaybooksParams
         }
         catch {
             $ErrorMessage = $_.Exception.Message
@@ -63,7 +63,7 @@ else{
         Write-Host "Playbook Parameters are:"@PlaybooksParams
         try {
             Write-Host "Deploying: $playbookDisplayName, with template file: $armTemplate, with parameters file: $PlaybooksParamsFile, in the resource group: $($workspaces.deployments[0].resourcegroup)"
-            New-AzResourceGroupDeployment -Name $(("$playbookDisplayName").replace(' ', '')) -ResourceGroupName $($workspaces.deployments[0].resourcegroup) -TemplateFile `'$armTemplate`' -TemplateParameterFile $PlaybooksParamsFile -playbookDisplayName $playbookDisplayName @PlaybooksParams
+            New-AzResourceGroupDeployment -PlaybookName $(("$playbookDisplayName").replace(' ', '')) -ResourceGroupName $($workspaces.deployments[0].resourcegroup) -TemplateFile `'$armTemplate`' -TemplateParameterFile $PlaybooksParamsFile -playbookDisplayName $playbookDisplayName @PlaybooksParams
         }
         catch {
             $ErrorMessage = $_.Exception.Message
