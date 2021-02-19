@@ -14,6 +14,9 @@
         "integrationAccount_resourceGroup": {
             "value": "<integrationAccount_resourceGroup>"
         },
+        "Jira_URL": {
+            "value": "<jira_url>"
+        },
         "Jira_Organization": {
             "value": "<jira_organization>"
         },

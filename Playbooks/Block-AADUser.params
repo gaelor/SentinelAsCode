@@ -8,8 +8,8 @@
         "AzureSentinelConnectionName": {
             "value": "azuresentinel"
         },
-        "Virustotal_Key": {
-            "value": "<virustotal_key>"
+        "AzureADConnectionName": {
+            "value": "azuread"
         }
     },
     "variables": {
