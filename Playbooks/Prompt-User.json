@@ -45,15 +45,8 @@
                 "description": "The o365 connection name used by the logic app."
             }
         },
-        "TeamsConnectionName": {
-            "defaultValue": "teams",
-            "type": "string",
-            "metadata": {
-                "description": "The teams connection name used by the logic app."
-            }
-        },
         "description": {
-            "defaultValue": "This playbook will ask the user if they completed the action from the Incident in Azure Sentinel.  If so, it will close the incident and add a comment.  If not, it will post a message to teams for the SOC to investigate and add a comment to the incident.",
+            "defaultValue": "This playbook will ask the user if they completed the action from the Incident in Azure Sentinel.  If so, it will close the incident and add a comment.  If not, it will add a comment to the incident.",
             "type": "string",
             "metadata": {
                 "description": "The logic app description."
@@ -108,19 +101,6 @@
             }
         },
         {
-            "type": "Microsoft.Web/connections",
-            "apiVersion": "2016-06-01",
-            "name": "[parameters('TeamsConnectionName')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "displayName": "[parameters('Azure_ServiceAccount')]",
-                "customParameterValues": {},
-                "api": {
-                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/teams')]"
-                }
-            }
-        },
-        {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
             "name": "[parameters('PlaybookName')]",
@@ -131,8 +111,7 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Web/connections', parameters('AzureADConnectionName'))]",
                 "[resourceId('Microsoft.Web/connections', parameters('AzureSentinelConnectionName'))]",
-                "[resourceId('Microsoft.Web/connections', parameters('Office365ConnectionName'))]",
-                "[resourceId('Microsoft.Web/connections', parameters('TeamsConnectionName'))]"
+                "[resourceId('Microsoft.Web/connections', parameters('Office365ConnectionName'))]"
             ],
             "properties": {
                 "state": "Enabled",
@@ -251,30 +230,6 @@
                                                             "method": "put",
                                                             "path": "/Comment/@{encodeURIComponent(triggerBody()?['WorkspaceSubscriptionId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceId'])}/@{encodeURIComponent(triggerBody()?['WorkspaceResourceGroup'])}/@{encodeURIComponent('Incident')}/@{encodeURIComponent(body('Alert_-_Get_incident')?['properties']?['CaseNumber'])}/@{encodeURIComponent('User confirms they did not complete the action. Further investigation is needed.')}"
                                                         }
-                                                    },
-                                                    "Post_a_message_(V3)": {
-                                                        "runAfter": {
-                                                            "Add_comment_to_incident_2": [
-                                                                "Succeeded"
-                                                            ]
-                                                        },
-                                                        "type": "ApiConnection",
-                                                        "inputs": {
-                                                            "body": {
-                                                                "body": {
-                                                                    "content": "<p>New alert from Azure Sentinel. <br>\nPlease investigate ASAP. <br>\nSeverity : @{triggerBody()?['Severity']}<br>\nName: @{triggerBody()?['AlertDisplayName']}<br>\nDescription: @{triggerBody()?['Description']}</p>",
-                                                                    "contentType": "html"
-                                                                },
-                                                                "subject": "Security Alert: @{items('For_each_2')?['properties']?['Title']}"
-                                                            },
-                                                            "host": {
-                                                                "connection": {
-                                                                    "name": "@parameters('$connections')['teams']['connectionId']"
-                                                                }
-                                                            },
-                                                            "method": "post",
-                                                            "path": "/v3/beta/teams/@{encodeURIComponent('7fdb6cff-0779-45ac-aefd-da589fc62729')}/channels/@{encodeURIComponent('19:2df964c9afc44d60a51bc282f56bacef@thread.skype')}/messages"
-                                                        }
                                                     }
                                                 }
                                             },
@@ -361,11 +316,6 @@
                                 "connectionId": "[resourceId('Microsoft.Web/connections', parameters('Office365ConnectionName'))]",
                                 "connectionName": "[parameters('Office365ConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
-                            },
-                            "teams": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('TeamsConnectionName'))]",
-                                "connectionName": "[parameters('TeamsConnectionName')]",
-                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/teams')]"
                             }
                         }
                     }

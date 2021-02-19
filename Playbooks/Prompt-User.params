@@ -13,9 +13,6 @@
         },
         "Office365ConnectionName": {
             "value": "office365"
-        },
-        "TeamsConnectionName": {
-            "value": "teams"
         }
     },
     "variables": {
