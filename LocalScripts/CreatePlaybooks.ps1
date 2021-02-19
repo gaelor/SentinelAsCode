@@ -11,12 +11,12 @@ param(
 #Import-Module AzSentinel
 #Install-Module Az.Resources -AllowClobber -Scope CurrentUser -Force
 #Import-Module Az.Resources
-#Clear-AzContext
-
-Connect-AzAccount -Tenant $workspaces.tenant -Subscription $workspaces.subscription
+Clear-AzContext
 
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
+
+Connect-AzAccount -Tenant $workspaces.tenant -Subscription $workspaces.subscription
 
 Write-Host "Playbook Folder is: $($PlaybooksFolder)"
 
