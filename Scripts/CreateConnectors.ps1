@@ -5,8 +5,8 @@ param(
 )
 
 #Adding AzSentinel module
-Install-Module Az.SecurityInsights -AllowClobber -Scope CurrentUser -Force
-Import-Module Az.SecurityInsights
+#Install-Module Az.SecurityInsights -AllowClobber -Scope CurrentUser -Force
+#Import-Module Az.SecurityInsights
 
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
@@ -20,7 +20,11 @@ Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscripti
 foreach ($item in $workspaces.deployments){
     Write-Host "Processing resourcegroup $($item.resourcegroup) and workspace $($item.workspace) ..."
     try {
-        Get-AzSentinelDataConnector -WorkspaceName $item.workspace | Select-Object name | ForEach-Object $_ {Remove-AzSentinelDataConnector -ResourceGroupName $($item.resourcegroup) -WorkspaceName $($item.workspace) -DataConnectorId $_.name}
+        $Connectors = Get-AzSentinelDataConnector -WorkspaceName $item.workspace
+        foreach ($connector in $Connectors){
+            Write-Host "Processing connector $($connector.name) suppression"
+            Remove-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -DataConnectorId $connector.name
+        }
 
         #New-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -Office365 -Exchange "Enabled" -SharePoint "Enabled"
         New-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -AzureActiveDirectory -Alerts "Enabled"
