@@ -39,7 +39,7 @@ jobs:
               }
 
       # Runs a single command using the runners shell
-      - name: Create Connectors on Client Tenant
+      - name: Remove Connectors and Create Connectors on Client Tenant
         shell: pwsh
         run: |
               Scripts/CreateConnectors.ps1 -OnboardingFile Onboard\onboarding.json -Azure_User ${{ secrets.AZURE_USER }} -Azure_Pwd '${{ secrets.AZURE_PWD }}' -DeleteAll -Outvariable issues
