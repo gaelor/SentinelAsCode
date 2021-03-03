@@ -23,7 +23,7 @@ Build - Remove (or not) all connectors and Automatically connect data sources to
 -AzureSecurityCenter\
 -ThreatIntelligence\
 -MicrosoftDefenderAdvancedThreatProtection\
--MicrosoftCloudAppSecurity\
+-MicrosoftCloudAppSecurity
 
 ### Syntax 
 
