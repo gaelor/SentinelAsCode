@@ -6,11 +6,11 @@ param(
 )
 
 #Adding AzSentinel module
-#Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
-#Import-Module AzSentinel
-#Install-Module Az.Resources -AllowClobber -Scope CurrentUser -Force
-#Import-Module Az.Resources
-#Clear-AzContext
+Install-Module AzSentinel -AllowClobber -Scope CurrentUser -Force
+Import-Module AzSentinel
+Install-Module Az.Resources -AllowClobber -Scope CurrentUser -Force
+Import-Module Az.Resources
+Clear-AzContext
 
 #Getting all workspaces from file
 $workspaces = Get-Content -Raw -Path $OnboardingFile | ConvertFrom-Json
@@ -33,7 +33,7 @@ if($null -eq $PlaybooksParamsFile){
         Write-Host "Playbook Template File is: $armTemplate"
         Write-Host "Playbook Parameters File is: $PlaybooksParamsFile"
         Write-Host "Playbook Parameters are:"@PlaybooksParams
-                try {
+        try {
             Write-Host "Deploying: $playbookDisplayName, with template file: $armTemplate, with parameters file: $PlaybooksParamsFile, in the resource group: $($workspaces.deployments[0].resourcegroup)"
             New-AzResourceGroupDeployment -PlaybookName $(("$playbookDisplayName").replace(' ', '')) -ResourceGroupName $($workspaces.deployments[0].resourcegroup) -TemplateFile `'$armTemplate`' -TemplateParameterFile $PlaybooksParamsFile -playbookDisplayName $playbookDisplayName @PlaybooksParams
         }

@@ -38,7 +38,7 @@ if($null -eq $PlaybooksParamsFile){
         Write-Host "Playbook Template File is: $armTemplate"
         Write-Host "Playbook Parameters File is: $PlaybooksParamsFile"
         Write-Host "Playbook Parameters are:"@PlaybooksParams
-                try {
+        try {
             Write-Host "Deploying: $playbookDisplayName, with template file: $armTemplate, with parameters file: $PlaybooksParamsFile, in the resource group: $($workspaces.deployments[0].resourcegroup)"
             New-AzResourceGroupDeployment -PlaybookName $(("$playbookDisplayName").replace(' ', '')) -ResourceGroupName $($workspaces.deployments[0].resourcegroup) -TemplateFile `'$armTemplate`' -TemplateParameterFile $PlaybooksParamsFile -playbookDisplayName $playbookDisplayName @PlaybooksParams
         }
