@@ -14,13 +14,32 @@ Reads configuration file under Onboard folder and installs SecurityInsights (Sen
 
 `.\Scripts\InstallSentinel.ps1 -OnboardingFile Onboard\onboarding.json -Azure_User '<String>' -Azure_Pwd '<String>'`
 
+## Connectors deployment script (CreateConnectors.ps1)
+
+Build - Automatically connect data sources to start sending data into Sentinel. This can only be done for Microsoft first party services that don't require additional configuration on the data source side:
+-Office365
+-AzureActiveDirectory
+-AzureAdvancedThreatProtection
+-AzureSecurityCenter
+-ThreatIntelligence
+-MicrosoftDefenderAdvancedThreatProtection
+-MicrosoftCloudAppSecurity
+
+### Syntax 
+
+`CreateConnectors.ps1 -OnboardingFile <String> -Azure_User <String> -Azure_Pwd '<String>'`
+
+### Sample
+
+`.\Scripts\CreateConnectors.ps1 -OnboardingFile Onboard\onboarding.json -Azure_User '<String>' -Azure_Pwd '<String>'`
+
 ## Analytics Rules deployment script (CreateAnalyticsRules.ps1)
 
 Reads the config file in the AnalyticsRules folder and deploys its contents to a specific environment. The script will detect if the alert is brand new and needs to be created or if the alert is already active and just needs to be updated. The script also supports attaching a playbook to the rule.
 
 ### Syntax 
 
-`CreateAnalyticsRules.ps1 -Workspace <String> -RulesFile <String> -Azure_User <String> -Azure_Pwd '<String>'`
+`CreateAnalyticsRules.ps1 -OnboardingFile <String> -RulesFile <String> -Azure_User <String> -Azure_Pwd '<String>'`
 
 ### Sample
 
@@ -32,7 +51,7 @@ Reads the config file in the HuntingRules folder and deploys its contents to a s
 
 ### Syntax
 
-`CreateHuntingRulesAPI.ps1 -Workspace <String> -RulesFile <String> -Azure_User <String> -Azure_Pwd '<String>'`
+`CreateHuntingRulesAPI.ps1 -OnboardingFile <String> -RulesFile <String> -Azure_User <String> -Azure_Pwd '<String>'`
 
 ### Sample
 
