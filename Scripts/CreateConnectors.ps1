@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory=$true)]$OnboardingFile,
     [Parameter(Mandatory=$true)]$Azure_User,
-    [Parameter(Mandatory=$true)]$Azure_Pwd
+    [Parameter(Mandatory=$true)]$Azure_Pwd,
+    [Parameter(Mandatory=$false)][Switch]$DeleteAll
 )
 
 #Adding AzSentinel module
@@ -20,12 +21,13 @@ Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscripti
 foreach ($item in $workspaces.deployments){
     Write-Host "Processing resourcegroup $($item.resourcegroup) and workspace $($item.workspace) ..."
     try {
-        $Connectors = Get-AzSentinelDataConnector -WorkspaceName $item.workspace
-        foreach ($connector in $Connectors){
-            Write-Host "Processing connector $($connector.name) suppression"
-            Remove-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -DataConnectorId $connector.name
+        if($DeleteAll.IsPresent){
+            $Connectors = Get-AzSentinelDataConnector -WorkspaceName $item.workspace
+            foreach ($connector in $Connectors){
+                Write-Host "Processing connector $($connector.Kind) suppression"
+                Remove-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -DataConnectorId $connector.name
+            }
         }
-
         #New-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -Office365 -Exchange "Enabled" -SharePoint "Enabled"
         New-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -AzureActiveDirectory -Alerts "Enabled"
         New-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -AzureAdvancedThreatProtection -Alerts "Enabled"
