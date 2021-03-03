@@ -16,7 +16,7 @@ Reads configuration file under Onboard folder and installs SecurityInsights (Sen
 
 ## Connectors deployment script (CreateConnectors.ps1)
 
-Build - Automatically connect data sources to start sending data into Sentinel. This can only be done for Microsoft first party services that don't require additional configuration on the data source side:
+Build - Remove (or not) all connectors and Automatically connect data sources to start sending data into Sentinel. This can only be done for Microsoft first party services that don't require additional configuration on the data source side:
 -Office365
 -AzureActiveDirectory
 -AzureAdvancedThreatProtection
@@ -27,11 +27,11 @@ Build - Automatically connect data sources to start sending data into Sentinel. 
 
 ### Syntax 
 
-`CreateConnectors.ps1 -OnboardingFile <String>`
+`CreateConnectors.ps1 -OnboardingFile <String> -DeleteAll`
 
 ### Sample
 
-`.\LocalScripts\CreateConnectors.ps1 -OnboardingFile Onboard\onboarding.json`
+`.\LocalScripts\CreateConnectors.ps1 -OnboardingFile Onboard\onboarding.json -DeleteAll`
 
 ## Analytics Rules deployment script (CreateAnalyticsRules.ps1)
 
