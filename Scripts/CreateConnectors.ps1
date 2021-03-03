@@ -22,7 +22,7 @@ foreach ($item in $workspaces.deployments){
     Write-Host "Processing resourcegroup $($item.resourcegroup) and workspace $($item.workspace) ..."
     try {
         if($DeleteAll.IsPresent){
-            $Connectors = Get-AzSentinelDataConnector -WorkspaceName $item.workspace
+            $Connectors = Get-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace
             foreach ($connector in $Connectors){
                 Write-Host "Processing connector $($connector.Kind) suppression"
                 Remove-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -DataConnectorId $connector.name
