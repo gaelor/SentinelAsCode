@@ -20,7 +20,7 @@ Connect-AzAccount -Credential $Credential -Tenant $workspaces.tenant -Subscripti
 foreach ($item in $workspaces.deployments){
     Write-Host "Processing resourcegroup $($item.resourcegroup) and workspace $($item.workspace) ..."
     try {
-        Get-AzSentinelDataConnector -WorkspaceName $item.workspace | Select-Object name | ForEach-Object $_ {Remove-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -DataConnectorId $_.name}
+        #Get-AzSentinelDataConnector -WorkspaceName $item.workspace | Select-Object name | ForEach-Object $_ {Remove-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -DataConnectorId $_.name}
 
         #New-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -Office365 -Exchange "Enabled" -SharePoint "Enabled"
         New-AzSentinelDataConnector -ResourceGroupName $item.resourcegroup -WorkspaceName $item.workspace -AzureActiveDirectory -Alerts "Enabled"
