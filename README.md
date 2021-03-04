@@ -42,15 +42,5 @@ Collection of custom playbooks to be added to your Sentinel environment
 ## Authors
 
 <a href="https://github.com/gaelor"><img src="https://avatars.githubusercontent.com/u/60777331?s=64&v=4" title="Thomas Couilleaux" width="80" height="80">Thomas Couilleaux</a> &nbsp;
-<<<<<<< HEAD
-<a href="https://github.com/clem-metsys"><img src="https://avatars.githubusercontent.com/u/76099816?s=400&v=4" title="Clément Bonnet" width="80" height="80">Clément Bonnet</a> &nbsp;
-<a href="https://github.com/laurent-cosnuau"><img src="https://avatars.githubusercontent.com/u/66997772?s=400&v=4" title="Laurent Cosnuau" width="80" height="80">Laurent Cosnuau</a> &nbsp;
-=======
-<<<<<<< HEAD
-<a href="https://github.com/clem-metsys"><img src="https://avatars.githubusercontent.com/u/76099816?s=400&v=4" title="Clément Bonnet" width="80" height="80">Clément Bonnet</a> &nbsp;
-<a href="https://github.com/laurent-cosnuau"><img src="https://avatars.githubusercontent.com/u/66997772?s=400&v=4" title="Laurent Cosnuau" width="80" height="80">Laurent Cosnuau</a> &nbsp;
-=======
 <a href="https://github.com/clem-metsys"><img src="https://avatars.githubusercontent.com/u/76099816?s=64&v=4" title="Clément Bonnet" width="80" height="80">Clément Bonnet</a> &nbsp;
 <a href="https://github.com/laurent-cosnuau"><img src="https://avatars.githubusercontent.com/u/66997772?s=64&v=4" title="Laurent Cosnuau" width="80" height="80">Laurent Cosnuau</a> &nbsp;
->>>>>>> dev
->>>>>>> master
