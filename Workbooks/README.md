@@ -1,7 +1,6 @@
 [![Metsys](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg)](https://www.metsys.fr/ "Metsys")
 # Workbooks
 JSON files in this folder are ARM templates that define Workbooks that need to be deployed on a given Sentinel environment.
-Workbooks/AADAudit.json
 ## AADAudit
 ### Workbook Tags
 
@@ -23,7 +22,6 @@ Workbooks/AADAudit.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/AADAuditActivitySignin.json
 ## AADAuditActivitySignin
 ### Workbook Tags
 
@@ -45,7 +43,6 @@ Workbooks/AADAuditActivitySignin.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/AADSignin.json
 ## AADSignin
 ### Workbook Tags
 
@@ -67,7 +64,6 @@ Workbooks/AADSignin.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/AADSigninLighthouse.json
 ## AADSigninLighthouse
 ### Workbook Tags
 
@@ -89,7 +85,6 @@ Workbooks/AADSigninLighthouse.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/AzureActivity.json
 ## AzureActivity
 ### Workbook Tags
 
@@ -111,7 +106,6 @@ Workbooks/AzureActivity.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/AzureDDOS.json
 ## AzureDDOS
 ### Workbook Tags
 
@@ -133,7 +127,6 @@ Workbooks/AzureDDOS.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/AzureInventory.json
 ## AzureInventory
 ### Workbook Tags
 
@@ -155,7 +148,6 @@ Workbooks/AzureInventory.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/DataCollectionHealth.json
 ## DataCollectionHealth
 ### Workbook Tags
 
@@ -177,7 +169,6 @@ Workbooks/DataCollectionHealth.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/EventAnalyzer.json
 ## EventAnalyzer
 ### Workbook Tags
 
@@ -199,7 +190,6 @@ Workbooks/EventAnalyzer.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/ExchangeOnline.json
 ## ExchangeOnline
 ### Workbook Tags
 
@@ -221,7 +211,6 @@ Workbooks/ExchangeOnline.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/IdentityAccess.json
 ## IdentityAccess
 ### Workbook Tags
 
@@ -243,7 +232,6 @@ Workbooks/IdentityAccess.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/IncidentOverview.json
 ## IncidentOverview
 ### Workbook Tags
 
@@ -265,7 +253,6 @@ Workbooks/IncidentOverview.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/InsecureProtocol.json
 ## InsecureProtocol
 ### Workbook Tags
 
@@ -287,7 +274,6 @@ Workbooks/InsecureProtocol.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/MITRE.json
 ## MITRE
 ### Workbook Tags
 
@@ -309,7 +295,6 @@ Workbooks/MITRE.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/O365.json
 ## O365
 ### Workbook Tags
 
@@ -331,7 +316,6 @@ Workbooks/O365.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/PlaybooksHealth.json
 ## PlaybooksHealth
 ### Workbook Tags
 
@@ -353,7 +337,6 @@ Workbooks/PlaybooksHealth.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/SecurityAlerts.json
 ## SecurityAlerts
 ### Workbook Tags
 
@@ -375,7 +358,6 @@ Workbooks/SecurityAlerts.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/SecurityAlertsLighthouse.json
 ## SecurityAlertsLighthouse
 ### Workbook Tags
 
@@ -397,7 +379,6 @@ Workbooks/SecurityAlertsLighthouse.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/SecurityOperationsEfficiency.json
 ## SecurityOperationsEfficiency
 ### Workbook Tags
 
@@ -419,7 +400,6 @@ Workbooks/SecurityOperationsEfficiency.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/SecuritySOC.json
 ## SecuritySOC
 ### Workbook Tags
 
@@ -441,7 +421,6 @@ Workbooks/SecuritySOC.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/SecurityStatus.json
 ## SecurityStatus
 ### Workbook Tags
 
@@ -463,7 +442,6 @@ Workbooks/SecurityStatus.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/SharepointOnedrive.json
 ## SharepointOnedrive
 ### Workbook Tags
 
@@ -485,7 +463,6 @@ Workbooks/SharepointOnedrive.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/UEAB.json
 ## UEAB
 ### Workbook Tags
 
@@ -507,7 +484,6 @@ Workbooks/UEAB.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/WindowsFirewall.json
 ## WindowsFirewall
 ### Workbook Tags
 
@@ -529,7 +505,6 @@ Workbooks/WindowsFirewall.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/WorkspaceAudit.json
 ## WorkspaceAudit
 ### Workbook Tags
 
@@ -551,7 +526,6 @@ Workbooks/WorkspaceAudit.json
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
-Workbooks/WorkspaceUsageCost.json
 ## WorkspaceUsageCost
 ### Workbook Tags
 
