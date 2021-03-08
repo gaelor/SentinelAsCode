@@ -7,7 +7,6 @@ with open(sys.argv[1], 'r') as workbooks:
 
 filename = re.sub('^.*/', '', sys.argv[1], flags=re.DOTALL).replace('.json','')
 
-print(sys.argv[1])
 for key,workbook in myjson.items():
     if key == "parameters":
         print('## ' + filename)
