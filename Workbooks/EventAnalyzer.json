@@ -33,6 +33,14 @@
         "workspaces_externalid": {
             "defaultValue": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/microsoft.operationalinsights/workspaces/', parameters('Workspace'))]",
             "type": "string"
+        },
+        "description": {
+            "defaultValue": "This workbook will get a report on a specific event.",
+            "type": "string"
+        },
+        "author": {
+            "defaultValue": "thomas couilleaux",
+            "type": "string"
         }
     },
     "variables": {},
