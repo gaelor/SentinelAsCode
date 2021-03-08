@@ -35,7 +35,7 @@
             "type": "string"
         },
         "description": {
-            "defaultValue": "This workbook will get a report on User activity.",
+            "defaultValue": "This workbook will get a report on user activity.",
             "type": "string"
         },
         "author": {
