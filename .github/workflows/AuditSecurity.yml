@@ -45,9 +45,6 @@ jobs:
       - uses: actions/upload-artifact@v1
         with:
           name: reports
-<<<<<<< HEAD
-          path: reports
-=======
           path: reports          
 
       - uses: actions/checkout@v2
@@ -61,4 +58,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
->>>>>>> dev
