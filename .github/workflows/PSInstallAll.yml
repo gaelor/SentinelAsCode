@@ -17,8 +17,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: ${{ secrets.ENV }}
+        #with:
+          #ref: ${{ secrets.ENV }}
       - name: Decrypt Onboarding Template
         shell: pwsh
         run: |
@@ -47,8 +47,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: ${{ secrets.ENV }}
+        #with:
+          #ref: ${{ secrets.ENV }}
       - name: Decrypt Onboarding Template
         shell: pwsh
         run: |
@@ -77,8 +77,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: ${{ secrets.ENV }}
+        #with:
+          #ref: ${{ secrets.ENV }}
       - name: Decrypt Onboarding Template
         shell: pwsh
         run: |
@@ -107,8 +107,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: ${{ secrets.ENV }}
+        #with:
+          #ref: ${{ secrets.ENV }}
       - name: Decrypt Onboarding Template
         shell: pwsh
         run: |
@@ -137,8 +137,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: ${{ secrets.ENV }}
+        #with:
+          #ref: ${{ secrets.ENV }}
       - name: Decrypt Onboarding Template
         shell: pwsh
         run: |
@@ -167,8 +167,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: ${{ secrets.ENV }}
+        #with:
+          #ref: ${{ secrets.ENV }}
       - name: Decrypt Onboarding Template
         shell: pwsh
         run: |
