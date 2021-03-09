@@ -38,8 +38,8 @@ jobs:
           path: reports          
 
       - uses: actions/checkout@v2
-        with:
-          ref: ${{ secrets.ENV }}
+        #with:
+          #ref: ${{ secrets.ENV }}
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis          
           
