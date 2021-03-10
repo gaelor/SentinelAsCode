@@ -34,7 +34,7 @@
             "defaultValue": "wdatp",
             "type": "string",
             "metadata": {
-                "description": "The mdatp connection name used by the logic app.."
+                "description": "The mdatp connection name used by the logic app."
             }
         },
         "integrationAccount": {
