@@ -1,4 +1,4 @@
-![](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg "Metsys")
+[![Metsys](https://www.metsys.fr/wp-content/themes/metsys/images/svg/metsys-logo.svg)](https://www.metsys.fr/ "Metsys")
 # Hunting Rules
 ## T0000_Console_History
 ### Hunt Tags
@@ -21,27 +21,6 @@
 ```// Name: Console History // Description: Checks for execution of MITRE ATT&CK T0000 // // Severity: Medium // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Collection // Sysmon | where EventID == 1 and (process_command_line contains "Get-History" or process_command_line contains "AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadline\\ConsoleHost_history.txt" or process_command_line contains "(Get-PSReadlineOption).HistorySavePath")
 ```
 
-## T0000_Named_Pipes
-### Hunt Tags
-
-> Author: [blueteam](https://www.metsys.fr/)
-
-> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T0000_Named_Pipes.txt)
-
-### ATT&CK Tags
-
-> Tactics: [u'Lateral Movement']
-
-### Hunt details
-
-> Description: Checks for execution of MITRE ATT&CK T0000
-
-> Query:
-
-```t
-```// Name: Named Pipes // Description: Checks for execution of MITRE ATT&CK T0000 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Lateral Movement // Sysmon | where EventID == 17 and (pipe_name contains "\\isapi_http" or pipe_name contains "\\isapi_dg" or pipe_name contains "\\isapi_dg2" or pipe_name contains "\\isapi_http" or pipe_name contains "\\sdlrpc" or pipe_name contains "\\aheec" or pipe_name contains "\\winsession" or pipe_name contains "\\lsassw" or pipe_name contains "\\rpchlp_3" or pipe_name contains "\\NamePipe_MoreWindows" or pipe_name contains "\\pcheap_reuse" or pipe_name contains "\\PSEXESVC" or pipe_name contains "\\PowerShellISEPipeName_" or pipe_name contains "\\csexec" or pipe_name contains "\\paexec" or pipe_name contains "\\remcom")
-```
-
 ## T0000_Named_Pipes_CobaltStrike
 ### Hunt Tags
 
@@ -51,7 +30,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Lateral Movement']
+> Tactics: [u'LateralMovement']
 
 ### Hunt details
 
@@ -61,6 +40,27 @@
 
 ```t
 ```// Name: Named Pipes - CobaltStrike // Description: Checks for execution of MITRE ATT&CK T0000 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Lateral Movement // Sysmon | where EventID == 17 and pipe_name contains "\\msagent_"
+```
+
+## T0000_Named_Pipes
+### Hunt Tags
+
+> Author: [blueteam](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T0000_Named_Pipes.txt)
+
+### ATT&CK Tags
+
+> Tactics: [u'LateralMovement']
+
+### Hunt details
+
+> Description: Checks for execution of MITRE ATT&CK T0000
+
+> Query:
+
+```t
+```// Name: Named Pipes // Description: Checks for execution of MITRE ATT&CK T0000 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Lateral Movement // Sysmon | where EventID == 17 and (pipe_name contains "\\isapi_http" or pipe_name contains "\\isapi_dg" or pipe_name contains "\\isapi_dg2" or pipe_name contains "\\isapi_http" or pipe_name contains "\\sdlrpc" or pipe_name contains "\\aheec" or pipe_name contains "\\winsession" or pipe_name contains "\\lsassw" or pipe_name contains "\\rpchlp_3" or pipe_name contains "\\NamePipe_MoreWindows" or pipe_name contains "\\pcheap_reuse" or pipe_name contains "\\PSEXESVC" or pipe_name contains "\\PowerShellISEPipeName_" or pipe_name contains "\\csexec" or pipe_name contains "\\paexec" or pipe_name contains "\\remcom")
 ```
 
 ## T0000_Remotely_Query_Login_Sessions_Network
@@ -114,7 +114,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Privilege Escalation Defense Evasion']
+> Tactics: [u'PrivilegeEscalation', u'DefenseEvasion']
 
 ### Hunt details
 
@@ -156,7 +156,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Credential Access']
+> Tactics: [u'CredentialAccess']
 
 ### Hunt details
 
@@ -168,27 +168,6 @@
 ```// Name: Credential Dumping ImageLoad // Description: Checks for execution of MITRE ATT&CK T1003 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Credential Access // Sysmon | where EventID == 7 and (module_loaded contains "C:\\Windows\\System32\\samlib.dll" or module_loaded contains "C:\\Windows\\System32\\WinSCard.dll" or module_loaded contains "C:\\Windows\\System32\\cryptdll.dll" or module_loaded contains "C:\\Windows\\System32\\hid.dll" or module_loaded contains "C:\\Windows\\System32\\vaultcli.dll") and (process_path !contains "\\Sysmon.exe" or process_path !contains "\\svchost.exe" or process_path !contains "\\logonui.exe")
 ```
 
-## T1003_Credential_Dumping_Process
-### Hunt Tags
-
-> Author: [blueteam](https://www.metsys.fr/)
-
-> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1003_Credential_Dumping_Process.txt)
-
-### ATT&CK Tags
-
-> Tactics: [u'Credential Access']
-
-### Hunt details
-
-> Description: Checks for execution of MITRE ATT&CK T1003
-
-> Query:
-
-```t
-```// Name: Credential Dumping - Process // Description: Checks for execution of MITRE ATT&CK T1003 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Credential Access // Sysmon | where EventID == 1 and (process_command_line contains "Invoke-Mimikatz -DumpCreds" or process_command_line contains "gsecdump -a" or process_command_line contains "wce -o" or process_command_line contains "procdump -ma lsass.exe" or process_command_line contains "ntdsutil*ac i ntds*ifm*create full")
-```
-
 ## T1003_Credential_Dumping_Process_Access
 ### Hunt Tags
 
@@ -198,7 +177,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Credential Access']
+> Tactics: [u'CredentialAccess']
 
 ### Hunt details
 
@@ -210,16 +189,16 @@
 ```// Name: Credential Dumping - Process Access // Description: Checks for execution of MITRE ATT&CK T1003 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Credential Access // Sysmon | where EventID == 10 and target_process_path contains "C:\\Windows\\system32\\lsass.exe" and (process_granted_access contains "0x1010" or process_granted_access contains "0x1410" or process_granted_access contains "0x147a" or process_granted_access contains "0x143a") and process_call_trace contains "C:\\Windows\\SYSTEM32\\ntdll.dll" and process_call_trace contains "C:\\Windows\\system32\\KERNELBASE.dll" and process_call_trace contains "|UNKNOWN(*)"
 ```
 
-## T1003_Credential_Dumping_Registry
+## T1003_Credential_Dumping_Process
 ### Hunt Tags
 
 > Author: [blueteam](https://www.metsys.fr/)
 
-> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1003_Credential_Dumping_Registry.txt)
+> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1003_Credential_Dumping_Process.txt)
 
 ### ATT&CK Tags
 
-> Tactics: [u'Credential Access']
+> Tactics: [u'CredentialAccess']
 
 ### Hunt details
 
@@ -228,7 +207,7 @@
 > Query:
 
 ```t
-```// Name: Credential Dumping - Registry // Description: Checks for execution of MITRE ATT&CK T1003 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Credential Access // Sysmon | where (EventID == 12 or EventID == 13 or EventID == 14) and process_path !contains "C:\\WINDOWS\\system32\\lsass.exe" and (registry_key_path contains "\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\Credential Provider\\" or registry_key_path contains "\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\" or registry_key_path contains "\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SecurityProviders\\" or registry_key_path contains "\\Control\\SecurityProviders\\WDigest\\") and registry_key_path !contains "\\Lsa\\RestrictRemoteSamEventThrottlingWindow"
+```// Name: Credential Dumping - Process // Description: Checks for execution of MITRE ATT&CK T1003 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Credential Access // Sysmon | where EventID == 1 and (process_command_line contains "Invoke-Mimikatz -DumpCreds" or process_command_line contains "gsecdump -a" or process_command_line contains "wce -o" or process_command_line contains "procdump -ma lsass.exe" or process_command_line contains "ntdsutil*ac i ntds*ifm*create full")
 ```
 
 ## T1003_Credential_Dumping_Registry_Save
@@ -240,7 +219,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Credential Access']
+> Tactics: [u'CredentialAccess']
 
 ### Hunt details
 
@@ -250,6 +229,27 @@
 
 ```t
 ```// Name: Credential Dumping - Registry Save // Description: Checks for execution of MITRE ATT&CK T1003 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Credential Access // Sysmon | where EventID == 1 and process_path contains "reg.exe" and (process_command_line contains "*save*HKLM\\sam*" or process_command_line contains "*save*HKLM\\system*")
+```
+
+## T1003_Credential_Dumping_Registry
+### Hunt Tags
+
+> Author: [blueteam](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1003_Credential_Dumping_Registry.txt)
+
+### ATT&CK Tags
+
+> Tactics: [u'CredentialAccess']
+
+### Hunt details
+
+> Description: Checks for execution of MITRE ATT&CK T1003
+
+> Query:
+
+```t
+```// Name: Credential Dumping - Registry // Description: Checks for execution of MITRE ATT&CK T1003 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Credential Access // Sysmon | where (EventID == 12 or EventID == 13 or EventID == 14) and process_path !contains "C:\\WINDOWS\\system32\\lsass.exe" and (registry_key_path contains "\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\Credential Provider\\" or registry_key_path contains "\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\" or registry_key_path contains "\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SecurityProviders\\" or registry_key_path contains "\\Control\\SecurityProviders\\WDigest\\") and registry_key_path !contains "\\Lsa\\RestrictRemoteSamEventThrottlingWindow"
 ```
 
 ## T1004_Win_Logon_Helper_DLL
@@ -345,7 +345,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Persistence', u'Privilege Escalation']
+> Tactics: [u'Persistence', u'PrivilegeEscalation']
 
 ### Hunt details
 
@@ -357,27 +357,6 @@
 ```// Name: Local Port Monitor // Description: Checks for execution of MITRE ATT&CK T1013 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Persistence, #Privilege Escalation // Sysmon | where (EventID == 12 or EventID == 13 or EventID == 14) and registry_key_path contains "\\SYSTEM\\CurrentControlSet\\Control\\Print\\Monitors\\"
 ```
 
-## T1015_Accessibility_Features
-### Hunt Tags
-
-> Author: [blueteam](https://www.metsys.fr/)
-
-> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1015_Accessibility_Features.txt)
-
-### ATT&CK Tags
-
-> Tactics: [u'Persistence', u'Privilege Escalation']
-
-### Hunt details
-
-> Description: Checks for execution of MITRE ATT&CK T1015
-
-> Query:
-
-```t
-```// Name: Accessibility features // Description: Checks for execution of MITRE ATT&CK T1015 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Persistence, #Privilege Escalation // Sysmon | where EventID == 1 and process_parent_path contains"winlogon.exe" and (process_path contains "sethc.exe" or process_path contains "utilman.exe" or process_path contains "osk.exe" or process_path contains "magnify.exe" or process_path contains "displayswitch.exe" or process_path contains "narrator.exe" or process_path contains "atbroker.exe")
-```
-
 ## T1015_Accessibility_Features_Registry
 ### Hunt Tags
 
@@ -387,7 +366,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Persistence Privilege_Escalation']
+> Tactics: [u'Persistence', u'Privilege_Escalation']
 
 ### Hunt details
 
@@ -397,6 +376,27 @@
 
 ```t
 ```// Name: Accessibility Features - Registry // Description: Checks for execution of MITRE ATT&CK T1015 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Persistence #Privilege_Escalation // Sysmon | where (EventID == 12 or EventID == 13 or EventID == 14) and registry_key_path contains "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\*"
+```
+
+## T1015_Accessibility_Features
+### Hunt Tags
+
+> Author: [blueteam](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1015_Accessibility_Features.txt)
+
+### ATT&CK Tags
+
+> Tactics: [u'Persistence', u'PrivilegeEscalation']
+
+### Hunt details
+
+> Description: Checks for execution of MITRE ATT&CK T1015
+
+> Query:
+
+```t
+```// Name: Accessibility features // Description: Checks for execution of MITRE ATT&CK T1015 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Persistence, #Privilege Escalation // Sysmon | where EventID == 1 and process_parent_path contains"winlogon.exe" and (process_path contains "sethc.exe" or process_path contains "utilman.exe" or process_path contains "osk.exe" or process_path contains "magnify.exe" or process_path contains "displayswitch.exe" or process_path contains "narrator.exe" or process_path contains "atbroker.exe")
 ```
 
 ## T1016_System_Network_Configuration_Discovery
@@ -471,7 +471,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -492,7 +492,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Lateral Movement Execution']
+> Tactics: [u'LateralMovement', u'Execution']
 
 ### Hunt details
 
@@ -555,7 +555,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -576,7 +576,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -597,7 +597,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Lateral Movement Persistence']
+> Tactics: [u'LateralMovement', u'Persistence']
 
 ### Hunt details
 
@@ -618,7 +618,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Credential Access Discovery']
+> Tactics: [u'CredentialAccess', u'Discovery']
 
 ### Hunt details
 
@@ -660,7 +660,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Credential Access']
+> Tactics: [u'CredentialAccess']
 
 ### Hunt details
 
@@ -765,7 +765,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Lateral Movement']
+> Tactics: [u'LateralMovement']
 
 ### Hunt details
 
@@ -828,7 +828,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Persistence Privilege Escalation Execution']
+> Tactics: [u'Persistence', u'PrivilegeEscalation', u'Execution']
 
 ### Hunt details
 
@@ -849,7 +849,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Persistence Privilege Escalation Execution']
+> Tactics: [u'Persistence', u'PrivilegeEscalation', u'Execution']
 
 ### Hunt details
 
@@ -870,7 +870,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -891,7 +891,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -912,7 +912,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Privilege Escalation Defense Evasion']
+> Tactics: [u'PrivilegeEscalation', u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1008,27 +1008,6 @@
 ```// Name: Security Software Discovery // Description: Checks for execution of MITRE ATT&CK T1063 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Discovery // Sysmon | where EventID == 1 and (process_path contains "netsh.exe" or process_path contains "reg.exe" or process_path contains "tasklist.exe") and (process_command_line contains "*reg* query*" or process_command_line contains "*tasklist *" or process_command_line contains "*netsh*" or process_command_line contains "*fltmc*|*findstr*")
 ```
 
-## T1069_Permission_Groups_Discovery
-### Hunt Tags
-
-> Author: [blueteam](https://www.metsys.fr/)
-
-> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1069_Permission_Groups_Discovery.txt)
-
-### ATT&CK Tags
-
-> Tactics: [u'Discovery']
-
-### Hunt details
-
-> Description: Checks for execution of MITRE ATT&CK T1069
-
-> Query:
-
-```t
-```// Name: Permission Groups Discovery // Description: Checks for execution of MITRE ATT&CK T1069 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Discovery // Sysmon | where process_path contains "net" and (file_directory contains "user" or file_directory contains "group" or file_directory contains "localgroup")
-```
-
 ## T1069_Permission_Groups_Discovery_Process
 ### Hunt Tags
 
@@ -1050,6 +1029,27 @@
 ```// Name: Permission Groups Discovery - Process // Description: Checks for execution of MITRE ATT&CK T1069 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Discovery // Sysmon | where EventID == 1 and process_path contains "net.exe" and (process_command_line contains "*net* user*" or process_command_line contains "*net* group*" or process_command_line contains "*net* localgroup*" or process_command_line contains "*get-localgroup*" or process_command_line contains "*get-ADPrinicipalGroupMembership*")
 ```
 
+## T1069_Permission_Groups_Discovery
+### Hunt Tags
+
+> Author: [blueteam](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1069_Permission_Groups_Discovery.txt)
+
+### ATT&CK Tags
+
+> Tactics: [u'Discovery']
+
+### Hunt details
+
+> Description: Checks for execution of MITRE ATT&CK T1069
+
+> Query:
+
+```t
+```// Name: Permission Groups Discovery // Description: Checks for execution of MITRE ATT&CK T1069 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Discovery // Sysmon | where process_path contains "net" and (file_directory contains "user" or file_directory contains "group" or file_directory contains "localgroup")
+```
+
 ## T1070_Indicator_Removal_On_Host
 ### Hunt Tags
 
@@ -1059,7 +1059,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1101,7 +1101,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Lateral Movement']
+> Tactics: [u'LateralMovement']
 
 ### Hunt details
 
@@ -1122,7 +1122,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Lateral Movement']
+> Tactics: [u'LateralMovement']
 
 ### Hunt details
 
@@ -1134,48 +1134,6 @@
 ```// Name: Remote Desktop Protocol - Process // Description: Checks for execution of MITRE ATT&CK T1076 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Lateral Movement // Sysmon | where (EventID == 12 or EventID == 13 or EventID == 14) and (process_path contains "LogonUI.exe" or registry_key_path contains "\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services\\")
 ```
 
-## T1077_Windows_Admin_Shares
-### Hunt Tags
-
-> Author: [blueteam](https://www.metsys.fr/)
-
-> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1077_Windows_Admin_Shares.txt)
-
-### ATT&CK Tags
-
-> Tactics: [u'Lateral Movement']
-
-### Hunt details
-
-> Description: Checks for execution of MITRE ATT&CK T1077
-
-> Query:
-
-```t
-```// Name: Windows Admin Shares - Network // Description: Checks for execution of MITRE ATT&CK T1077 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Lateral Movement // Sysmon | where EventID == 3 and process_path contains "net.exe" and (process_command_line contains "use" or process_command_line contains "session" or process_command_line contains "file")
-```
-
-## T1077_Windows_Admin_Shares_Process
-### Hunt Tags
-
-> Author: [blueteam](https://www.metsys.fr/)
-
-> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1077_Windows_Admin_Shares_Process.txt)
-
-### ATT&CK Tags
-
-> Tactics: [u'Lateral Movement']
-
-### Hunt details
-
-> Description: Checks for execution of MITRE ATT&CK T1077
-
-> Query:
-
-```t
-```// Name: Windows Admin Shares - Process // Description: Checks for execution of MITRE ATT&CK T1077 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Lateral Movement // Sysmon | where EventID == 1 and (process_path contains "net.exe" or process_path contains "powershell.exe") and ((process_command_line contains "*net* use*$" or process_command_line contains "*net* session*$" or process_command_line contains "*net* file*$") or process_command_line contains "*New-PSDrive*root*")
-```
-
 ## T1077_Windows_Admin_Shares_Process_Created
 ### Hunt Tags
 
@@ -1185,7 +1143,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Lateral Movement']
+> Tactics: [u'LateralMovement']
 
 ### Hunt details
 
@@ -1197,6 +1155,48 @@
 ```// Name: Windows Admin Shares - Process - Created // Description: Checks for execution of MITRE ATT&CK T1077 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Lateral Movement // Sysmon | where EventID == 1 and process_path contains "net.exe" and process_command_line contains "net share"
 ```
 
+## T1077_Windows_Admin_Shares_Process
+### Hunt Tags
+
+> Author: [blueteam](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1077_Windows_Admin_Shares_Process.txt)
+
+### ATT&CK Tags
+
+> Tactics: [u'LateralMovement']
+
+### Hunt details
+
+> Description: Checks for execution of MITRE ATT&CK T1077
+
+> Query:
+
+```t
+```// Name: Windows Admin Shares - Process // Description: Checks for execution of MITRE ATT&CK T1077 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Lateral Movement // Sysmon | where EventID == 1 and (process_path contains "net.exe" or process_path contains "powershell.exe") and ((process_command_line contains "*net* use*$" or process_command_line contains "*net* session*$" or process_command_line contains "*net* file*$") or process_command_line contains "*New-PSDrive*root*")
+```
+
+## T1077_Windows_Admin_Shares
+### Hunt Tags
+
+> Author: [blueteam](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1077_Windows_Admin_Shares.txt)
+
+### ATT&CK Tags
+
+> Tactics: [u'LateralMovement']
+
+### Hunt details
+
+> Description: Checks for execution of MITRE ATT&CK T1077
+
+> Query:
+
+```t
+```// Name: Windows Admin Shares - Network // Description: Checks for execution of MITRE ATT&CK T1077 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Lateral Movement // Sysmon | where EventID == 3 and process_path contains "net.exe" and (process_command_line contains "use" or process_command_line contains "session" or process_command_line contains "file")
+```
+
 ## T1081_Credentials_In_Files
 ### Hunt Tags
 
@@ -1206,7 +1206,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Credential Access']
+> Tactics: [u'CredentialAccess']
 
 ### Hunt details
 
@@ -1248,7 +1248,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -1258,27 +1258,6 @@
 
 ```t
 ```// Name: Rundll32 // Description: Checks for execution of MITRE ATT&CK T1085 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Defense Evasion, #Execution // Sysmon | where EventID == 1 and (process_parent_path contains "\\rundll32.exe" or process_path contains "rundll32.exe")
-```
-
-## T1086_PowerShell
-### Hunt Tags
-
-> Author: [blueteam](https://www.metsys.fr/)
-
-> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1086_PowerShell.txt)
-
-### ATT&CK Tags
-
-> Tactics: [u'Execution']
-
-### Hunt details
-
-> Description: Checks for execution of MITRE ATT&CK T1086
-
-> Query:
-
-```t
-```// Name: PowerShell // Description: Checks for execution of MITRE ATT&CK T1086 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Execution // Sysmon | where EventID == 1 and (process_path contains "powershell.exe" or process_path contains "powershell_ise.exe" or process_path contains "psexec.exe")
 ```
 
 ## T1086_PowerShell_Downloads_Process
@@ -1300,6 +1279,27 @@
 
 ```t
 ```// Name: PowerShell Downloads - Process // Description: Checks for execution of MITRE ATT&CK T1086 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Execution // Sysmon | where EventID == 1 and (process_command_line contains "*.Download*" or process_command_line contains "*Net.WebClient*")
+```
+
+## T1086_PowerShell
+### Hunt Tags
+
+> Author: [blueteam](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1086_PowerShell.txt)
+
+### ATT&CK Tags
+
+> Tactics: [u'Execution']
+
+### Hunt details
+
+> Description: Checks for execution of MITRE ATT&CK T1086
+
+> Query:
+
+```t
+```// Name: PowerShell // Description: Checks for execution of MITRE ATT&CK T1086 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Execution // Sysmon | where EventID == 1 and (process_path contains "powershell.exe" or process_path contains "powershell_ise.exe" or process_path contains "psexec.exe")
 ```
 
 ## T1087_Account_Discovery
@@ -1332,7 +1332,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Privilege Escalation', u'Persistence']
+> Tactics: [u'PrivilegeEscalation', u'Persistence']
 
 ### Hunt details
 
@@ -1353,7 +1353,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Privilege Escalation Defense Evasion']
+> Tactics: [u'PrivilegeEscalation', u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1374,7 +1374,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1395,7 +1395,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1416,7 +1416,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1437,7 +1437,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Privilege Escalation', u'Persistence']
+> Tactics: [u'PrivilegeEscalation', u'Persistence']
 
 ### Hunt details
 
@@ -1458,7 +1458,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1479,7 +1479,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1521,7 +1521,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1542,7 +1542,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -1563,7 +1563,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -1584,7 +1584,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -1605,7 +1605,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -1668,7 +1668,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1689,7 +1689,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -1752,7 +1752,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1785,27 +1785,6 @@
 ```// Name: Authentication Package // Description: Checks for execution of MITRE ATT&CK T1131 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Persistence // Sysmon | where (EventID == 12 or EventID == 13 or EventID == 14) and (registry_key_path contains "*\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\*") and (process_path !contains "C:\\WINDOWS\\system32\\lsass.exe" or process_path !contains "C:\\Windows\\system32\\svchost.exe" or process_path !contains "C:\\Windows\\system32\\services.exe")
 ```
 
-## T1135_Network_Share_Discovery
-### Hunt Tags
-
-> Author: [blueteam](https://www.metsys.fr/)
-
-> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1135_Network_Share_Discovery.txt)
-
-### ATT&CK Tags
-
-> Tactics: [u'Discovery']
-
-### Hunt details
-
-> Description: Checks for execution of MITRE ATT&CK T1135
-
-> Query:
-
-```t
-```// Name: Network Share Discovery // Description: Checks for execution of MITRE ATT&CK T1135 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Discovery // Sysmon | where process_path contains "net.exe" and (process_command_line contains "view" or process_command_line contains "share")
-```
-
 ## T1135_Network_Share_Discovery_Process
 ### Hunt Tags
 
@@ -1825,6 +1804,27 @@
 
 ```t
 ```// Name: Network Share Discovery - Process // Description: Checks for execution of MITRE ATT&CK T1135 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Discovery // Sysmon | where EventID == 1 and (process_path contains "net.exe" and (process_command_line contains "net view" or process_command_line contains "net share")) or process_command_line contains "get-smbshare -Name"
+```
+
+## T1135_Network_Share_Discovery
+### Hunt Tags
+
+> Author: [blueteam](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1135_Network_Share_Discovery.txt)
+
+### ATT&CK Tags
+
+> Tactics: [u'Discovery']
+
+### Hunt details
+
+> Description: Checks for execution of MITRE ATT&CK T1135
+
+> Query:
+
+```t
+```// Name: Network Share Discovery // Description: Checks for execution of MITRE ATT&CK T1135 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Discovery // Sysmon | where process_path contains "net.exe" and (process_command_line contains "view" or process_command_line contains "share")
 ```
 
 ## T1136_Create_Account
@@ -1857,7 +1857,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Privilege Escalation', u'Persistence']
+> Tactics: [u'PrivilegeEscalation', u'Persistence']
 
 ### Hunt details
 
@@ -1878,7 +1878,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Privilege Escalation', u'Persistence']
+> Tactics: [u'PrivilegeEscalation', u'Persistence']
 
 ### Hunt details
 
@@ -1899,7 +1899,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Privilege Escalation', u'Persistence']
+> Tactics: [u'PrivilegeEscalation', u'Persistence']
 
 ### Hunt details
 
@@ -1920,7 +1920,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion']
+> Tactics: [u'DefenseEvasion']
 
 ### Hunt details
 
@@ -1953,27 +1953,6 @@
 ```// Name: Clear Command History // Description: Checks for execution of MITRE ATT&CK T1146 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Collection // Sysmon | where EventID == 1 and (process_command_line contains "*rm (Get-PSReadlineOption).HistorySavePath*" or process_command_line contains "*del (Get-PSReadlineOption).HistorySavePath*" or process_command_line contains "*Set-PSReadlineOption ?HistorySaveStyle SaveNothing*" or process_command_line contains "*Remove-Item (Get-PSReadlineOption).HistorySavePath*")
 ```
 
-## T1158_Hidden_Files_And_Directories
-### Hunt Tags
-
-> Author: [blueteam](https://www.metsys.fr/)
-
-> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1158_Hidden_Files_And_Directories.txt)
-
-### ATT&CK Tags
-
-> Tactics: [u'Persistence Defense Evasion']
-
-### Hunt details
-
-> Description: Checks for execution of MITRE ATT&CK T1158
-
-> Query:
-
-```t
-```// Name: Hidden Files and Directories // Description: Checks for execution of MITRE ATT&CK T1158 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Persistence #Defense Evasion // Sysmon | where EventID == 1 and process_path contains "attrib.exe" and (process_command_line contains "+h" or process_command_line contains "+s")
-```
-
 ## T1158_Hidden_Files_And_Directories_VSS
 ### Hunt Tags
 
@@ -1983,7 +1962,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion Persistence']
+> Tactics: [u'DefenseEvasion', u'Persistence']
 
 ### Hunt details
 
@@ -1995,6 +1974,27 @@
 ```// Name: Hidden Files and Directories - VSS // Description: Checks for execution of MITRE ATT&CK T1158 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Defense Evasion #Persistence // Sysmon | where EventID == 1 and (process_path contains "*\\VolumeShadowCopy*\\*" or process_command_line contains "*\\VolumeShadowCopy*\\*")
 ```
 
+## T1158_Hidden_Files_And_Directories
+### Hunt Tags
+
+> Author: [blueteam](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://raw.githubusercontent.com/BlueTeamLabs/sentinel-attack/master/detections/T1158_Hidden_Files_And_Directories.txt)
+
+### ATT&CK Tags
+
+> Tactics: [u'Persistence', u'DefenseEvasion']
+
+### Hunt details
+
+> Description: Checks for execution of MITRE ATT&CK T1158
+
+> Query:
+
+```t
+```// Name: Hidden Files and Directories // Description: Checks for execution of MITRE ATT&CK T1158 // // Severity: High // // QueryFrequency: 1h // // QueryPeriod: 1h // // AlertTriggerThreshold: 1 // // DataSource: #Sysmon // // Tactics: #Persistence #Defense Evasion // Sysmon | where EventID == 1 and process_path contains "attrib.exe" and (process_command_line contains "+h" or process_command_line contains "+s")
+```
+
 ## T1170_MSHTA_FileAccess
 ### Hunt Tags
 
@@ -2004,7 +2004,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -2025,7 +2025,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -2046,7 +2046,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -2067,7 +2067,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Persistence Privilege Escalation Credential Access']
+> Tactics: [u'Persistence', u'PrivilegeEscalation', u'CredentialAccess']
 
 ### Hunt details
 
@@ -2109,7 +2109,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Privilege Escalation', u'Persistence']
+> Tactics: [u'PrivilegeEscalation', u'Persistence']
 
 ### Hunt details
 
@@ -2130,7 +2130,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Persistence Privilege Escalation']
+> Tactics: [u'Persistence', u'PrivilegeEscalation']
 
 ### Hunt details
 
@@ -2151,7 +2151,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Credential Access']
+> Tactics: [u'CredentialAccess']
 
 ### Hunt details
 
@@ -2172,7 +2172,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -2193,7 +2193,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -2214,7 +2214,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -2235,7 +2235,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Persistence']
+> Tactics: [u'DefenseEvasion', u'Persistence']
 
 ### Hunt details
 
@@ -2256,7 +2256,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Persistence Privilege Escalation']
+> Tactics: [u'Persistence', u'PrivilegeEscalation']
 
 ### Hunt details
 
@@ -2340,7 +2340,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Credential Access']
+> Tactics: [u'CredentialAccess']
 
 ### Hunt details
 
@@ -2361,7 +2361,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -2403,7 +2403,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -2424,7 +2424,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion', u'Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
@@ -2445,7 +2445,7 @@
 
 ### ATT&CK Tags
 
-> Tactics: [u'Defense Evasion Execution']
+> Tactics: [u'DefenseEvasion', u'Execution']
 
 ### Hunt details
 
