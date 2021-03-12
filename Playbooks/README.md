@@ -53,7 +53,7 @@ The azure sentinel connection name used by the logic app.
 
 > MDATPConnectionName:
 
-The mdatp connection name used by the logic app..
+The mdatp connection name used by the logic app.
 
 > Azure_ServiceAccount:
 
@@ -82,7 +82,7 @@ The azure sentinel connection name used by the logic app.
 
 > MDATPConnectionName:
 
-The mdatp connection name used by the logic app..
+The mdatp connection name used by the logic app.
 
 > Azure_ServiceAccount:
 
@@ -93,6 +93,39 @@ The service account used to run the logic app.
 > Description: This playbook will unisolate the machine in Microsoft Defender ATP.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2FUnisolate-MDATPMachine.json" target="_blank">
+<img src="https://aka.ms/deploytoazurebutton""/>
+</a>
+
+## Get-URLReputation
+### Playbook Tags
+
+> Author: [thomas couilleaux](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://github.com/gaelor/SentinelAsCode/tree/master/Playbooks/Get-URLReputation.json)
+
+### Playbook Requirements
+
+> Virustotal_Key:
+
+The virustotal api key.
+
+> AzureSentinelConnectionName:
+
+The azure sentinel connection name used by the logic app.
+
+> Azure_ServiceAccount:
+
+The service account used to run the logic app.
+
+> AzureLAConnectionName:
+
+The azure log analytics connection name used by the logic app.
+
+### Playbook details
+
+> Description: This playbook will take each URL entity and query VirusTotal for URL  Report.
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2FGet-URLReputation.json" target="_blank">
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
@@ -111,7 +144,7 @@ The azure sentinel connection name used by the logic app.
 
 > MDATPConnectionName:
 
-The mdatp connection name used by the logic app..
+The mdatp connection name used by the logic app.
 
 > Azure_ServiceAccount:
 
@@ -140,7 +173,7 @@ The azure sentinel connection name used by the logic app.
 
 > MDATPConnectionName:
 
-The mdatp connection name used by the logic app..
+The mdatp connection name used by the logic app.
 
 > Azure_ServiceAccount:
 
@@ -169,7 +202,7 @@ The azure sentinel connection name used by the logic app.
 
 > MDATPConnectionName:
 
-The mdatp connection name used by the logic app..
+The mdatp connection name used by the logic app.
 
 > Azure_ServiceAccount:
 
@@ -198,7 +231,7 @@ The azure sentinel connection name used by the logic app.
 
 > MDATPConnectionName:
 
-The mdatp connection name used by the logic app..
+The mdatp connection name used by the logic app.
 
 > Azure_ServiceAccount:
 
@@ -270,14 +303,6 @@ The azure sentinel connection name used by the logic app.
 
 The service account used to run the logic app.
 
-> integrationAccount_resourceGroup:
-
-The azure integration account resource group name.
-
-> integrationAccount:
-
-The azure integration account name.
-
 ### Playbook details
 
 > Description: This playbook will collect file reputation on virustotal API.
@@ -315,10 +340,6 @@ The service account used to run the logic app.
 
 The client name trigram.
 
-> CA_LocationName:
-
-The azure integration account resource group name.
-
 > integrationAccount_resourceGroup:
 
 The azure integration account resource group name.
@@ -332,6 +353,35 @@ The azure integration account name.
 > Description: This playbook will block ip address on a NSG in Microsoft Azure.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2FRestrict-NSGIPAddress.json" target="_blank">
+<img src="https://aka.ms/deploytoazurebutton""/>
+</a>
+
+## Block-AADUser
+### Playbook Tags
+
+> Author: [thomas couilleaux](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://github.com/gaelor/SentinelAsCode/tree/master/Playbooks/Block-AADUser.json)
+
+### Playbook Requirements
+
+> AzureADConnectionName:
+
+The azure ad connection name used by the logic app.
+
+> AzureSentinelConnectionName:
+
+The azure sentinel connection name used by the logic app.
+
+> Azure_ServiceAccount:
+
+The service account used to run the logic app.
+
+### Playbook details
+
+> Description: This playbook will disable the user in Azure Active Directoy and add a comment to the incident
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2FBlock-AADUser.json" target="_blank">
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
@@ -401,10 +451,6 @@ The azure ad connection name used by the logic app.
 
 The o365 connection name used by the logic app.
 
-> TeamsConnectionName:
-
-The teams connection name used by the logic app.
-
 > AzureSentinelConnectionName:
 
 The azure sentinel connection name used by the logic app.
@@ -415,9 +461,75 @@ The service account used to run the logic app.
 
 ### Playbook details
 
-> Description: This playbook will ask the user if they completed the action from the Incident in Azure Sentinel.  If so, it will close the incident and add a comment.  If not, it will post a message to teams for the SOC to investigate and add a comment to the incident.
+> Description: This playbook will ask the user if they completed the action from the Incident in Azure Sentinel.  If so, it will close the incident and add a comment.  If not, it will add a comment to the incident.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2FPrompt-User.json" target="_blank">
+<img src="https://aka.ms/deploytoazurebutton""/>
+</a>
+
+## Revoke-AADSignInSessions
+### Playbook Tags
+
+> Author: [thomas couilleaux](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://github.com/gaelor/SentinelAsCode/tree/master/Playbooks/Revoke-AADSignInSessions.json)
+
+### Playbook Requirements
+
+> Office365ConnectionName:
+
+The office 365 connection name used by the logic app.
+
+> AzureSentinelConnectionName:
+
+The azure sentinel connection name used by the logic app.
+
+> Azure_ServiceAccount:
+
+The service account used to run the logic app.
+
+> Office365UsersConnectionName:
+
+The office 365 users connection name used by the logic app.
+
+### Playbook details
+
+> Description: This playbook will revoke user's signins in Azure Active Directoy and add a comment to the incident
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2FRevoke-AADSignInSessions.json" target="_blank">
+<img src="https://aka.ms/deploytoazurebutton""/>
+</a>
+
+## Reset-AADUserPassword
+### Playbook Tags
+
+> Author: [thomas couilleaux](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://github.com/gaelor/SentinelAsCode/tree/master/Playbooks/Reset-AADUserPassword.json)
+
+### Playbook Requirements
+
+> Office365ConnectionName:
+
+The office 365 connection name used by the logic app.
+
+> AzureSentinelConnectionName:
+
+The azure sentinel connection name used by the logic app.
+
+> Azure_ServiceAccount:
+
+The service account used to run the logic app.
+
+> Office365UsersConnectionName:
+
+The office 365 users connection name used by the logic app.
+
+### Playbook details
+
+> Description: This playbook will disable the user in Azure Active Directoy and add a comment to the incident
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2FReset-AADUserPassword.json" target="_blank">
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
@@ -436,7 +548,7 @@ The azure sentinel connection name used by the logic app.
 
 > MDATPConnectionName:
 
-The mdatp connection name used by the logic app..
+The mdatp connection name used by the logic app.
 
 > Azure_ServiceAccount:
 
@@ -473,7 +585,7 @@ The azure sentinel connection name used by the logic app.
 
 > MDATPConnectionName:
 
-The mdatp connection name used by the logic app..
+The mdatp connection name used by the logic app.
 
 > Azure_ServiceAccount:
 
@@ -502,7 +614,7 @@ The azure sentinel connection name used by the logic app.
 
 > MDATPConnectionName:
 
-The mdatp connection name used by the logic app..
+The mdatp connection name used by the logic app.
 
 > Azure_ServiceAccount:
 
@@ -513,6 +625,35 @@ The service account used to run the logic app.
 > Description: This playbook will block hash file on the machine in Microsoft Defender ATP.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2FRestrict-MDATPFileHash.json" target="_blank">
+<img src="https://aka.ms/deploytoazurebutton""/>
+</a>
+
+## Unblock-AADUser
+### Playbook Tags
+
+> Author: [thomas couilleaux](https://www.metsys.fr/)
+
+> Reference: [Link to medium post](https://github.com/gaelor/SentinelAsCode/tree/master/Playbooks/Unblock-AADUser.json)
+
+### Playbook Requirements
+
+> AzureADConnectionName:
+
+The azure ad connection name used by the logic app.
+
+> AzureSentinelConnectionName:
+
+The azure sentinel connection name used by the logic app.
+
+> Azure_ServiceAccount:
+
+The service account used to run the logic app.
+
+### Playbook details
+
+> Description: This playbook will enable the user in Azure Active Directoy and add a comment to the incident
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgaelor%2FSentinelAsCode%2Fmaster%2FPlaybooks%2FUnblock-AADUser.json" target="_blank">
 <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
 
@@ -531,7 +672,7 @@ The azure sentinel connection name used by the logic app.
 
 > MDATPConnectionName:
 
-The mdatp connection name used by the logic app..
+The mdatp connection name used by the logic app.
 
 > Azure_ServiceAccount:
 
@@ -560,7 +701,7 @@ The azure sentinel connection name used by the logic app.
 
 > MDATPConnectionName:
 
-The mdatp connection name used by the logic app..
+The mdatp connection name used by the logic app.
 
 > Azure_ServiceAccount:
 
