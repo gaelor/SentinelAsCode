@@ -427,12 +427,21 @@
                                                     "@@odata.type": {
                                                         "type": "string"
                                                     },
+                                                    "countriesAndRegions": {
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": "array"
+                                                    },
                                                     "createdDateTime": {},
                                                     "displayName": {
                                                         "type": "string"
                                                     },
                                                     "id": {
                                                         "type": "string"
+                                                    },
+                                                    "includeUnknownCountriesAndRegions": {
+                                                        "type": "boolean"
                                                     },
                                                     "ipRanges": {
                                                         "items": {
@@ -462,9 +471,7 @@
                                                     "id",
                                                     "displayName",
                                                     "modifiedDateTime",
-                                                    "createdDateTime",
-                                                    "isTrusted",
-                                                    "ipRanges"
+                                                    "createdDateTime"
                                                 ],
                                                 "type": "object"
                                             },

@@ -44,13 +44,6 @@
                 "description": "The azure integration account resource group name."
             }
         },
-        "CA_LocationName": {
-            "defaultValue": "<ca_locationname>",
-            "type": "string",
-            "metadata": {
-                "description": "The azure integration account resource group name."
-            }
-        },
         "NSG_Group": {
             "defaultValue": "<nsg_group>",
             "type": "string",
